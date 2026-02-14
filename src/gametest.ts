@@ -75,5 +75,3 @@ player.equipItem(sword)
 
 console.log(player.attack())
 console.log(player.move([5, 6]))
-
-game.start(1)

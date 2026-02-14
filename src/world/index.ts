@@ -1,2 +1,2 @@
-export * from "./entities"
-export * from "./map"
+export * from "./entities/index.js"
+export * from "./map.js"

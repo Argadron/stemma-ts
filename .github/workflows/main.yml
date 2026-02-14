@@ -25,3 +25,7 @@ jobs:
 
       - name: Type check (TSC)
         run: npx tsc --noEmit
+
+      - name: Run test scenario
+        run: npm run start:withBuild
+      

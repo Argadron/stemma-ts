@@ -3,14 +3,14 @@ import type {
     IGameOptions, 
 } from "@interfaces";
 
-export * from "./game"
-export * from "./manager"
-export * from "./const"
-export * from "./enums"
-export * from "./interfaces"
-export * from "./types"
-export * from "./utils"
-export * from "./world"
+export * from "./game.js"
+export * from "./manager.js"
+export * from "./const/index.js"
+export * from "./enums/index.js"
+export * from "./interfaces/index.js"
+export * from "./types/index.js"
+export * from "./utils/index.js"
+export * from "./world/index.js"
 
 export default function createGame(options?: IGameOptions) {
     const game = new Game(options)

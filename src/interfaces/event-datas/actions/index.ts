@@ -1,1 +1,1 @@
-export * from "./attack.action"
+export * from "./attack.action.js"

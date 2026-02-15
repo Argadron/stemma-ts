@@ -5,12 +5,11 @@ import type {
     IMovedData, 
     IGameObject, 
     IObjectCreatedCollisionData, 
-    IWorldItem, 
-    IItemCreatedErrorData,
+    IObjectCreatedErrorData,
     IGameMap as Map
 } from "@interfaces";
 import type { EntityManager } from "@";
-import type { Position, Quad, AnyPosition } from "@types";
+import type { Position, Quad, AnyPosition, CreateTowerMetadata, CreateItemMetadata } from "@types";
 import { convertAnyPositionToPosition, checkTwoPositions, gameObjectIsItem } from "@utils";
 import { Entity, Object } from "@world";
 
@@ -19,6 +18,41 @@ export class GameMap implements Map {
     public readonly game: Game;
 
     private objects: Object[] = []
+
+    private validateObject<T = any>(object: Object, metadata?: T) {
+        if (this.checkCollisions(object, object.position)) {
+            this.game.processEvent<IObjectCreatedCollisionData>('objectCreatedCollision', {
+                eventTime: new Date(),
+                eventData: {
+                    object
+                }
+            })
+        }
+
+        if (object.type === GameObjectEnum.ITEM) {
+            const itemMetadata = metadata as Partial<CreateItemMetadata>
+
+            if (!itemMetadata?.damageBuff || !itemMetadata?.healthBuff) this.game.processEvent<IObjectCreatedErrorData<CreateItemMetadata>>('itemCreatedError', {
+                eventTime: new Date(),
+                eventData: {
+                    mailformedMetadata: itemMetadata,
+                    objectId: object.id
+                }
+            })
+        }
+
+        if (object.type === GameObjectEnum.TOWER) {
+            const towerMetadata = metadata as Partial<CreateTowerMetadata>
+
+            if (!towerMetadata?.damage) this.game.processEvent<IObjectCreatedErrorData<CreateTowerMetadata>>('towerCreatedError', {
+                eventTime: new Date(),
+                eventData: {
+                    objectId: object.id,
+                    mailformedMetadata: towerMetadata
+                }
+            })
+        }
+    }
 
     public checkCollisions(entity: Entity | Object, newPosition: Position) {
         const entitesAndObjects = this.getAllInPosition(newPosition)
@@ -114,28 +148,8 @@ export class GameMap implements Map {
     public createObject<T = any>(obj: IGameObject, metadata?: T) {
         const object = new Object(obj, this.manager, this, metadata)
 
-        if (this.checkCollisions(object, object.position)) {
-            this.game.processEvent<IObjectCreatedCollisionData>('objectCreatedCollision', {
-                eventTime: new Date(),
-                eventData: {
-                    object: obj
-                }
-            })
-        }
-
-        if (obj.type === GameObjectEnum.ITEM) {
-            const itemMetadata = metadata as unknown as Partial<IWorldItem>
-
-            if (!itemMetadata.damageBuff || !itemMetadata.healthBuff) this.game.processEvent<IItemCreatedErrorData>('itemCreatedError', {
-                eventTime: new Date(),
-                eventData: {
-                    mailformedMetadata: itemMetadata,
-                    objectId: object.id
-                }
-            })
-        }
-
         this.objects.push(object)
+        this.validateObject(object, metadata)
 
         return object
     }

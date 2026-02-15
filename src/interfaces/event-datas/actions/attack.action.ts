@@ -1,7 +1,7 @@
-import type { Entity } from "@world";
+import type { Entity, Object } from "@world";
 
 export interface IAttackResult {
     readonly deathsCount: number;
-    readonly attacker: Entity;
+    readonly attacker: Entity | Object;
     readonly victims: Entity[]
 }

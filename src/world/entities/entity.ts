@@ -12,7 +12,7 @@ import type {
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { Position } from "@types";
-import { checkTwoQuads, createId, createQuadFromPosition, getItemInPosition } from "@utils";
+import { checkTwoQuads, createId, createQuadFromPosition, getItemInPosition, useAttack } from "@utils";
 
 export class Entity implements ITarget {
     position: Position;
@@ -56,27 +56,14 @@ export class Entity implements ITarget {
 
         if (targets) entites = targets
         else entites = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES')
-        .filter((entity) => entity !== this)
+        .filter((entity) => entity !== this) // возможно заменить на айди
 
         for (const entity of entites) {
             const totalDamage = this.fullDamage - entity.armorHealth
 
-            entity.health = entity.health - (totalDamage >= 0 ? totalDamage : 0)
+            const { isDead } = useAttack(this.manager.game, totalDamage, this, entity)
 
-            if (entity.health <= 0) {
-                counter++
-
-                entity.isDead = true
-
-                this.manager.game.processEvent<IDeadData>('entityDead', {
-                    eventTime: new Date(),
-                    entity,
-                    eventData: {
-                        entity,
-                        killer: this
-                    }
-                })
-            }
+            if (isDead) counter++
         }
 
         this.manager.game.processEvent<IAttackData>('attack', {

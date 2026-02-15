@@ -15,5 +15,6 @@ export enum GameEvent {
     objectCreatedCollision = 'object_created_collision',
     itemCreatedError = 'item_created_error',
     itemPickedUp = 'item_picked_up',
-    itemPickedUpError = 'item_picked_up_error'
+    itemPickedUpError = 'item_picked_up_error',
+    towerCreatedError = 'tower_created_error'
 }

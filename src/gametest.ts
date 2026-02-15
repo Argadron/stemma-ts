@@ -2,6 +2,7 @@ import { GameObjectEnum } from "@enums";
 import createGame from "@";
 import type { IAttackData, IItemCreatedErrorData, IItemPickedUpErrorData } from "@interfaces";
 import type { CreateItemMetadata, Quad } from "@types";
+import { BASE_SEARCH_RADIUS } from '@const'
 
 const [game, manager, map] = createGame()
 
@@ -75,3 +76,4 @@ player.equipItem(sword)
 
 console.log(player.attack())
 console.log(player.move([5, 6]))
+console.log('NEAR', player.getNearEntitiesAndObjects(BASE_SEARCH_RADIUS, 'OBJECTS'))

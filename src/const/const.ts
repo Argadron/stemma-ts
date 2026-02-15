@@ -7,3 +7,4 @@ export const emptyAttackResult: (attacker: Entity) => IAttackResult = (attacker:
     attacker
 })
 export const DEFAULT_WALK_STEP = 2
+export const BASE_SEARCH_RADIUS = 3

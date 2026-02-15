@@ -34,7 +34,10 @@ export interface IEntityManager {
 export interface IGameMap {
     readonly manager: IEntityManager;
     readonly game: Game;
-    readonly getInQuad: (quad: Quad) => Entity[];
+    getInQuad(quad: Quad, returnType?: 'ALL'): (Entity | Object)[];
+    getInQuad(quad: Quad, returnType: 'ENTITES'): Entity[];
+    getInQuad(quad: Quad, returnType: 'OBJECTS'): Object[];
+    getInQuad(quad: Quad, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | Object[] | (Entity | Object)[];
     readonly teleport: (id: number, to: AnyPosition) => Entity | false;
     readonly getAllInPosition: (position: Position) => (Entity | Object)[];
     readonly createObject: <T = any>(obj: IGameObject, metadata?: T) => Object;

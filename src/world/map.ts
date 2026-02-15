@@ -38,15 +38,34 @@ export class GameMap implements Map {
         this.game = game
     }
 
-    public getInQuad(quad: Quad) {
-        const [minX, minY, maxX, maxY] = quad;
+    public getInQuad(quad: Quad, returnType?: 'ALL'): (Entity | Object)[];
+    public getInQuad(quad: Quad, returnType: 'ENTITES'): Entity[];
+    public getInQuad(quad: Quad, returnType: 'OBJECTS'): Object[];
+    public getInQuad(quad: Quad, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | Object[] | (Entity | Object)[];
+    public getInQuad(quad: Quad, returnType:'ALL' | 'ENTITES' | 'OBJECTS' = 'ALL') {
+        const [minX, minY, maxX, maxY] = quad; 
 
-        return this.manager.entites.filter((entity) => {
+        const entites = this.manager.entites.filter((entity) => {
             const [xB, yB] = entity.position
 
             return xB >= minX && xB <= maxX && 
             yB >= minY && yB <= maxY
         })
+        const objects = this.objects.filter((object) => {
+            const [xB, yB] = object.position
+
+            return xB >= minX && xB <= maxX && 
+            yB >= minY && yB <= maxY
+        })
+
+        switch (returnType) {
+            case 'ENTITES':
+                return entites
+            case 'OBJECTS':
+                return objects
+            default:
+                return [...objects, ...entites]
+        }
     }
 
     public teleport(id: number, to: AnyPosition) {

@@ -1,5 +1,5 @@
 import type { GameMap, Object } from "@world";
-import { DEFAULT_WALK_STEP, emptyAttackResult } from "@const";
+import { BASE_SEARCH_RADIUS, DEFAULT_WALK_STEP, emptyAttackResult } from "@const";
 import type { 
     IAttackData, 
     IAttackResult,
@@ -38,6 +38,16 @@ export class Entity implements ITarget {
         this.map = map
     }
 
+    public getNearEntitiesAndObjects(searchRadius: number, returnType?: 'ALL'): (Entity | Object)[];
+    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'ENTITES'): Entity[];
+    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'OBJECTS'): Object[];
+    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | Object[] | (Entity | Object)[];
+    public getNearEntitiesAndObjects(searchRadius=BASE_SEARCH_RADIUS, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'='ALL') {
+        const entityQuad = createQuadFromPosition(this.position, searchRadius)
+
+        return this.map.getInQuad(entityQuad, returnType)
+    }
+
     public attack(targets?: Entity[]): IAttackResult {
         if (this.isDead) return emptyAttackResult(this)
 
@@ -45,7 +55,7 @@ export class Entity implements ITarget {
         let counter = 0;
 
         if (targets) entites = targets
-        else entites = this.map.getInQuad(createQuadFromPosition(this.position))
+        else entites = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES')
         .filter((entity) => entity !== this)
 
         for (const entity of entites) {

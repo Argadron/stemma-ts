@@ -5,6 +5,7 @@ import type {
     IEntityManager as Manager
  } from "@interfaces";
 import { Entity, GameMap } from "@world";
+import { getInPosition } from "@utils";
 
 export class EntityManager implements Manager {
     public entites: Entity[];
@@ -73,5 +74,14 @@ export class EntityManager implements Manager {
 
             return true
         }
+    }
+    
+    public checkEntityOk(id: number): boolean {
+        const entity = this.get(id)
+        
+        if (!entity) return false
+        if (!getInPosition(entity.position, this.entites)) return false
+
+        return !this.gameMap.checkCollisions(entity, entity.position)
     }
 }

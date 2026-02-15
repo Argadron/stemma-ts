@@ -10,7 +10,7 @@ import type {
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { Position, Quad, AnyPosition, CreateTowerMetadata, CreateItemMetadata } from "@types";
-import { convertAnyPositionToPosition, checkTwoPositions, gameObjectIsItem } from "@utils";
+import { convertAnyPositionToPosition, checkTwoPositions, gameObjectIsItem, getInPosition } from "@utils";
 import { Entity, Object } from "@world";
 
 export class GameMap implements Map {
@@ -169,5 +169,19 @@ export class GameMap implements Map {
 
     public getAllItems() {
         return this.objects.filter((obj) => gameObjectIsItem(obj))
+    }
+
+    /**
+     * Checks a given object by ID is ok: exists, no collisions in position, exists in position
+     * @param id - ID to check object
+     * @returns { boolean } - True, if all OK
+     */
+    public checkObjectOk(id: number): boolean {
+        const object = this.getObject(id)
+
+        if (!object) return false
+        if (!getInPosition(object.position, this.objects)) return false
+
+        return !this.checkCollisions(object, object.position)
     }
 }

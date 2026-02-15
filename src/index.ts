@@ -12,8 +12,9 @@ export * from "./types/index.js"
 export * from "./utils/index.js"
 export * from "./world/index.js"
 
-export default function createGame(options?: IGameOptions) {
+export const createGame = (options?: IGameOptions) => {
     const game = new Game(options)
 
     return [game, game.options.entites.manager, game.options.map] as const
 }
+export default createGame

@@ -1,17 +1,30 @@
 import { GameObjectEnum } from "@enums";
 import createGame from "@";
-import type { IAttackData, IItemCreatedErrorData, IItemPickedUpErrorData } from "@interfaces";
-import type { CreateItemMetadata, Quad } from "@types";
+import type { IAttackData, IItemPickedUpErrorData, IObjectCreatedErrorData } from "@interfaces";
+import type { CreateItemMetadata, CreateTowerMetadata, Quad } from "@types";
 import { BASE_SEARCH_RADIUS } from '@const'
 
 const [game, manager, map] = createGame()
 
 const PLAYER = 'PLAYER'
 const ZOMBIE = 'ZOMBIE'
+const TOWER = 'TOWER'
 
 const gameQuad = [
     0, 0, 100, 100
 ] as Quad
+
+game.on<IObjectCreatedErrorData<CreateTowerMetadata>>('towerCreatedError', (o, e, d) => {
+    console.log(map.deleteObject(d.eventData.objectId))
+})
+
+const tower = map.createObject<CreateTowerMetadata>({
+    name: TOWER,
+    position: [6, 5],
+    type: GameObjectEnum.TOWER
+}, {
+    damage: 50
+})
 
 const player = manager.create({
     damage: 1,
@@ -56,7 +69,7 @@ game.processCustomEvent<TestEvent>('event', {
     }
 })
 
-game.on<IItemCreatedErrorData>('itemCreatedError', (o, e, d) => {
+game.on<IObjectCreatedErrorData>('itemCreatedError', (o, e, d) => {
     manager.delete(d.eventData.objectId)
 })
 game.on<IItemPickedUpErrorData>('itemPickedUpError', (o, e, d) => {
@@ -77,3 +90,4 @@ player.equipItem(sword)
 console.log(player.attack())
 console.log(player.move([5, 6]))
 console.log('NEAR', player.getNearEntitiesAndObjects(BASE_SEARCH_RADIUS, 'OBJECTS'))
+console.log(tower.shoot())

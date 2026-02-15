@@ -15,7 +15,7 @@ export interface IAttackData {
 
 export interface IDeadData {
     readonly entity: Entity;
-    readonly killer: Entity;
+    readonly killer: Entity | Object;
 }
 
 export interface IMovedData {
@@ -42,8 +42,8 @@ export interface IEntityMovedOutOfRangeData {
     readonly tryMoveTo: Position;
 }
 
-export interface IItemCreatedErrorData {
-    readonly mailformedMetadata: Partial<IWorldItem>;
+export interface IObjectCreatedErrorData<T = any> {
+    readonly mailformedMetadata: Partial<T>;
     readonly objectId: number;
 }
 

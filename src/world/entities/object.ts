@@ -1,9 +1,9 @@
 import type { GameMap } from "@world";
-import type { GameObjectEnum } from "@enums";
+import { GameObjectEnum } from "@enums";
 import type { IGameObject } from "@interfaces";
 import type { EntityManager } from "@";
 import type { Position } from "@types";
-import { createId } from "@utils";
+import { createId, createQuadFromPosition, useAttack } from "@utils";
 
 export class Object implements IGameObject {
     readonly id = createId();
@@ -23,5 +23,24 @@ export class Object implements IGameObject {
        this.manager = manager
        this.map = map
        this.metadata = metadata
+    }
+
+    public shoot() {
+        if (this.type === GameObjectEnum.TOWER) {
+            const entites = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES')
+
+            let counter = 0;
+
+            for (const victim of entites) {
+                const { isDead } = useAttack(this.map.game, this.metadata.damage, this, victim)
+
+                if (isDead) counter++
+            }
+
+            return {
+                deathsCounter: counter
+            }
+        }
+        else return false
     }
 }

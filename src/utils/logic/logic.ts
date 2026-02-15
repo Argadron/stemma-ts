@@ -1,7 +1,5 @@
-import { GameObjectEnum } from "@enums";
-import type { Entity } from "@world";
 import type { IGameObject, IWorldItem } from "@interfaces";
-import type { AnyPosition, Position, Quad } from "@types";
+import type { Position } from "@types";
 import { checkTwoPositions, gameObjectIsItem } from "@utils";
 
 /**

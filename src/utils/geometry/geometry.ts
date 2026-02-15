@@ -1,6 +1,6 @@
 import type { Position, Quad } from "@types"
 import { convertEntitiesToPositionsArrays } from "@utils"
-import type { Entity } from "@world"
+import type { Entity, Object } from "@world"
 
 /**
  * Find one Target in provided Position
@@ -8,7 +8,9 @@ import type { Entity } from "@world"
  * @param entities - Targets array to searching
  * @returns {Target | undefined} - Target if founded, else undefined
  */
-export function getInPosition(position: Position, entities: Entity[]): Entity | undefined {
+export function getInPosition(position: Position, objects: Object[]): Object | undefined
+export function getInPosition(position: Position, entities: Entity[]): Entity | undefined
+export function getInPosition(position: Position, entities: (Entity | Object)[]): (Entity | Object) | undefined {
     return entities.find((entity) => checkTwoPositions(position, entity.position))
 }
 

@@ -29,6 +29,13 @@ export interface IEntityManager {
     readonly update: (id: number, target: Entity) => Entity | undefined;
     readonly delete: (id: number) => boolean; 
     readonly kill: (id: number) => boolean;
+
+    /**
+     * Checks a given entity by ID is ok: exists, no collisions in position, exists in position
+     * @param id - ID to check entity
+     * @returns { boolean } - True, if all OK
+     */
+    readonly checkEntityOk: (id: number) => boolean;
 }
 
 export interface IGameMap {
@@ -44,4 +51,11 @@ export interface IGameMap {
     readonly deleteObject: (id: number) => boolean;
     readonly getObject: (id: number) => Object | undefined;
     readonly getAllItems: () => (Object & IGameObject & IWorldItem)[];
+
+    /**
+     * Checks a given object by ID is ok: exists, no collisions in position, exists in position
+     * @param id - ID to check object
+     * @returns { boolean } - True, if all OK
+     */
+    readonly checkObjectOk: (id: number) => boolean;
 }

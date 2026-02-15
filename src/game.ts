@@ -2,6 +2,7 @@ import type { GameEvent } from "@enums";
 import type { IGame, IGameOptions, IEventInfo } from "@interfaces";
 import { EntityManager } from "@";
 import type { EventCallback, CustomEventCallback } from "@types";
+import { BASE_FPS } from "@const";
 
 export class Game implements IGame {
     readonly options: IGameOptions;
@@ -54,7 +55,7 @@ export class Game implements IGame {
         this.customEventListenersMap.set(event, events)
     }
 
-    public start(fps=10) {
+    public start(fps=BASE_FPS) {
         if (this.isStarted) return false
 
         this.isStarted = true

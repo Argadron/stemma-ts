@@ -5,7 +5,7 @@ import type { EntityManager } from "@";
 import type { Position } from "@types";
 import { createId, createQuadFromPosition, useAttack } from "@utils";
 
-export class Object implements IGameObject {
+export class GameObject implements IGameObject {
     readonly id = createId();
 
     type: GameObjectEnum;

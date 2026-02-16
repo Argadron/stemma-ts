@@ -1,8 +1,8 @@
-import { GameObjectEnum } from "@enums";
-import createGame from "@";
-import type { IAttackData, IItemPickedUpErrorData, IObjectCreatedErrorData } from "@interfaces";
-import type { CreateItemMetadata, CreateTowerMetadata, Quad } from "@types";
-import { BASE_SEARCH_RADIUS } from '@const'
+import { GameObjectEnum } from "./enums/index.js";
+import createGame from "./index.js";
+import type { IAttackData, IItemPickedUpErrorData, IObjectCreatedErrorData } from "./interfaces/index.js";
+import type { CreateItemMetadata, CreateTowerMetadata, Quad } from "./types/index.js";
+import { BASE_SEARCH_RADIUS } from './const/index.js'
 
 const [game, manager, map] = createGame()
 

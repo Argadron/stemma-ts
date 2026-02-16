@@ -1,7 +1,7 @@
 import type { Game } from "@";
 import type { GameEvent } from "@enums";
 import type { EventCallback, CustomEventCallback, Quad, AnyPosition, Position } from "@types";
-import type { Entity, Object } from "@world";
+import type { Entity, GameObject } from "@world";
 import type { ITarget, IGameObject, IWorldItem, IEventInfo } from "@interfaces";
 
 export interface IGame {
@@ -26,7 +26,7 @@ export interface IEntityManager {
     readonly gameMap: IGameMap;
     readonly create: (target: ITarget) => Entity;
     readonly get: (id: number) => Entity | undefined;
-    readonly update: (id: number, target: Entity) => Entity | undefined;
+    readonly update: (id: number, target: Partial<ITarget>) => Entity | undefined;
     readonly delete: (id: number) => boolean; 
     readonly kill: (id: number) => boolean;
 
@@ -41,16 +41,16 @@ export interface IEntityManager {
 export interface IGameMap {
     readonly manager: IEntityManager;
     readonly game: Game;
-    getInQuad(quad: Quad, returnType?: 'ALL'): (Entity | Object)[];
+    getInQuad(quad: Quad, returnType?: 'ALL'): (Entity | GameObject)[];
     getInQuad(quad: Quad, returnType: 'ENTITES'): Entity[];
-    getInQuad(quad: Quad, returnType: 'OBJECTS'): Object[];
-    getInQuad(quad: Quad, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | Object[] | (Entity | Object)[];
+    getInQuad(quad: Quad, returnType: 'OBJECTS'): GameObject[];
+    getInQuad(quad: Quad, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
     readonly teleport: (id: number, to: AnyPosition) => Entity | false;
-    readonly getAllInPosition: (position: Position) => (Entity | Object)[];
-    readonly createObject: <T = any>(obj: IGameObject, metadata?: T) => Object;
+    readonly getAllInPosition: (position: Position) => (Entity | GameObject)[];
+    readonly createObject: <T = any>(obj: IGameObject, metadata?: T) => GameObject;
     readonly deleteObject: (id: number) => boolean;
-    readonly getObject: (id: number) => Object | undefined;
-    readonly getAllItems: () => (Object & IGameObject & IWorldItem)[];
+    readonly getObject: (id: number) => GameObject | undefined;
+    readonly getAllItems: () => (GameObject & IGameObject & IWorldItem)[];
 
     /**
      * Checks a given object by ID is ok: exists, no collisions in position, exists in position

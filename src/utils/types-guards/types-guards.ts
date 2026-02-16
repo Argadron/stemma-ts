@@ -5,7 +5,7 @@ import type { AnyPosition, Quad } from "@types"
 /**
  * Checks a given object is a really exists Item
  * @param obj - Any game object
- * @returns {obj is IGameObject & IWorldItem} - Object is Item
+ * @returns {obj is IGameObject & IWorldItem} - GameObject is Item
  */
 export function gameObjectIsItem(obj: IGameObject): obj is IWorldItem & IGameObject {
     return obj.type === GameObjectEnum.ITEM && obj.metadata

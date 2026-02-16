@@ -1,5 +1,5 @@
 import type { Game } from "@";
-import type { Entity, Object } from "@world";
+import type { Entity, GameObject } from "@world";
 import type { IDeadData } from "@interfaces";
 
 /**
@@ -8,9 +8,9 @@ import type { IDeadData } from "@interfaces";
  * @param dmg - Total damage (full calculated)
  * @param attacker - Attacker reference (another Entity, tower, etc.)
  * @param victim - Victim reference
- * @returns { { isDead: boolean } } - Object with dead info
+ * @returns { { isDead: boolean } } - GameObject with dead info
  */
-export function useAttack(game: Game, dmg: number, attacker: Entity | Object, victim: Entity): { isDead: boolean; } {
+export function useAttack(game: Game, dmg: number, attacker: Entity | GameObject, victim: Entity): { isDead: boolean; } {
     victim.health = victim.health - (dmg >= 0 ? dmg : 0)
     
     if (victim.health <= 0) {

@@ -11,15 +11,15 @@ import type {
 import type { EntityManager } from "@";
 import type { Position, Quad, AnyPosition, CreateTowerMetadata, CreateItemMetadata } from "@types";
 import { convertAnyPositionToPosition, checkTwoPositions, gameObjectIsItem, getInPosition } from "@utils";
-import { Entity, Object } from "@world";
+import { Entity, GameObject } from "@world";
 
 export class GameMap implements Map {
     public readonly manager: EntityManager;
     public readonly game: Game;
 
-    private objects: Object[] = []
+    private objects: GameObject[] = []
 
-    private validateObject<T = any>(object: Object, metadata?: T) {
+    private validateObject<T = any>(object: GameObject, metadata?: T) {
         if (this.checkCollisions(object, object.position)) {
             this.game.processEvent<IObjectCreatedCollisionData>('objectCreatedCollision', {
                 eventTime: new Date(),
@@ -54,7 +54,7 @@ export class GameMap implements Map {
         }
     }
 
-    public checkCollisions(entity: Entity | Object, newPosition: Position) {
+    public checkCollisions(entity: Entity | GameObject, newPosition: Position) {
         const entitesAndObjects = this.getAllInPosition(newPosition)
 
         if (entitesAndObjects.length === 0) return false
@@ -72,10 +72,10 @@ export class GameMap implements Map {
         this.game = game
     }
 
-    public getInQuad(quad: Quad, returnType?: 'ALL'): (Entity | Object)[];
+    public getInQuad(quad: Quad, returnType?: 'ALL'): (Entity | GameObject)[];
     public getInQuad(quad: Quad, returnType: 'ENTITES'): Entity[];
-    public getInQuad(quad: Quad, returnType: 'OBJECTS'): Object[];
-    public getInQuad(quad: Quad, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | Object[] | (Entity | Object)[];
+    public getInQuad(quad: Quad, returnType: 'OBJECTS'): GameObject[];
+    public getInQuad(quad: Quad, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
     public getInQuad(quad: Quad, returnType:'ALL' | 'ENTITES' | 'OBJECTS' = 'ALL') {
         const [minX, minY, maxX, maxY] = quad; 
 
@@ -146,7 +146,7 @@ export class GameMap implements Map {
     }
 
     public createObject<T = any>(obj: IGameObject, metadata?: T) {
-        const object = new Object(obj, this.manager, this, metadata)
+        const object = new GameObject(obj, this.manager, this, metadata)
 
         this.objects.push(object)
         this.validateObject(object, metadata)

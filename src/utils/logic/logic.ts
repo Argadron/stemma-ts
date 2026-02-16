@@ -13,7 +13,7 @@ export function createId(): number {
 /**
  * Return a Item in provided Position, else undefined if not found
  * @param position - Position to search
- * @param objects - Object to searching in
+ * @param objects - GameObject to searching in
  * @returns {IWorldItem | undefined} - Item is found, else undefined
  */
 export function getItemInPosition(position: Position, objects: (IWorldItem & IGameObject)[]): IWorldItem | undefined {

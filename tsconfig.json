@@ -29,5 +29,9 @@
       "@world": ["src/world/index.ts"],
       "@": ["src/index.ts"],
     }
-  }
+  },
+  "include": [
+    "src/**/*.ts",
+    "gametest.ts" 
+  ],
 }

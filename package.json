@@ -7,9 +7,9 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc && tsc-alias",
-    "start": "node ./dist/gametest.js",
+    "start": "node ./dist/src/gametest.js",
     "start:dev": "npm run build && nodemon",
-    "start:withBuild": "npm run build && node ./dist/gametest.js",
+    "start:withBuild": "npm run build && node ./dist/src/gametest.js",
     "test": "jest",
     "release": "npm run start:withBuild && jest"
   },

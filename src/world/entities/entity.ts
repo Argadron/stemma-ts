@@ -1,4 +1,4 @@
-import type { GameMap, Object } from "@world";
+import type { GameMap, GameObject } from "@world";
 import { BASE_SEARCH_RADIUS, DEFAULT_WALK_STEP, emptyAttackResult } from "@const";
 import type { 
     IAttackData, 
@@ -38,10 +38,10 @@ export class Entity implements ITarget {
         this.map = map
     }
 
-    public getNearEntitiesAndObjects(searchRadius: number, returnType?: 'ALL'): (Entity | Object)[];
+    public getNearEntitiesAndObjects(searchRadius: number, returnType?: 'ALL'): (Entity | GameObject)[];
     public getNearEntitiesAndObjects(searchRadius: number, returnType: 'ENTITES'): Entity[];
-    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'OBJECTS'): Object[];
-    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | Object[] | (Entity | Object)[];
+    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'OBJECTS'): GameObject[];
+    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
     public getNearEntitiesAndObjects(searchRadius=BASE_SEARCH_RADIUS, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'='ALL') {
         const entityQuad = createQuadFromPosition(this.position, searchRadius)
 
@@ -126,9 +126,9 @@ export class Entity implements ITarget {
         }
     }
 
-    public equipItem(item: Object): boolean
+    public equipItem(item: GameObject): boolean
     public equipItem(id: number): boolean
-    public equipItem(itemOrId: Object | number): boolean {
+    public equipItem(itemOrId: GameObject | number): boolean {
         if (this.currentActiveItem) return false;
         else {
             const item = this.inventory.find((item) => item.id === (typeof itemOrId === 'number' ? itemOrId : itemOrId.id))

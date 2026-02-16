@@ -1,6 +1,6 @@
 import type { IGameObject, ITarget, IWorldItem } from "@interfaces";
 import type { Position, AnyPosition } from "@types";
-import type { Entity } from "@world";
+import type { Entity, GameObject } from "@world";
 
 export interface IEventInfo<T> {
     readonly eventData: T;
@@ -15,7 +15,7 @@ export interface IAttackData {
 
 export interface IDeadData {
     readonly entity: Entity;
-    readonly killer: Entity | Object;
+    readonly killer: Entity | GameObject;
 }
 
 export interface IMovedData {

@@ -27,7 +27,7 @@ jobs:
         run: npx tsc --noEmit
       
       - name: Run test scenario
-        run: npm start:withBuild
+        run: npm run start:withBuild
 
       - name: Run tests (Jest)
         run: npm run test

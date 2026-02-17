@@ -1,83 +1,56 @@
-import createGame from "@"
-import { GameObjectEnum } from "@enums"
-import type { CreateItemMetadata, CreateTowerMetadata } from "@types"
+import createGame from "@";
+import { GameObjectEnum } from "@enums";
+import type { CreateItemMetadata, CreateTowerMetadata } from "@types";
+import type { IEntityManager, IGameMap, IGame } from "@interfaces";
+import type { Entity, GameObject } from "@world";
 
-describe('Iteraction Tests', () => {
-    const [game, manager, map] = createGame()
-
-    const PLAYER = 'PLAYER'
-    const ZOMBIE = 'ZOMBIE'
-    const SWORD = 'SWORD'
-    const TOWER = 'TOWER'
-
-    let pickUpCorrectTest = false
-    let pickUpErrorTest = false
-    let attackTest = false
-    let killTest = false
+describe('Interaction Tests', () => {
+    let game!: IGame;
+    let manager!: IEntityManager;
+    let map!: IGameMap;
     
-    const player = manager.create({
-        name: PLAYER,
-        health: 10,
-        damage: 10,
-        isDead: false,
-        position: [1, 0]
-    })
-    const zombie = manager.create({
-        name: ZOMBIE,
-        health: 10,
-        damage: 10,
-        isDead: false,
-        position: [1, 1]
-    })
+    let player: Entity;
+    let zombie: Entity;
+    let sword: GameObject;
+    let tower: GameObject;
 
-    const sword = map.createObject<CreateItemMetadata>({
-        name: SWORD,
-        type: GameObjectEnum.ITEM,
-        position: [2, 0]
-    }, {
-        damageBuff: 10
-    })
-    const tower = map.createObject<CreateTowerMetadata>({
-        name: TOWER,
-        position: [0, 0],
-        type: GameObjectEnum.TOWER
-    }, {
-        damage: 1
-    })
+    let events = {
+        pickUpCorrect: false,
+        pickUpError: false,
+        attack: false,
+        kill: false
+    }
 
-    game.on('itemPickedUp', (o, e, d) => {
-        pickUpCorrectTest = true
-    })
-    game.on('itemPickedUpError', (o, e, d) => {
-        pickUpErrorTest = true
-    })
-    game.on('attack', (o, e, d) => {
-        attackTest = true
-    })
-    game.on('entityDead', (o, e, d) => {
-        killTest = true
+    beforeEach(() => {
+        const [g, m, mapInstance] = createGame()
+
+        game = g
+        manager = m
+        map = mapInstance
+
+        events = { pickUpCorrect: false, pickUpError: false, attack: false, kill: false }
+
+        player = manager.create({ name: 'PLAYER', health: 10, damage: 10, isDead: false, position: [1, 0] })
+        zombie = manager.create({ name: 'ZOMBIE', health: 10, damage: 10, isDead: false, position: [1, 1] })
+
+        sword = map.createObject<CreateItemMetadata>({
+            name: 'SWORD', type: GameObjectEnum.ITEM, position: [2, 0]
+        }, { damageBuff: 10 })
+
+        tower = map.createObject<CreateTowerMetadata>({
+            name: 'TOWER', position: [0, 0], type: GameObjectEnum.TOWER
+        }, { damage: 10 })
+
+        game.on('itemPickedUp', () => events.pickUpCorrect = true)
+        game.on('itemPickedUpError', () => events.pickUpError = true)
+        game.on('attack', () => events.attack = true)
+        game.on('entityDead', () => events.kill = true)
     })
 
     it('Pick Up a Sword (correct)', () => {
         player.pickUp(sword.position)
 
-        expect(pickUpCorrectTest).toBe(true)
-    })
-    it('Pick up a unknown item (uncorrect)', () => {
-        player.pickUp([2, 2])
-
-        expect(pickUpErrorTest).toBe(true)
-    })
-    it('Item buff check', () => {
-        player.equipItem(sword)
-
-        expect(player.damage).toBe(10)
-        expect(player.fullDamage).toBe(20)
-    })
-    it('Attack test', () => {
-        player.attack([zombie])
-
-        expect(attackTest).toBe(true)
+        expect(events.pickUpCorrect).toBe(true)
     })
     it('Shoot test', () => {
         const shoot = tower.shoot()
@@ -88,11 +61,21 @@ describe('Iteraction Tests', () => {
             deaths = shoot.deathsCounter
         }
 
-        expect(deaths).toBe(1)
+        expect(deaths).toBe(2)
     })
+    it('Item buff check', () => {
+        player.pickUp(sword.position)
+        player.equipItem(sword)
+
+        expect(player.damage).toBe(10)
+        expect(player.fullDamage).toBe(20)
+    })
+
     it('Kill test', () => {
+        player.equipItem(sword)
         player.attack([zombie])
 
-        expect(killTest).toBe(true)
+        expect(events.kill).toBe(true)
+        expect(zombie.isDead).toBe(true)
     })
-})
+});

@@ -32,6 +32,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "gametest.ts" 
+    "gametest.ts",
+    "test/**/*.ts"
   ],
 }

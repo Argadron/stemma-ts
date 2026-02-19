@@ -1,6 +1,6 @@
 import createGame from "@";
 import { GameObjectEnum } from "@enums";
-import type { CreateItemMetadata, CreateTowerMetadata } from "@types";
+import type { CreateItemMetadata, CreateTowerMetadata, CreateUsableItemMetadata } from "@types";
 import type { IEntityManager, IGameMap, IGame } from "@interfaces";
 import type { Entity, GameObject } from "@world";
 
@@ -13,10 +13,12 @@ describe('Interaction Tests', () => {
     let zombie: Entity;
     let sword: GameObject;
     let tower: GameObject;
+    let magicSword: GameObject;
 
     let events = {
         pickUpCorrect: false,
         pickUpError: false,
+        using: false,
         attack: false,
         kill: false
     }
@@ -28,14 +30,22 @@ describe('Interaction Tests', () => {
         manager = m
         map = mapInstance
 
-        events = { pickUpCorrect: false, pickUpError: false, attack: false, kill: false }
+        events = { pickUpCorrect: false, pickUpError: false, attack: false, kill: false, using: false }
 
-        player = manager.create({ name: 'PLAYER', health: 10, damage: 10, isDead: false, position: [1, 0] })
+        player = manager.create({ name: 'PLAYER', health: 10, damage: 5, isDead: false, position: [1, 0] })
         zombie = manager.create({ name: 'ZOMBIE', health: 10, damage: 10, isDead: false, position: [1, 1] })
 
         sword = map.createObject<CreateItemMetadata>({
             name: 'SWORD', type: GameObjectEnum.ITEM, position: [2, 0]
         }, { damageBuff: 10 })
+
+        magicSword = map.createObject<CreateUsableItemMetadata>({
+            name: 'MAGIC_SWORD', type: GameObjectEnum.ITEM, position: [0, 0]
+        }, { onUse: (e) => {
+             events.using = true
+             e.damage += 1
+           }
+         })
 
         tower = map.createObject<CreateTowerMetadata>({
             name: 'TOWER', position: [0, 0], type: GameObjectEnum.TOWER
@@ -45,6 +55,7 @@ describe('Interaction Tests', () => {
         game.on('itemPickedUpError', () => events.pickUpError = true)
         game.on('attack', () => events.attack = true)
         game.on('entityDead', () => events.kill = true)
+        game.on('itemUsed', () => events.using = true)
     })
 
     it('Pick Up a Sword (correct)', () => {
@@ -67,11 +78,19 @@ describe('Interaction Tests', () => {
         player.pickUp(sword.position)
         player.equipItem(sword)
 
-        expect(player.damage).toBe(10)
-        expect(player.fullDamage).toBe(20)
+        expect(player.damage).toBe(5)
+        expect(player.fullDamage).toBe(15)
     })
+    it('Item use check', () => {
+        player.pickUp(magicSword.position)
+        player.equipItem(magicSword)
+        player.useItem()
 
+        expect(events.using).toBe(true)
+        expect(player.damage).toBe(6)
+    })
     it('Kill test', () => {
+        player.pickUp(sword.position)
         player.equipItem(sword)
         player.attack([zombie])
 

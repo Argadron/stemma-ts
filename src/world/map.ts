@@ -9,7 +9,7 @@ import type {
     IGameMap as Map
 } from "@interfaces";
 import type { EntityManager } from "@";
-import type { Position, Quad, AnyPosition, CreateTowerMetadata, CreateItemMetadata } from "@types";
+import type { Position, Quad, AnyPosition, CreateTowerMetadata, CreateItemMetadata, CreateUsableItemMetadata } from "@types";
 import { convertAnyPositionToPosition, checkTwoPositions, gameObjectIsItem, getInPosition } from "@utils";
 import { Entity, GameObject } from "@world";
 
@@ -30,9 +30,9 @@ export class GameMap implements Map {
         }
 
         if (object.type === GameObjectEnum.ITEM) {
-            const itemMetadata = metadata as Partial<CreateItemMetadata>
+            const itemMetadata = metadata as Partial<CreateItemMetadata & CreateUsableItemMetadata>
 
-            if (!itemMetadata?.damageBuff || !itemMetadata?.healthBuff) this.game.processEvent<IObjectCreatedErrorData<CreateItemMetadata>>('itemCreatedError', {
+            if (!itemMetadata?.damageBuff && !itemMetadata?.healthBuff && !itemMetadata.onUse) this.game.processEvent<IObjectCreatedErrorData<CreateItemMetadata>>('itemCreatedError', {
                 eventTime: new Date(),
                 eventData: {
                     mailformedMetadata: itemMetadata,

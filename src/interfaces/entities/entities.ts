@@ -18,11 +18,12 @@ export interface ITarget {
     name: string;
 }
 
-export interface IItem {
+export interface IItem<T = any> {
     readonly id: number;
     readonly name: string;
     readonly isActive: boolean;
     readonly damageBuff?: number;
     readonly healthBuff?: number;
     readonly walkBuff?: number;
+    readonly metadata?: T
 }

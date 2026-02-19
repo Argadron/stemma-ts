@@ -3,16 +3,23 @@ import { BASE_SEARCH_RADIUS, DEFAULT_WALK_STEP, emptyAttackResult } from "@const
 import type { 
     IAttackData, 
     IAttackResult,
-    IDeadData, 
     IEntityMovedOutOfRangeData, 
     IItemPickedUpData, 
     IItemPickedUpErrorData, 
+    IItemUsedData,
     ITarget, 
-    IWorldItem 
+    IWorldItem,
+    IItem
 } from "@interfaces";
 import type { EntityManager } from "@";
-import type { Position } from "@types";
-import { checkTwoQuads, createId, createQuadFromPosition, getItemInPosition, useAttack } from "@utils";
+import type { CreateUsableItemMetadata, Position } from "@types";
+import { 
+    checkTwoQuads, 
+    createId, 
+    createQuadFromPosition, 
+    getItemInPosition, 
+    useAttack 
+} from "@utils";
 
 export class Entity implements ITarget {
     position: Position;
@@ -20,13 +27,13 @@ export class Entity implements ITarget {
     damage: number;
     isDead: boolean;
     name: string;
+    inventory: IItem[] = [];
     
     readonly id = createId()
-    readonly inventory: IWorldItem[] = [];
     
     private readonly manager: EntityManager;
     private readonly map: GameMap;
-    private currentActiveItem: IWorldItem | undefined;
+    private currentActiveItem: IItem | undefined;
 
     public constructor(target: ITarget, manager: EntityManager, map: GameMap) {
         this.damage = target.damage
@@ -36,6 +43,22 @@ export class Entity implements ITarget {
         this.isDead = target.isDead
         this.manager = manager
         this.map = map
+    }
+
+    private getItemFromInventoryByItemOrId(item: GameObject): IWorldItem | undefined
+    private getItemFromInventoryByItemOrId(id: number): IWorldItem | undefined
+    private getItemFromInventoryByItemOrId(itemOrId: GameObject | number) {
+        return this.inventory.find((item) => item.id === (typeof itemOrId === 'number' ? itemOrId : itemOrId.id))
+    }
+
+    private deleteItemFromInventory(item: IItem): boolean
+    private deleteItemFromInventory(id: number): boolean
+    private deleteItemFromInventory(itemOrId: IItem | number) {
+        const currentLength = this.inventory.length
+
+        this.inventory = this.inventory.filter((item) => item.id === (typeof itemOrId === 'number' ? itemOrId : itemOrId.id))
+
+        return currentLength === this.inventory.length ? false : true
     }
 
     public getNearEntitiesAndObjects(searchRadius: number, returnType?: 'ALL'): (Entity | GameObject)[];
@@ -131,7 +154,7 @@ export class Entity implements ITarget {
     public equipItem(itemOrId: GameObject | number): boolean {
         if (this.currentActiveItem) return false;
         else {
-            const item = this.inventory.find((item) => item.id === (typeof itemOrId === 'number' ? itemOrId : itemOrId.id))
+            const item = this.getItemFromInventoryByItemOrId(typeof itemOrId === 'number' ? itemOrId : itemOrId.id)
 
             if (!item) return false
             else {
@@ -139,6 +162,28 @@ export class Entity implements ITarget {
 
                 return true
             }
+        }
+    }
+
+    public useItem(): boolean {
+        if (!this.currentActiveItem) return false
+        else {
+            const metadata = this.currentActiveItem.metadata as CreateUsableItemMetadata
+
+            if (!metadata || !(metadata?.onUse)) return false
+
+            metadata.onUse(this)
+
+            this.manager.game.processEvent<IItemUsedData>('itemUsed', {
+                eventTime: new Date(),
+                entity: this,
+                eventData: {
+                    item: this.currentActiveItem
+                }
+            })
+            this.deleteItemFromInventory(this.currentActiveItem)
+
+            return true
         }
     }
 

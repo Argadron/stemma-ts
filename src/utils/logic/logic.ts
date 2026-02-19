@@ -26,6 +26,7 @@ export function getItemInPosition(position: Position, objects: (IWorldItem & IGa
         position: obj.position,
         damageBuff: obj.metadata.damageBuff ?? 0,
         healthBuff: obj.metadata.healthBuff ?? 0,
-        walkBuff: obj.metadata.walkBuff ?? 0
+        walkBuff: obj.metadata.walkBuff ?? 0,
+        metadata: obj.metadata ?? {}
     } as IWorldItem : undefined
 }

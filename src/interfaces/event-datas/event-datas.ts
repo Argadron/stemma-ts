@@ -1,4 +1,4 @@
-import type { IGameObject, ITarget, IWorldItem } from "@interfaces";
+import type { IGameObject, IItem, ITarget, IWorldItem } from "@interfaces";
 import type { Position, AnyPosition } from "@types";
 import type { Entity, GameObject } from "@world";
 
@@ -54,4 +54,8 @@ export interface IItemPickedUpData {
 export interface IItemPickedUpErrorData {
     readonly reason: 'NOT FOUND' | 'OUT OF REACH'| 'ITEM MAILFORMED';
     readonly position: Position;
+}
+
+export interface IItemUsedData {
+    readonly item: IItem;
 }

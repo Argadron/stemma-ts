@@ -1,5 +1,10 @@
 import type { GameMap, GameObject } from "@world";
-import { BASE_SEARCH_RADIUS, DEFAULT_WALK_STEP, emptyAttackResult } from "@const";
+import { 
+    BASE_SEARCH_RADIUS, 
+    DEFAULT_WALK_STEP, 
+    emptyAttackResult, 
+    ITERACTION_ERRORS 
+} from "@const";
 import type { 
     IAttackData, 
     IAttackResult,
@@ -9,14 +14,19 @@ import type {
     IItemUsedData,
     ITarget, 
     IWorldItem,
-    IItem
+    IItem,
+    IChestOpenErrorData,
+    IChestOpenedData
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { CreateUsableItemMetadata, Position } from "@types";
 import { 
+    canIteract,
     checkTwoQuads, 
+    convertGameObjectToInventoryItem, 
     createId, 
     createQuadFromPosition, 
+    getChestInPosition, 
     getItemInPosition, 
     useAttack 
 } from "@utils";
@@ -110,15 +120,15 @@ export class Entity implements ITarget {
 
         let anyErrorData;
 
-        if (!checkTwoQuads(createQuadFromPosition(position), createQuadFromPosition(this.position, 2))) anyErrorData = {
-            reason: 'OUT OF REACH' as const,
+        if (!canIteract(this, position)) anyErrorData = {
+            reason: ITERACTION_ERRORS.OUT_OF_REACH,
             position
         }
 
         const item = getItemInPosition(position, this.map.getAllItems())
 
         if (!item) anyErrorData = {
-            reason: 'NOT FOUND' as const,
+            reason: ITERACTION_ERRORS.NOT_FOUND,
             position
         }
 
@@ -201,6 +211,55 @@ export class Entity implements ITarget {
             return false
         }
         else return this.map.teleport(this.id, position)
+    }
+
+    public openChest(position: Position) {
+        if (this.isDead) return false;
+        
+        let anyErrorData;
+
+        if (!canIteract(this, position)) anyErrorData = {
+            reason: ITERACTION_ERRORS.OUT_OF_REACH,
+            position
+        }
+
+        const chest = getChestInPosition(position, this.map.getAllInPosition(position, 'OBJECTS'))
+
+        if (!chest) anyErrorData = {
+            reason: ITERACTION_ERRORS.NOT_FOUND,
+            position
+        }
+
+        if (anyErrorData) {
+            this.manager.game.processEvent<IChestOpenErrorData>('chestOpenedError', {
+                entity: this,
+                eventTime: new Date(),
+                eventData: {
+                    ...anyErrorData,
+                    position,
+                    chest: (chest!).metadata
+                }
+            })
+
+            return false
+        }
+        else {
+            const realChest = chest!
+
+            realChest.metadata?.items.forEach((item: GameObject) => {
+                this.inventory.push(convertGameObjectToInventoryItem(item))
+                this.map.deleteObject(item.id)
+            })
+
+            this.map.game.processEvent<IChestOpenedData>('chestOpened', {
+                    entity: this,
+                    eventTime: new Date(),
+                    eventData: {
+                        chest: realChest.metadata
+                    }
+                })
+            this.map.deleteObject(realChest.id)
+        }
     }
 
     public get fullDamage() {

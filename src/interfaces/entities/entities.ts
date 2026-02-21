@@ -1,3 +1,4 @@
+import type { ITERACTION_ERRORS } from "@const";
 import type { GameObjectEnum } from "@enums";
 import type { Position } from "@types";
 
@@ -21,9 +22,12 @@ export interface ITarget {
 export interface IItem<T = any> {
     readonly id: number;
     readonly name: string;
-    readonly isActive: boolean;
     readonly damageBuff?: number;
     readonly healthBuff?: number;
     readonly walkBuff?: number;
     readonly metadata?: T
+}
+
+export interface IChest {
+    readonly items: IItem[]
 }

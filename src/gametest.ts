@@ -1,12 +1,13 @@
 import { GameObjectEnum } from "./enums/index.js";
 import createGame from "./index.js";
-import type { IAttackData, IItemPickedUpErrorData, IObjectCreatedErrorData } from "./interfaces/index.js";
-import type { CreateItemMetadata, CreateTowerMetadata, Quad } from "./types/index.js";
+import type { IAttackData, IItemPickedUpErrorData, IObjectCreatedCollisionData, IObjectCreatedErrorData } from "./interfaces/index.js";
+import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Quad } from "./types/index.js";
 import { BASE_SEARCH_RADIUS } from './const/index.js'
 
 const [game, manager, map] = createGame()
 
 const PLAYER = 'PLAYER'
+const PLAYER_SECOND = 'PLAYER_SECOND'
 const ZOMBIE = 'ZOMBIE'
 const TOWER = 'TOWER'
 
@@ -16,6 +17,12 @@ const gameQuad = [
 
 game.on<IObjectCreatedErrorData<CreateTowerMetadata>>('towerCreatedError', (o, e, d) => {
     console.log(map.deleteObject(d.eventData.objectId))
+})
+game.on<IObjectCreatedErrorData<CreateChestMetadata>>('chestCreatedError', (o, e, d) => {
+    console.log(map.deleteObject(d.eventData.objectId))
+})
+game.on<IObjectCreatedCollisionData>('objectCreatedCollision', (o, e, d) => {
+    console.log(map.deleteObject(d.eventData.object.id))
 })
 
 const tower = map.createObject<CreateTowerMetadata>({
@@ -32,6 +39,14 @@ const player = manager.create({
     name: PLAYER,
     isDead: false,
     position: [5, 5]
+})
+
+const player_second = manager.create({
+    damage: 1,
+    health: 10,
+    name: PLAYER_SECOND,
+    isDead: false,
+    position: [6, 7]
 })
 
 const zombie = manager.create({
@@ -84,6 +99,37 @@ const sword = map.createObject<CreateItemMetadata>({
     damageBuff: 5
 })
 
+const sword2 = map.createObject<CreateItemMetadata>({
+    name: "меч",
+    position: [4, 4],
+    type: GameObjectEnum.ITEM
+}, {
+    damageBuff: 5
+})
+const sword3 = map.createObject<CreateItemMetadata>({
+    name: "меч магии",
+    position: [4, 4],
+    type: GameObjectEnum.ITEM
+}, {
+    damageBuff: 50
+})
+
+const chest = map.createObject<CreateChestMetadata>({
+    name: "сундук",
+    position: [6, 7],
+    type: GameObjectEnum.CHEST
+}, {
+    items: [sword]
+})
+
+const chest2 = map.createObject<CreateChestMetadata>({
+    name: "сундук",
+    position: [6, 6],
+    type: GameObjectEnum.CHEST
+}, {
+    items: [sword, sword3.id]
+})
+
 player.pickUp([4, 4])
 player.equipItem(sword)
 
@@ -102,3 +148,11 @@ game.processCustomEvent('event', {
         a: "привет"
     }
 })
+
+console.log(map.checkObjectOk(chest.id))
+console.log(map.checkObjectOk(chest2.id))
+console.log(map.checkObjectOk(sword2.id))
+console.log(map.checkObjectOk(sword3.id))
+
+player_second.openChest(chest2.position)
+console.log(player_second.inventory)

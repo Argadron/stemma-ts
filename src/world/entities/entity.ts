@@ -56,7 +56,7 @@ export class Entity implements ITarget {
     private deleteItemFromInventory(itemOrId: IItem | number) {
         const currentLength = this.inventory.length
 
-        this.inventory = this.inventory.filter((item) => item.id === (typeof itemOrId === 'number' ? itemOrId : itemOrId.id))
+        this.inventory = this.inventory.filter((item) => item.id !== (typeof itemOrId === 'number' ? itemOrId : itemOrId.id))
 
         return currentLength === this.inventory.length ? false : true
     }

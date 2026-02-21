@@ -58,7 +58,7 @@ interface TestEvent {
     readonly a: string
 }
 
-game.registerCustomEvent<TestEvent>('event', (opts, event, data) => {
+const testEvent = game.registerCustomEvent<TestEvent>('event', (opts, event, data) => {
     console.log(data.eventData.a)
 })
 
@@ -93,3 +93,12 @@ console.log('NEAR', player.getNearEntitiesAndObjects(BASE_SEARCH_RADIUS, 'OBJECT
 console.log(tower.shoot())
 console.log(map.checkObjectOk(wall.id))
 console.log(manager.checkEntityOk(player.id))
+
+testEvent()
+
+game.processCustomEvent('event', {
+    eventTime: new Date(),
+    eventData: {
+        a: "привет"
+    }
+})

@@ -6,10 +6,24 @@ import type { ITarget, IGameObject, IWorldItem, IEventInfo } from "@interfaces";
 
 export interface IGame {
     readonly options: IGameOptions;
-    readonly on: <T>(event: keyof typeof GameEvent, cb: EventCallback<T>) => void; 
+
+    /**
+     * Subscribe to game event
+     * @param event - GameEvent
+     * @param cb - Callback will executed on event
+     * @returns { VoidFunction } - Function to unsubscribe
+     */
+    readonly on: <T>(event: keyof typeof GameEvent, cb: EventCallback<T>) => VoidFunction; 
     readonly processEvent: <T>(event: keyof typeof GameEvent, info: IEventInfo<T>) => void;
     readonly processCustomEvent: <T>(event: string, info: IEventInfo<T>) => void;
-    readonly registerCustomEvent: <T>(event: string, cb: CustomEventCallback<T>) => void;
+
+    /**
+     * Subscribe to custom event
+     * @param event - Custom event
+     * @param cb - Callback will executed on event
+     * @returns { VoidFunction } - Function to unsubscribe
+     */
+    readonly registerCustomEvent: <T>(event: string, cb: CustomEventCallback<T>) => VoidFunction;
     readonly start: (fps: number) => void;
 }
 

@@ -33,6 +33,17 @@ export class Game implements IGame {
         events.push(cb)
 
         this.eventListenersMap.set(event, events)
+
+        return () => {
+            const events = this.eventListenersMap.get(event)
+
+            if (events) {
+                const filtrated = events.filter((subscriber) => subscriber !== cb)
+
+                if (filtrated.length !== 0) this.eventListenersMap.set(event, events)
+                else this.eventListenersMap.delete(event)
+            }
+        }
     }
 
     public processEvent<T>(event: keyof typeof GameEvent, eventData: IEventInfo<T>) {
@@ -53,6 +64,17 @@ export class Game implements IGame {
         events.push(cb)
 
         this.customEventListenersMap.set(event, events)
+
+        return () => {
+            const events = this.customEventListenersMap.get(event)
+
+            if (events) {
+                const filtrated = events.filter((subscriber) => subscriber !== cb)
+
+                if (filtrated.length !== 0) this.customEventListenersMap.set(event, events)
+                else this.customEventListenersMap.delete(event)
+            }
+        }
     }
 
     public start(fps=BASE_FPS) {

@@ -1,6 +1,7 @@
 import { GameObjectEnum } from "@enums"
 import type { IGameObject, IWorldItem } from "@interfaces"
-import type { AnyPosition, Quad } from "@types"
+import type { AnyPosition, Position, Quad } from "@types"
+import { GameObject, type Entity } from "@world"
 
 /**
  * Checks a given object is a really exists Item
@@ -9,6 +10,17 @@ import type { AnyPosition, Quad } from "@types"
  */
 export function gameObjectIsItem(obj: IGameObject): obj is IWorldItem & IGameObject {
     return obj.type === GameObjectEnum.ITEM && obj.metadata
+}
+
+/**
+ * Checks a given world object is a GameObject
+ * @param obj - Any world object
+ * @returns { obj is GameObject } - World object is GameObject
+ */
+export function anyWorldObjectIsGameObject(obj: Entity | GameObject): obj is GameObject {
+    const unknownWorldObject = obj as any
+
+    return unknownWorldObject.type && unknownWorldObject.id
 }
 
 /**
@@ -25,4 +37,16 @@ export function positionIsQuad(position: AnyPosition): position is Quad {
         !isNaN(Number(maxX)) && !isNaN(Number(maxY))) return true
         else return false
     }
+}
+
+/**
+ * Check AnyPosition is Position
+ * @param position - AnyPosition to check is Position
+ * @returns { boolean } - True if position is Position, else false
+ */
+export function positionIsPosition(position: AnyPosition): position is Position {
+    const [x, y] = position
+
+    if (x === undefined || y === undefined) return false
+    else return (!isNaN(x) && !isNaN(y) && position.length === 2) ? true : false
 }

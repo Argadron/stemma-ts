@@ -1,4 +1,4 @@
-import type { IGameObject, IItem, ITarget, IWorldItem } from "@interfaces";
+import type { IChest, IItem, ITarget, IWorldItem } from "@interfaces";
 import type { Position, AnyPosition } from "@types";
 import type { Entity, GameObject } from "@world";
 
@@ -31,7 +31,7 @@ export interface IMovedCollisionData {
 }
 
 export interface IObjectCreatedCollisionData {
-    readonly object: IGameObject;
+    readonly object: GameObject;
 }
 
 export interface IEntityCreatedCollisionData {
@@ -45,6 +45,16 @@ export interface IEntityMovedOutOfRangeData {
 export interface IObjectCreatedErrorData<T = any> {
     readonly mailformedMetadata: Partial<T>;
     readonly objectId: number;
+}
+
+export interface IChestOpenErrorData {
+    readonly chest: IChest;
+    readonly reason: 'NOT FOUND' | 'OUT OF REACH' | 'CHEST MAILFORMED';
+    readonly position: Position;
+}
+
+export interface IChestOpenedData {
+    readonly chest: IChest;
 }
 
 export interface IItemPickedUpData {

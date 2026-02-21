@@ -1,5 +1,5 @@
 import type { GameEvent } from "@enums"
-import type { IEventInfo, IGameOptions, IItem } from "@interfaces"
+import type { IEventInfo, IGameOptions, IItem, IWorldItem } from "@interfaces"
 import type { Entity } from "@world"
 
 export type Position = [number, number]
@@ -23,3 +23,4 @@ export type CreateUsableItemMetadata = CreateItemMetadata & {
     onUse: (e: Entity) => void 
 }
 export type CreateTowerMetadata = { damage: number }
+export type CreateChestMetadata = { items: (IWorldItem | number)[] }

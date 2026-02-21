@@ -9,8 +9,22 @@ import type {
     IGameMap as Map
 } from "@interfaces";
 import type { EntityManager } from "@";
-import type { Position, Quad, AnyPosition, CreateTowerMetadata, CreateItemMetadata, CreateUsableItemMetadata } from "@types";
-import { convertAnyPositionToPosition, checkTwoPositions, gameObjectIsItem, getInPosition, anyWorldObjectIsGameObject } from "@utils";
+import type { 
+    Position, 
+    Quad, 
+    AnyPosition, 
+    CreateTowerMetadata, 
+    CreateItemMetadata, 
+    CreateUsableItemMetadata, 
+    CreateChestMetadata 
+} from "@types";
+import { 
+    convertAnyPositionToPosition, 
+    checkTwoPositions, 
+    gameObjectIsItem, 
+    getInPosition, 
+    anyWorldObjectIsGameObject 
+} from "@utils";
 import { Entity, GameObject } from "@world";
 
 export class GameMap implements Map {
@@ -20,15 +34,6 @@ export class GameMap implements Map {
     private objects: GameObject[] = []
 
     private validateObject<T = any>(object: GameObject, metadata?: T) {
-        if (this.checkCollisions(object, object.position)) {
-            this.game.processEvent<IObjectCreatedCollisionData>('objectCreatedCollision', {
-                eventTime: new Date(),
-                eventData: {
-                    object
-                }
-            })
-        }
-
         if (object.type === GameObjectEnum.ITEM) {
             const itemMetadata = metadata as Partial<CreateItemMetadata & CreateUsableItemMetadata>
 
@@ -44,11 +49,47 @@ export class GameMap implements Map {
         if (object.type === GameObjectEnum.TOWER) {
             const towerMetadata = metadata as Partial<CreateTowerMetadata>
 
-            if (!towerMetadata?.damage) this.game.processEvent<IObjectCreatedErrorData<CreateTowerMetadata>>('towerCreatedError', {
+            if (!(towerMetadata?.damage)) this.game.processEvent<IObjectCreatedErrorData<CreateTowerMetadata>>('towerCreatedError', {
                 eventTime: new Date(),
                 eventData: {
                     objectId: object.id,
                     mailformedMetadata: towerMetadata
+                }
+            })
+        }
+
+        if (object.type === GameObjectEnum.CHEST) {
+            const chestMetadata = metadata as Partial<CreateChestMetadata>
+
+            let isCreateOk = true
+
+           if (chestMetadata?.items) {
+             isCreateOk = chestMetadata.items.every((itemOrId) => !isNaN(typeof itemOrId === 'number' ? itemOrId : itemOrId.id))
+           } 
+           else isCreateOk = false
+
+           if (!isCreateOk) this.game.processEvent<IObjectCreatedErrorData<CreateChestMetadata>>('chestCreatedError', {
+                eventTime: new Date(),
+                eventData: {
+                    mailformedMetadata: chestMetadata,
+                    objectId: object.id
+                }
+           })
+           else {
+                const correctData = chestMetadata.items!
+
+                chestMetadata.items = correctData.map((item) => {
+                    if (typeof item === 'object') return item
+                    else return this.getObject(item)
+                }).filter((item) => item !== undefined)
+           }
+        }
+
+        if (this.checkCollisions(object, object.position)) {
+            this.game.processEvent<IObjectCreatedCollisionData>('objectCreatedCollision', {
+                eventTime: new Date(),
+                eventData: {
+                    object
                 }
             })
         }
@@ -68,6 +109,13 @@ export class GameMap implements Map {
                             isCollision = true
                             
                             break
+                        }
+                        if (anyWorldObjectIsGameObject(entity)) {
+                            if (!(entity.type === GameObjectEnum.ITEM && collision.type === GameObjectEnum.ITEM)) {
+                                isCollision = true
+
+                                break
+                            }
                         }
                     }
                     else {
@@ -153,18 +201,29 @@ export class GameMap implements Map {
         return entity
     }
 
-    public getAllInPosition(position: Position) {
+    public getAllInPosition(position: Position, returnType?: 'ALL'): (Entity | GameObject)[];
+    public getAllInPosition(position: Position, returnType: 'ENTITES'): Entity[];
+    public getAllInPosition(position: Position, returnType: 'OBJECTS'): GameObject[];
+    public getAllInPosition(position: Position, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
+    public getAllInPosition(position: Position, returnType:'ALL' | 'ENTITES' | 'OBJECTS'='ALL') {
         const entites = this.manager.entites.filter((entity) => checkTwoPositions(position, entity.position))
         const objects = this.objects.filter((obj) => checkTwoPositions(obj.position, position))
 
-        return [...entites, ...objects]
+        switch (returnType) {
+            case 'ENTITES':
+                return entites
+            case 'OBJECTS':
+                return objects
+            default:
+                return [...objects, ...entites]
+        }
     }
 
     public createObject<T = any>(obj: IGameObject, metadata?: T) {
         const object = new GameObject(obj, this.manager, this, metadata)
 
         this.objects.push(object)
-        this.validateObject(object, metadata)
+        this.validateObject(object, metadata ?? obj.metadata)
 
         return object
     }

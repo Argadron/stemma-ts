@@ -1,6 +1,6 @@
 import createGame from "@";
 import { GameObjectEnum } from "@enums";
-import type { CreateItemMetadata, CreateTowerMetadata, CreateUsableItemMetadata } from "@types";
+import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, CreateUsableItemMetadata } from "@types";
 import type { IEntityManager, IGameMap, IGame } from "@interfaces";
 import type { Entity, GameObject } from "@world";
 
@@ -14,13 +14,15 @@ describe('Interaction Tests', () => {
     let sword: GameObject;
     let tower: GameObject;
     let magicSword: GameObject;
+    let chest: GameObject;
 
     let events = {
         pickUpCorrect: false,
         pickUpError: false,
         using: false,
         attack: false,
-        kill: false
+        kill: false,
+        chest: false
     }
 
     beforeEach(() => {
@@ -30,7 +32,7 @@ describe('Interaction Tests', () => {
         manager = m
         map = mapInstance
 
-        events = { pickUpCorrect: false, pickUpError: false, attack: false, kill: false, using: false }
+        events = { pickUpCorrect: false, pickUpError: false, attack: false, kill: false, using: false, chest: false }
 
         player = manager.create({ name: 'PLAYER', health: 10, damage: 5, isDead: false, position: [1, 0] })
         zombie = manager.create({ name: 'ZOMBIE', health: 10, damage: 10, isDead: false, position: [1, 1] })
@@ -47,6 +49,12 @@ describe('Interaction Tests', () => {
            }
          })
 
+        chest = map.createObject<CreateChestMetadata>({
+            name: "CHEST", type: GameObjectEnum.CHEST, position: [0, 1]
+        }, {
+            items: [magicSword]
+        })
+
         tower = map.createObject<CreateTowerMetadata>({
             name: 'TOWER', position: [0, 0], type: GameObjectEnum.TOWER
         }, { damage: 10 })
@@ -56,6 +64,7 @@ describe('Interaction Tests', () => {
         game.on('attack', () => events.attack = true)
         game.on('entityDead', () => events.kill = true)
         game.on('itemUsed', () => events.using = true)
+        game.on('chestOpened', () => events.chest = true)
     })
 
     it('Pick Up a Sword (correct)', () => {
@@ -88,6 +97,11 @@ describe('Interaction Tests', () => {
 
         expect(events.using).toBe(true)
         expect(player.damage).toBe(6)
+    })
+    it('Open chest', () => {
+        player.openChest(chest.position)
+
+        expect(events.chest).toBe(true)
     })
     it('Kill test', () => {
         player.pickUp(sword.position)

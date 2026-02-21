@@ -10,7 +10,7 @@ import type {
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { Position, Quad, AnyPosition, CreateTowerMetadata, CreateItemMetadata, CreateUsableItemMetadata } from "@types";
-import { convertAnyPositionToPosition, checkTwoPositions, gameObjectIsItem, getInPosition } from "@utils";
+import { convertAnyPositionToPosition, checkTwoPositions, gameObjectIsItem, getInPosition, anyWorldObjectIsGameObject } from "@utils";
 import { Entity, GameObject } from "@world";
 
 export class GameMap implements Map {
@@ -60,7 +60,13 @@ export class GameMap implements Map {
         if (entitesAndObjects.length === 0) return false
         else {
             for (const collision of entitesAndObjects) {
-                if (collision.id !== entity.id) return true
+                if (collision.id !== entity.id) {
+                    if (anyWorldObjectIsGameObject(collision)) {
+                        if (collision.type === GameObjectEnum.ITEM) return false
+                        else return true
+                    }
+                    else return true
+                }
             }
 
             return false

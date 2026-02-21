@@ -6,9 +6,10 @@ import type {
     IMovedCollisionData, 
     IObjectCreatedCollisionData,
     IEntityManager,
-    IGameMap
+    IGameMap,
+    IMovedData
 } from "@interfaces"
-import { checkTwoPositions } from "@utils"
+import { checkTwoPositions, positionIsPosition } from "@utils"
 import type { Position } from "@types"
 import type { Entity, GameObject } from "@world"
 
@@ -62,6 +63,13 @@ describe('Collisions Tests', () => {
         game.on<IObjectCreatedCollisionData>('objectCreatedCollision', (o, e, d) => {
             collisionCreateObjectTest = true
         })
+        game.on<IMovedData>('entityMoved', (o, e, d) => {
+           const { newPosition } = d.eventData
+
+           if (positionIsPosition(newPosition)) {
+             if (checkTwoPositions(newPosition, [2, 0])) moveToDoesntCollisionObjectTest = true
+           }
+        })
     })
 
     const PLAYER = 'PLAYER'
@@ -72,9 +80,8 @@ describe('Collisions Tests', () => {
     let collisionCreateObjectTest = false
     let collisionMoveToEntityTest = false
     let collisionMoveToObjectTest = false
-
+    let moveToDoesntCollisionObjectTest = false
     
-
     it('Create entity in collision place', () => {
         manager.create({
             name: PLAYER,
@@ -103,9 +110,23 @@ describe('Collisions Tests', () => {
         expect(collisionMoveToEntityTest).toBe(true)
     })
 
-    it('Walk to collision object', async () => {
+    it('Walk to collision object', () => {
         player.move(wall.position)
 
         expect(collisionMoveToObjectTest).toBe(true)
+    })
+
+    it('Walk to doesnt collision object', () => {
+        const sword = map.createObject({
+            name: "sword",
+            position: [2, 0],
+            type: GameObjectEnum.ITEM
+        }, {
+            damage: 5
+        })
+
+        player.move(sword.position)
+
+        expect(moveToDoesntCollisionObjectTest).toBe(true)
     })
 })

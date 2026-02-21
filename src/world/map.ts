@@ -57,19 +57,28 @@ export class GameMap implements Map {
     public checkCollisions(entity: Entity | GameObject, newPosition: Position) {
         const entitesAndObjects = this.getAllInPosition(newPosition)
 
+        let isCollision = false
+
         if (entitesAndObjects.length === 0) return false
         else {
             for (const collision of entitesAndObjects) {
                 if (collision.id !== entity.id) {
                     if (anyWorldObjectIsGameObject(collision)) {
-                        if (collision.type === GameObjectEnum.ITEM) return false
-                        else return true
+                        if (collision.type !== GameObjectEnum.ITEM) {
+                            isCollision = true
+                            
+                            break
+                        }
                     }
-                    else return true
+                    else {
+                        isCollision = true
+                        
+                        break
+                    }
                 }
             }
 
-            return false
+            return isCollision
         }
     }
 

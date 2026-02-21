@@ -259,6 +259,8 @@ export class Entity implements ITarget {
                     }
                 })
             this.map.deleteObject(realChest.id)
+
+            return true
         }
     }
 

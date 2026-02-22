@@ -15,6 +15,7 @@ export function useAttack(game: Game, dmg: number, attacker: Entity | GameObject
     
     if (victim.health <= 0) {
         victim.isDead = true
+        victim.dropInventory()
     
         game.processEvent<IDeadData>('entityDead', {
             eventTime: new Date(),

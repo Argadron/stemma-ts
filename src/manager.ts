@@ -2,7 +2,8 @@ import { Game } from "@";
 import type { 
     ITarget,
     IEntityCreatedCollisionData,
-    IEntityManager as Manager
+    IEntityManager as Manager,
+    IDeadData
  } from "@interfaces";
 import { Entity, GameMap } from "@world";
 import { getInPosition } from "@utils";
@@ -71,6 +72,16 @@ export class EntityManager implements Manager {
         if (!entity) return false
         else {
             entity.isDead = true
+            entity.dropInventory()
+
+            this.game.processEvent<IDeadData>('entityDead', {
+                entity,
+                eventTime: new Date(),
+                eventData: {
+                    entity,
+                    killer: this
+                }
+            })
 
             return true
         }

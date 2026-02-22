@@ -6,7 +6,7 @@ import type { Position } from "@types";
 import { createId, createQuadFromPosition, useAttack } from "@utils";
 
 export class GameObject implements IGameObject {
-    readonly id = createId();
+    readonly id: number;
 
     type: GameObjectEnum;
     position: Position;
@@ -23,6 +23,7 @@ export class GameObject implements IGameObject {
        this.manager = manager
        this.map = map
        this.metadata = metadata
+       this.id = obj.id ?? createId()
     }
 
     public shoot() {

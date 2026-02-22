@@ -18,6 +18,8 @@ export enum GameEvent {
     itemPickedUp = 'item_picked_up',
     itemPickedUpError = 'item_picked_up_error',
     itemUsed = 'item_used',
+    itemDroppingError = 'item_dropping_eror',
+    itemDropping = 'item_dropping',
     towerCreatedError = 'tower_created_error',
     chestCreatedError = 'chest_created_error',
     chestOpenedError = 'chest_opened_error',

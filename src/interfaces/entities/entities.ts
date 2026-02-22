@@ -4,6 +4,7 @@ import type { Position } from "@types";
 export interface IGameObject extends Pick<ITarget, 'position' | 'name'> {
     readonly type: GameObjectEnum;
     readonly metadata?: any;
+    readonly id?: number;
 }
 
 export interface IWorldItem extends IItem {

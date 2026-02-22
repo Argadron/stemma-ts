@@ -16,7 +16,9 @@ import type {
     IWorldItem,
     IItem,
     IChestOpenErrorData,
-    IChestOpenedData
+    IChestOpenedData,
+    IItemDroppedErrorData,
+    IItemDroppedData
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { CreateUsableItemMetadata, Position } from "@types";
@@ -30,6 +32,7 @@ import {
     getItemInPosition, 
     useAttack 
 } from "@utils";
+import { GameObjectEnum } from "@enums";
 
 export class Entity implements ITarget {
     position: Position;
@@ -156,6 +159,58 @@ export class Entity implements ITarget {
             })
             
             return inventoryItem
+        }
+    }
+
+    public dropItem(item: GameObject, position: Position): boolean
+    public dropItem(id: number, position: Position): boolean
+    public dropItem(itemOrId: GameObject | number, position: Position): boolean {
+        const item = this.getItemFromInventoryByItemOrId(typeof itemOrId === 'number' ? itemOrId : itemOrId.id)
+
+        if (!item) {
+            this.manager.game.processEvent<IItemDroppedErrorData>('itemDroppingError', {
+                eventData: {
+                    position,
+                    reason: ITERACTION_ERRORS.NOT_FOUND
+                },
+                eventTime: new Date(),
+                entity: this
+            })
+
+            return false
+        }
+        else {
+            if (this.map.checkCollisions(item as GameObject, position)) {
+                this.manager.game.processEvent<IItemDroppedErrorData>('itemDroppingError', {
+                    eventTime: new Date(),
+                    entity: this,
+                    eventData: {
+                        item,
+                        position,
+                        reason: ITERACTION_ERRORS.COLLISION
+                    }
+                })
+
+                return false
+            }
+            else {
+                this.map.createObject({
+                    ...item,
+                    metadata: undefined,
+                    type: GameObjectEnum.ITEM
+                }, item.metadata)
+                this.map.game.processEvent<IItemDroppedData>('itemDropping', {
+                    entity: this,
+                    eventTime: new Date(),
+                    eventData: {
+                        item,
+                        position
+                    }
+                })
+                this.deleteItemFromInventory(item)
+
+                return true
+            }
         }
     }
 

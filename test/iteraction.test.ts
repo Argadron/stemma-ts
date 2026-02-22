@@ -23,7 +23,8 @@ describe('Interaction Tests', () => {
         attack: false,
         kill: false,
         chest: false,
-        weight: false
+        weight: false,
+        drop: false
     }
 
     beforeEach(() => {
@@ -40,7 +41,8 @@ describe('Interaction Tests', () => {
             kill: false, 
             using: false, 
             chest: false,
-            weight: false
+            weight: false,
+            drop: false
         }
 
         player = manager.create({ name: 'PLAYER', health: 10, damage: 5, isDead: false, position: [1, 0] })
@@ -75,12 +77,19 @@ describe('Interaction Tests', () => {
         game.on('itemUsed', () => events.using = true)
         game.on('chestOpened', () => events.chest = true)
         game.on('entityMovedOutOfRange', () => events.weight = true)
+        game.on('itemDropping', () => events.drop = true)
     })
 
     it('Pick Up a Sword (correct)', () => {
         player.pickUp(sword.position)
 
         expect(events.pickUpCorrect).toBe(true)
+    })
+    it('Drop test', () => {
+        player.pickUp(sword.position)
+        player.dropItem(sword, [2, 0])
+
+        expect(events.drop).toBe(true)
     })
     it('Shoot test', () => {
         const shoot = tower.shoot()

@@ -7,7 +7,7 @@ export type Quad = [number, number, number, number]
 export type AnyPosition = Position | Quad
 export type EventCallback<T> = (options: IGameOptions, event: keyof typeof GameEvent, eventInfo: IEventInfo<T>) => void
 export type CustomEventCallback<T> = (options: IGameOptions, event: string, eventInfo: IEventInfo<T>) => void;
-export type CreateItemMetadata = Pick<IItem, 'damageBuff' | 'healthBuff' | 'walkBuff'>
+export type CreateItemMetadata = Pick<IItem, 'damageBuff' | 'healthBuff' | 'walkBuff' | 'weight'>
 export type CreateUsableItemMetadata = CreateItemMetadata & { 
     /**
      * Callback with actions with entity, etc... 

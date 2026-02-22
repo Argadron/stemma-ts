@@ -111,7 +111,7 @@ const sword3 = map.createObject<CreateItemMetadata>({
     position: [4, 4],
     type: GameObjectEnum.ITEM
 }, {
-    damageBuff: 50
+    damageBuff: 50, weight: 20
 })
 
 const chest = map.createObject<CreateChestMetadata>({
@@ -156,3 +156,4 @@ console.log(map.checkObjectOk(sword3.id))
 
 player_second.openChest(chest2.position)
 console.log(player_second.inventory)
+console.log(player_second.walkBuff)

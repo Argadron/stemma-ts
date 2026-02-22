@@ -269,7 +269,7 @@ export class Entity implements ITarget {
     }
 
     public get walkBuff() {
-        return this.inventory.reduce((accum, item) => accum+(item.walkBuff ?? 0), 0)
+        return this.inventory.reduce((accum, item) => accum+(item.walkBuff ?? 0)-(item.weight ? Math.floor(item.weight / 10) : 1), 0)
     }
 
     public get armorHealth() {

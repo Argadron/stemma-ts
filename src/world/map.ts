@@ -6,7 +6,8 @@ import type {
     IGameObject, 
     IObjectCreatedCollisionData, 
     IObjectCreatedErrorData,
-    IGameMap as Map
+    IGameMap as Map,
+    IWorldItem
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { 
@@ -26,6 +27,7 @@ import {
     anyWorldObjectIsGameObject 
 } from "@utils";
 import { Entity, GameObject } from "@world";
+import { BASE_MAX_WEIGHT_LIMIT_ON_POSITION } from "@const";
 
 export class GameMap implements Map {
     public readonly manager: EntityManager;
@@ -37,7 +39,7 @@ export class GameMap implements Map {
         if (object.type === GameObjectEnum.ITEM) {
             const itemMetadata = metadata as Partial<CreateItemMetadata & CreateUsableItemMetadata>
 
-            if (!itemMetadata?.damageBuff && !itemMetadata?.healthBuff && !itemMetadata.onUse) this.game.processEvent<IObjectCreatedErrorData<CreateItemMetadata>>('itemCreatedError', {
+            if (!itemMetadata?.damageBuff && !itemMetadata?.healthBuff && !itemMetadata.onUse && !itemMetadata.weight) this.game.processEvent<IObjectCreatedErrorData<CreateItemMetadata>>('itemCreatedError', {
                 eventTime: new Date(),
                 eventData: {
                     mailformedMetadata: itemMetadata,
@@ -115,6 +117,16 @@ export class GameMap implements Map {
                                 isCollision = true
 
                                 break
+                            }
+                            else {
+                                const weightCheckCollision = (collision as IWorldItem).metadata?.weight as number ?? 1
+                                const entityCheckCollision = (entity as IWorldItem).metadata?.weight as number ?? 1
+
+                                if ((weightCheckCollision + entityCheckCollision) >= BASE_MAX_WEIGHT_LIMIT_ON_POSITION) {
+                                    isCollision = true
+
+                                    break
+                                }
                             }
                         }
                     }

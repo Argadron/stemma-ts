@@ -10,6 +10,7 @@ export const emptyAttackResult: (attacker: Entity) => IAttackResult = (attacker:
 export const DEFAULT_WALK_STEP = 2
 export const BASE_SEARCH_RADIUS = 3
 export const BASE_FPS = 10
+export const BASE_MAX_WEIGHT_LIMIT_ON_POSITION = 100
 
 export const ITERACTION_ERRORS = {
     OUT_OF_REACH: "OUT OF REACH",

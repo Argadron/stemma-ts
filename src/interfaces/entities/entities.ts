@@ -1,4 +1,3 @@
-import type { ITERACTION_ERRORS } from "@const";
 import type { GameObjectEnum } from "@enums";
 import type { Position } from "@types";
 
@@ -25,6 +24,7 @@ export interface IItem<T = any> {
     readonly damageBuff?: number;
     readonly healthBuff?: number;
     readonly walkBuff?: number;
+    readonly weight?: number;
     readonly metadata?: T
 }
 

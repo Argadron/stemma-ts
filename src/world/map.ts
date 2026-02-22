@@ -131,9 +131,11 @@ export class GameMap implements Map {
                         }
                     }
                     else {
-                        isCollision = true
-                        
-                        break
+                        if (!collision.isDead) {
+                            isCollision = true
+
+                            break
+                        }
                     }
                 }
             }

@@ -20,7 +20,8 @@ export type CreateUsableItemMetadata = CreateItemMetadata & {
      *   e.healht -= 1
      * }
      */
-    onUse: (e: Entity) => void 
+    readonly onUse: (e: Entity) => void,
+    readonly isConsumable?: boolean;
 }
 export type CreateTowerMetadata = { damage: number }
 export type CreateChestMetadata = { items: (IWorldItem | number)[] }

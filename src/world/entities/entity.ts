@@ -48,6 +48,16 @@ export class Entity implements ITarget {
     private readonly map: GameMap;
     private currentActiveItem: IItem | undefined;
 
+    /**
+     * Drop all items in current entity position (for Internal use, dont activate if entity alive)
+     * @returns {void}
+     */
+    public dropInventory(): void {
+        const dropItems = [...this.inventory]
+
+        dropItems.forEach((item) => this.dropItem(item as GameObject, this.position))
+    }
+
     public constructor(target: ITarget, manager: EntityManager, map: GameMap) {
         this.damage = target.damage
         this.position = target.position
@@ -197,6 +207,7 @@ export class Entity implements ITarget {
                 this.map.createObject({
                     ...item,
                     metadata: undefined,
+                    position,
                     type: GameObjectEnum.ITEM
                 }, item.metadata)
                 this.map.game.processEvent<IItemDroppedData>('itemDropping', {
@@ -208,6 +219,8 @@ export class Entity implements ITarget {
                     }
                 })
                 this.deleteItemFromInventory(item)
+
+                if (item.id === this.currentActiveItem?.id) this.currentActiveItem = undefined
 
                 return true
             }
@@ -246,7 +259,11 @@ export class Entity implements ITarget {
                     item: this.currentActiveItem
                 }
             })
-            this.deleteItemFromInventory(this.currentActiveItem)
+
+            if (metadata.isConsumable) {
+                this.deleteItemFromInventory(this.currentActiveItem)
+                this.currentActiveItem = undefined
+            }
 
             return true
         }

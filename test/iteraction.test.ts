@@ -1,7 +1,7 @@
 import createGame from "@";
 import { GameObjectEnum } from "@enums";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, CreateUsableItemMetadata } from "@types";
-import type { IEntityManager, IGameMap, IGame } from "@interfaces";
+import type { IEntityManager, IGameMap, IGame, IDeadData } from "@interfaces";
 import type { Entity, GameObject } from "@world";
 
 describe('Interaction Tests', () => {
@@ -90,6 +90,17 @@ describe('Interaction Tests', () => {
         player.dropItem(sword, [2, 0])
 
         expect(events.drop).toBe(true)
+    })
+    it('Dead and drop inventory test', () => {
+        player.pickUp(magicSword.position)
+
+        game.on<IDeadData>('entityDead', (o, e, d) => {
+            manager.delete(d.eventData.entity.id)
+        })
+
+        manager.kill(player.id)
+
+        expect(map.checkObjectOk(magicSword.id)).toBe(true)
     })
     it('Shoot test', () => {
         const shoot = tower.shoot()

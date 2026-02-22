@@ -66,6 +66,17 @@ export interface IItemPickedUpErrorData {
     readonly position: Position;
 }
 
+export interface IItemDroppedErrorData {
+    readonly item?: IWorldItem;
+    readonly reason: 'NOT FOUND' | 'COLLISION';
+    readonly position: Position;
+}
+
+export interface IItemDroppedData {
+    readonly item: IWorldItem;
+    readonly position: Position;
+}
+
 export interface IItemUsedData {
     readonly item: IItem;
 }

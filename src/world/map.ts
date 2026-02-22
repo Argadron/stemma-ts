@@ -142,6 +142,15 @@ export class GameMap implements Map {
         }
     }
 
+    /**
+     * Push correct object to map. Internal method (no use, if you dont know what do)
+     * @param obj - Game object to push
+     * @returns { void }
+     */
+    public pushObject(obj: GameObject): void {
+        this.objects.push(obj)
+    }
+
     public constructor(manager: EntityManager, game: Game) {
         this.manager = manager
         this.game = game

@@ -99,6 +99,14 @@ export class GameMap implements Map {
 
     public checkCollisions(entity: Entity | GameObject, newPosition: Position) {
         const entitesAndObjects = this.getAllInPosition(newPosition)
+        const totalWeight = entitesAndObjects.reduce((accum, objOrEntity) => {
+            if (objOrEntity.id === entity.id) return accum
+            if (anyWorldObjectIsGameObject(objOrEntity)) {
+                if (gameObjectIsItem(objOrEntity)) return accum += (objOrEntity.metadata?.weight ?? 1)
+                else return accum
+            }
+            else return accum
+        }, 0)
 
         let isCollision = false
 
@@ -119,10 +127,9 @@ export class GameMap implements Map {
                                 break
                             }
                             else {
-                                const weightCheckCollision = (collision as IWorldItem).metadata?.weight as number ?? 1
                                 const entityCheckCollision = (entity as IWorldItem).metadata?.weight as number ?? 1
 
-                                if ((weightCheckCollision + entityCheckCollision) >= BASE_MAX_WEIGHT_LIMIT_ON_POSITION) {
+                                if ((totalWeight + entityCheckCollision) >= BASE_MAX_WEIGHT_LIMIT_ON_POSITION) {
                                     isCollision = true
 
                                     break

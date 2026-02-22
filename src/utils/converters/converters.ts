@@ -40,6 +40,7 @@ export function convertGameObjectToInventoryItem(obj: IWorldItem | GameObject): 
         damageBuff: obj.metadata?.damageBuff ?? 0,
         healthBuff: obj.metadata?.healthBuff ?? 0,
         walkBuff: obj.metadata?.walkBuff ?? 0,
+        weight: obj.metadata?.weight ?? 1,
         metadata: obj.metadata ?? {}
     }
 }

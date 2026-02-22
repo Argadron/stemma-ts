@@ -22,7 +22,8 @@ describe('Interaction Tests', () => {
         using: false,
         attack: false,
         kill: false,
-        chest: false
+        chest: false,
+        weight: false
     }
 
     beforeEach(() => {
@@ -32,14 +33,22 @@ describe('Interaction Tests', () => {
         manager = m
         map = mapInstance
 
-        events = { pickUpCorrect: false, pickUpError: false, attack: false, kill: false, using: false, chest: false }
+        events = { 
+            pickUpCorrect: false, 
+            pickUpError: false, 
+            attack: false, 
+            kill: false, 
+            using: false, 
+            chest: false,
+            weight: false
+        }
 
         player = manager.create({ name: 'PLAYER', health: 10, damage: 5, isDead: false, position: [1, 0] })
         zombie = manager.create({ name: 'ZOMBIE', health: 10, damage: 10, isDead: false, position: [1, 1] })
 
         sword = map.createObject<CreateItemMetadata>({
             name: 'SWORD', type: GameObjectEnum.ITEM, position: [2, 0]
-        }, { damageBuff: 10 })
+        }, { damageBuff: 10, weight: 20 })
 
         magicSword = map.createObject<CreateUsableItemMetadata>({
             name: 'MAGIC_SWORD', type: GameObjectEnum.ITEM, position: [0, 0]
@@ -65,6 +74,7 @@ describe('Interaction Tests', () => {
         game.on('entityDead', () => events.kill = true)
         game.on('itemUsed', () => events.using = true)
         game.on('chestOpened', () => events.chest = true)
+        game.on('entityMovedOutOfRange', () => events.weight = true)
     })
 
     it('Pick Up a Sword (correct)', () => {
@@ -102,6 +112,15 @@ describe('Interaction Tests', () => {
         player.openChest(chest.position)
 
         expect(events.chest).toBe(true)
+    })
+    it('Move with weight', () => {
+        const result = player.move([2, 0])
+
+        player.pickUp(sword.position)
+        player.move([1, 0])
+
+        expect(result !== false).toBe(true)
+        expect(events.weight).toBe(true)
     })
     it('Kill test', () => {
         player.pickUp(sword.position)

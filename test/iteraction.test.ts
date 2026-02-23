@@ -1,6 +1,6 @@
 import createGame from "@";
 import { GameObjectEnum } from "@enums";
-import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, CreateUsableItemMetadata } from "@types";
+import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, CreateTriggerMetadata, CreateUsableItemMetadata } from "@types";
 import type { IEntityManager, IGameMap, IGame, IDeadData } from "@interfaces";
 import type { Entity, GameObject } from "@world";
 
@@ -15,6 +15,7 @@ describe('Interaction Tests', () => {
     let tower: GameObject;
     let magicSword: GameObject;
     let chest: GameObject;
+    let trigger: GameObject;
 
     let events = {
         pickUpCorrect: false,
@@ -24,7 +25,8 @@ describe('Interaction Tests', () => {
         kill: false,
         chest: false,
         weight: false,
-        drop: false
+        drop: false,
+        trigger: false
     }
 
     beforeEach(() => {
@@ -42,7 +44,8 @@ describe('Interaction Tests', () => {
             using: false, 
             chest: false,
             weight: false,
-            drop: false
+            drop: false,
+            trigger: false
         }
 
         player = manager.create({ name: 'PLAYER', health: 10, damage: 5, isDead: false, position: [1, 0] })
@@ -69,6 +72,13 @@ describe('Interaction Tests', () => {
         tower = map.createObject<CreateTowerMetadata>({
             name: 'TOWER', position: [0, 0], type: GameObjectEnum.TOWER
         }, { damage: 10 })
+
+        trigger = map.createObject<CreateTriggerMetadata>({
+            name: "TRIGGER", position: [3,0], type: GameObjectEnum.TRIGGER
+        }, {
+            real: GameObjectEnum.WALL,
+            trigger: (e, o) => events.trigger = true
+        })
 
         game.on('itemPickedUp', () => events.pickUpCorrect = true)
         game.on('itemPickedUpError', () => events.pickUpError = true)
@@ -149,5 +159,11 @@ describe('Interaction Tests', () => {
 
         expect(events.kill).toBe(true)
         expect(zombie.isDead).toBe(true)
+    })
+    it('Activate trigger test', () => {
+        player.move([2, 0])
+        player.move([3, 0])
+
+        expect(events.trigger).toBe(true)
     })
 });

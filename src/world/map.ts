@@ -7,7 +7,8 @@ import type {
     IObjectCreatedCollisionData, 
     IObjectCreatedErrorData,
     IGameMap as Map,
-    IWorldItem
+    IWorldItem,
+    ITriggerActivatedData
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { 
@@ -17,7 +18,8 @@ import type {
     CreateTowerMetadata, 
     CreateItemMetadata, 
     CreateUsableItemMetadata, 
-    CreateChestMetadata 
+    CreateChestMetadata, 
+    CreateTriggerMetadata
 } from "@types";
 import { 
     convertAnyPositionToPosition, 
@@ -121,7 +123,7 @@ export class GameMap implements Map {
 
                     if (entityIsEntity) {
                         if (!collisionIsEntity) {
-                            if (collision.type !== GameObjectEnum.ITEM) {
+                            if (collision.type !== GameObjectEnum.ITEM && collision.type !== GameObjectEnum.TRIGGER) {
                                 isCollision = true
 
                                 break
@@ -136,8 +138,9 @@ export class GameMap implements Map {
                         }
                     }
                     if (!collisionIsEntity) {
-                        if (collision.type !== GameObjectEnum.ITEM &&
-                            (!entityIsEntity && entity.type !== GameObjectEnum.ITEM)
+                        if (collision.type !== GameObjectEnum.ITEM && 
+                            collision.type !== GameObjectEnum.TRIGGER &&
+                            (!entityIsEntity && entity.type !== GameObjectEnum.ITEM && entity.type !== GameObjectEnum.TRIGGER)
                         ) {
                             isCollision = true
 
@@ -165,6 +168,10 @@ export class GameMap implements Map {
 
             return isCollision
         }
+    }
+
+    public getTriggersInPosition(position: Position) {
+        return this.objects.filter((obj) => (checkTwoPositions(obj.position, position) && obj.type === GameObjectEnum.TRIGGER))
     }
 
     /**
@@ -243,6 +250,22 @@ export class GameMap implements Map {
         })
 
         entity.position = position
+        
+        const triggers = this.getTriggersInPosition(position)
+
+        triggers.forEach((trig) => {
+            const metadata = trig.metadata as CreateTriggerMetadata
+
+            metadata.trigger(entity, trig)
+
+            this.game.processEvent<ITriggerActivatedData>('triggerActivated', {
+                entity,
+                eventTime: new Date(),
+                eventData: {
+                    trigger: trig
+                }
+            })
+        })
 
         return entity
     }

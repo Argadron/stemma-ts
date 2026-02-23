@@ -24,7 +24,8 @@ import {
     checkTwoPositions, 
     gameObjectIsItem, 
     getInPosition, 
-    anyWorldObjectIsGameObject 
+    anyWorldObjectIsGameObject, 
+    gameObjectIsChest
 } from "@utils";
 import { Entity, GameObject } from "@world";
 import { BASE_MAX_WEIGHT_LIMIT_ON_POSITION } from "@const";
@@ -102,6 +103,7 @@ export class GameMap implements Map {
         const totalWeight = entitesAndObjects.reduce((accum, objOrEntity) => {
             if (objOrEntity.id === entity.id) return accum
             if (anyWorldObjectIsGameObject(objOrEntity)) {
+                if (gameObjectIsChest(objOrEntity)) return accum += objOrEntity.metadata?.items.reduce((accum: number, chestItem: GameObject) => accum += (chestItem.metadata?.weight ?? 1), 0)
                 if (gameObjectIsItem(objOrEntity)) return accum += (objOrEntity.metadata?.weight ?? 1)
                 else return accum
             }
@@ -114,26 +116,40 @@ export class GameMap implements Map {
         else {
             for (const collision of entitesAndObjects) {
                 if (collision.id !== entity.id) {
-                    if (anyWorldObjectIsGameObject(collision)) {
-                        if (collision.type !== GameObjectEnum.ITEM) {
-                            isCollision = true
-                            
-                            break
-                        }
-                        if (anyWorldObjectIsGameObject(entity)) {
-                            if (!(entity.type === GameObjectEnum.ITEM && collision.type === GameObjectEnum.ITEM)) {
+                    const entityIsEntity = !anyWorldObjectIsGameObject(entity)
+                    const collisionIsEntity = !anyWorldObjectIsGameObject(collision)
+
+                    if (entityIsEntity) {
+                        if (!collisionIsEntity) {
+                            if (collision.type !== GameObjectEnum.ITEM) {
                                 isCollision = true
 
                                 break
                             }
-                            else {
-                                const entityCheckCollision = (entity as IWorldItem).metadata?.weight as number ?? 1
+                        }
+                        else {
+                            if (!collision.isDead) {
+                                isCollision = true
 
-                                if ((totalWeight + entityCheckCollision) >= BASE_MAX_WEIGHT_LIMIT_ON_POSITION) {
-                                    isCollision = true
+                                break
+                            }
+                        }
+                    }
+                    if (!collisionIsEntity) {
+                        if (collision.type !== GameObjectEnum.ITEM &&
+                            (!entityIsEntity && entity.type !== GameObjectEnum.ITEM)
+                        ) {
+                            isCollision = true
 
-                                    break
-                                }
+                            break
+                        }
+                        if (!entityIsEntity && entity.type === GameObjectEnum.ITEM) {
+                            const entityCheckCollision = (entity as IWorldItem).metadata?.weight as number ?? 1
+
+                            if ((totalWeight + entityCheckCollision) >= BASE_MAX_WEIGHT_LIMIT_ON_POSITION) {
+                                isCollision = true
+
+                                break
                             }
                         }
                     }

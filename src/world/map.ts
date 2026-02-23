@@ -8,7 +8,8 @@ import type {
     IObjectCreatedErrorData,
     IGameMap as Map,
     IWorldItem,
-    ITriggerActivatedData
+    ITriggerActivatedData,
+    IWorldObjectHearedNoiseData
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { 
@@ -27,10 +28,11 @@ import {
     gameObjectIsItem, 
     getInPosition, 
     anyWorldObjectIsGameObject, 
-    gameObjectIsChest
+    gameObjectIsChest,
+    createQuadFromPosition
 } from "@utils";
 import { Entity, GameObject } from "@world";
-import { BASE_MAX_WEIGHT_LIMIT_ON_POSITION } from "@const";
+import { BASE_HEARING_RADIUS, BASE_MAX_WEIGHT_LIMIT_ON_POSITION } from "@const";
 
 export class GameMap implements Map {
     public readonly manager: EntityManager;
@@ -280,7 +282,21 @@ export class GameMap implements Map {
         entity.position = position
         
         const triggers = this.getTriggersInPosition(position)
+        
+        const noiseRadius = Math.floor(entity.totalWeight / 10)
+        const entitesWhoHeard = this.getInQuad(createQuadFromPosition(entity.position, noiseRadius < BASE_HEARING_RADIUS ? BASE_HEARING_RADIUS : noiseRadius))
 
+        entitesWhoHeard.forEach((worldObject) => {
+            if (worldObject.id === id) return;
+
+            this.game.processEvent<IWorldObjectHearedNoiseData>('gameObjectHearedNoise', {
+            entity: worldObject,
+            eventTime: new Date(),
+            eventData: {
+                fromEntity: entity
+            }})
+        }
+        )
         triggers.forEach((trig) => {
             const metadata = trig.metadata as CreateTriggerMetadata
 

@@ -33,6 +33,11 @@ export const BASE_FPS = 10
 export const BASE_MAX_WEIGHT_LIMIT_ON_POSITION = 100
 
 /**
+ * Base radius for hear
+ */
+export const BASE_HEARING_RADIUS = 3
+
+/**
  * Object with all iteraction errors
  */
 export const ITERACTION_ERRORS = {

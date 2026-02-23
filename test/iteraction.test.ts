@@ -26,7 +26,8 @@ describe('Interaction Tests', () => {
         chest: false,
         weight: false,
         drop: false,
-        trigger: false
+        trigger: false,
+        noise: false
     }
 
     beforeEach(() => {
@@ -45,7 +46,8 @@ describe('Interaction Tests', () => {
             chest: false,
             weight: false,
             drop: false,
-            trigger: false
+            trigger: false,
+            noise: false
         }
 
         player = manager.create({ name: 'PLAYER', health: 10, damage: 5, isDead: false, position: [1, 0] })
@@ -88,6 +90,7 @@ describe('Interaction Tests', () => {
         game.on('chestOpened', () => events.chest = true)
         game.on('entityMovedOutOfRange', () => events.weight = true)
         game.on('itemDropping', () => events.drop = true)
+        game.on('gameObjectHearedNoise', () => events.noise = true)
     })
 
     it('Pick Up a Sword (correct)', () => {
@@ -165,5 +168,10 @@ describe('Interaction Tests', () => {
         player.move([3, 0])
 
         expect(events.trigger).toBe(true)
+    })
+    it('Heard noise test', () => {
+        player.move([2, 0])
+
+        expect(events.noise).toBe(true)
     })
 });

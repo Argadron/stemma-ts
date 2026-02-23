@@ -9,6 +9,9 @@ import { Entity, GameMap } from "@world";
 import { getInPosition } from "@utils";
 
 export class EntityManager implements Manager {
+    /**
+     * Array of all entities
+     */
     public entites: Entity[];
     public readonly game: Game;
     public readonly gameMap: GameMap;

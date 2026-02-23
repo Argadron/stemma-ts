@@ -65,6 +65,7 @@ describe('Collisions Tests', () => {
 
             if (name === WALL) collisionCreateObjectTest = true
             else if (name === 'sword2') collisionByWeightTest = true
+            else if (name === 'sword3') collisionByChestWeightTest = true
         })
         game.on<IMovedData>('entityMoved', (o, e, d) => {
            const { newPosition } = d.eventData
@@ -85,6 +86,7 @@ describe('Collisions Tests', () => {
     let collisionMoveToObjectTest = false
     let moveToDoesntCollisionObjectTest = false
     let collisionByWeightTest = false
+    let collisionByChestWeightTest = false
     
     it('Create entity in collision place', () => {
         manager.create({
@@ -151,5 +153,38 @@ describe('Collisions Tests', () => {
         })
 
         expect(collisionByWeightTest).toBe(true)
+    })
+    it('Collision by chest weight', () => {
+        const sword1 = map.createObject({
+            name: "sword",
+            position: [2, 0],
+            type: GameObjectEnum.ITEM
+        }, {
+            weight: 50
+        })
+        const sword2 = map.createObject({
+            name: "sword2",
+            position: [2, 0],
+            type: GameObjectEnum.ITEM
+        }, {
+            weight: 50
+        })
+
+        map.createObject({
+            name: "chest",
+            position: [2,1],
+            type: GameObjectEnum.CHEST
+        }, {
+            items: [sword1, sword2]
+        })
+        map.createObject({
+            name: "sword3",
+            position: [2, 1],
+            type: GameObjectEnum.ITEM
+        }, {
+            weight: 1
+        })
+
+        expect(collisionByChestWeightTest).toBe(true)
     })
 })

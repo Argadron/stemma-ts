@@ -129,5 +129,15 @@ export enum GameEvent {
     /**
      * Excutes, when this world object heared noise
      */
-    gameObjectHearedNoise = 'game_object_heared_noise'
+    gameObjectHearedNoise = 'game_object_heared_noise',
+
+    /**
+     * Executes, when game started
+     */
+    gameStarted = 'game_started',
+
+    /**
+     * Executes, when game stopped
+     */
+    gameStopped = 'game_stopped'
 }

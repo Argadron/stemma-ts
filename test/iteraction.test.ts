@@ -3,6 +3,7 @@ import { GameObjectEnum } from "@enums";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, CreateTriggerMetadata, CreateUsableItemMetadata } from "@types";
 import type { IEntityManager, IGameMap, IGame, IDeadData } from "@interfaces";
 import type { Entity, GameObject } from "@world";
+import { EffectFactory } from "@factories";
 
 describe('Interaction Tests', () => {
     let game!: IGame;
@@ -27,7 +28,8 @@ describe('Interaction Tests', () => {
         weight: false,
         drop: false,
         trigger: false,
-        noise: false
+        noise: false,
+        effect: false
     }
 
     beforeEach(() => {
@@ -47,7 +49,8 @@ describe('Interaction Tests', () => {
             weight: false,
             drop: false,
             trigger: false,
-            noise: false
+            noise: false,
+            effect: false
         }
 
         player = manager.create({ name: 'PLAYER', health: 10, damage: 5, isDead: false, position: [1, 0] })
@@ -173,5 +176,28 @@ describe('Interaction Tests', () => {
         player.move([2, 0])
 
         expect(events.noise).toBe(true)
+    })
+    it('Effect test', async () => {
+        const factory = new EffectFactory()
+
+        const poisonEffect = factory.create({
+            name: "POISON",
+            onTick: (e, effect) => {
+                e.health -= effect.power ?? 1
+            },
+            onEnd: () => events.effect = true,
+            power: 2
+        })
+
+        player.applyEffect(poisonEffect, 50)
+
+        game.start(60)
+
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+
+        game.stop()
+
+        expect(events.effect).toBe(true)
+        expect(player.health).toBeLessThan(10)
     })
 });

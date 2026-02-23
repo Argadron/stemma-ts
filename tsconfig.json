@@ -23,6 +23,7 @@
     "paths": {
       "@enums": ["src/enums/index.ts"],
       "@const": ["src/const/index.ts"],
+      "@factories": ["src/factories/index.ts"],
       "@interfaces": ["src/interfaces/index.ts"],
       "@types": ["src/types/index.ts"],
       "@utils": ["src/utils/index.ts"],

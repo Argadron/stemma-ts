@@ -45,9 +45,15 @@ export interface IGame {
     /**
      * Start the game
      * @param fps - FPS
-     * @returns { void }
+     * @returns { boolean } - True if success start, else false
      */
-    readonly start: (fps: number) => void;
+    readonly start: (fps: number) => boolean;
+
+    /**
+     * Stop the game
+     * @returns { boolean } - True if success stop, else false
+     */
+    readonly stop: () => boolean;
 }
 
 export interface IGameOptions {

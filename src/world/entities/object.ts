@@ -26,7 +26,11 @@ export class GameObject implements IGameObject {
        this.id = obj.id ?? createId()
     }
 
-    public shoot() {
+    /**
+     * Shoot method. (attack in entity eqvivalent, only works on Tower object type)
+     * @returns { false | { deathsCounter: number } } - Count of deaths if success shoot, else false
+     */
+    public shoot(): false | { deathsCounter: number; } {
         if (this.type === GameObjectEnum.TOWER) {
             const entites = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES')
 

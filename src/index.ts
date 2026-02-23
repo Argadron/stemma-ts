@@ -1,5 +1,7 @@
 import { Game } from "@";
 import type { 
+    IEntityManager,
+    IGameMap,
     IGameOptions, 
 } from "@interfaces";
 
@@ -12,7 +14,12 @@ export * from "./types/index.js"
 export * from "./utils/index.js"
 export * from "./world/index.js"
 
-export const createGame = (options?: IGameOptions) => {
+/**
+ * Create new game function (fast create)
+ * @param options - Init game options
+ * @returns { [game: Game, manager: IEntityManager, map: IGameMap] } - Array with main game iteract objects
+ */
+export const createGame = (options?: IGameOptions): [game: Game, manager: IEntityManager, map: IGameMap] => {
     const game = new Game(options)
 
     return [game, game.options.entites.manager, game.options.map] as const

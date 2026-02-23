@@ -424,4 +424,11 @@ export class Entity implements ITarget {
     public get armorHealth() {
         return this.inventory.reduce((accum, item) => accum+(item.healthBuff ?? 0), 0)
     }
+
+    /**
+     * Return a weight of items in inventory
+     */
+    public get totalWeight() {
+        return this.inventory.reduce((accum, item) => accum+(item.weight ?? 1), 0)
+    }
 }

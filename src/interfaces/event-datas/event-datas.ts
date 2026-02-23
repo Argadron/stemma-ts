@@ -17,7 +17,7 @@ export interface IEventInfo<T> {
     /**
      * Entity trigger event, if exists
      */
-    readonly entity?: Entity;
+    readonly entity?: Entity | GameObject;
 }
 
 export interface IAttackData {
@@ -195,4 +195,11 @@ export interface IItemUsedData {
      * Item reference
      */
     readonly item: IItem;
+}
+
+export interface IWorldObjectHearedNoiseData {
+    /**
+     * Entity who move and activate noise
+     */
+    readonly fromEntity: Entity;
 }

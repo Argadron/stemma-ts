@@ -89,7 +89,7 @@ export enum GameEvent {
     /**
      * Executes, when any entity drop any item
      */
-    itemDroppingError = 'item_dropping_eror',
+    itemDroppingError = 'item_dropping_error',
 
     /**
      * Executes, when any entity drop any item
@@ -124,5 +124,10 @@ export enum GameEvent {
     /**
      * Executes, when any entity activate any trigger
      */
-    triggerActivated = 'trigger_activated'
+    triggerActivated = 'trigger_activated',
+
+    /**
+     * Excutes, when this world object heared noise
+     */
+    gameObjectHearedNoise = 'game_object_heared_noise'
 }

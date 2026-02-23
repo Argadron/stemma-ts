@@ -1,6 +1,6 @@
-import type { GameEvent } from "@enums"
+import { GameObjectEnum, type GameEvent } from "@enums"
 import type { IEventInfo, IGameOptions, IItem, IWorldItem } from "@interfaces"
-import type { Entity } from "@world"
+import type { Entity, GameObject } from "@world"
 
 export type Position = [number, number]
 export type Quad = [number, number, number, number]
@@ -25,3 +25,4 @@ export type CreateUsableItemMetadata = CreateItemMetadata & {
 }
 export type CreateTowerMetadata = { damage: number }
 export type CreateChestMetadata = { items: (IWorldItem | number)[] }
+export type CreateTriggerMetadata = { trigger: (e: Entity, o: GameObject) => void, real: GameObjectEnum.BLOCK | GameObjectEnum.WALL } 

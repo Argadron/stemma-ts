@@ -3,7 +3,8 @@ export enum GameObjectEnum {
     BLOCK = 'BLOCK',
     TOWER = 'TOWER',
     ITEM = 'ITEM',
-    CHEST = 'CHEST'
+    CHEST = 'CHEST',
+    TRIGGER = 'TRIGGER'
 }
 
 export enum GameEvent {
@@ -23,5 +24,6 @@ export enum GameEvent {
     towerCreatedError = 'tower_created_error',
     chestCreatedError = 'chest_created_error',
     chestOpenedError = 'chest_opened_error',
-    chestOpened = 'chest_opened'
+    chestOpened = 'chest_opened',
+    triggerActivated = 'trigger_activated'
 }

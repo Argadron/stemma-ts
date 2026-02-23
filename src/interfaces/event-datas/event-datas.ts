@@ -78,6 +78,10 @@ export interface IItemDroppedData {
     readonly position: Position;
 }
 
+export interface ITriggerActivatedData {
+    readonly trigger: GameObject;
+}
+
 export interface IItemUsedData {
     readonly item: IItem;
 }

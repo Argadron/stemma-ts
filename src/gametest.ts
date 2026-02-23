@@ -3,6 +3,7 @@ import createGame from "./index.js";
 import type { IAttackData, IItemPickedUpErrorData, IObjectCreatedCollisionData, IObjectCreatedErrorData } from "./interfaces/index.js";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Quad } from "./types/index.js";
 import { BASE_SEARCH_RADIUS } from './const/index.js'
+import { EffectFactory } from "@factories";
 
 const [game, manager, map] = createGame()
 
@@ -10,6 +11,22 @@ const PLAYER = 'PLAYER'
 const PLAYER_SECOND = 'PLAYER_SECOND'
 const ZOMBIE = 'ZOMBIE'
 const TOWER = 'TOWER'
+
+const effectFactory = new EffectFactory()
+
+const poisonEffect = effectFactory.create({
+    name: "POISON",
+    onTick: (e) => {
+       if (e.health > 0) {
+          e.health --
+       }
+       else {
+            e.isDead = true
+
+            return
+       }
+    }
+})
 
 const gameQuad = [
     0, 0, 100, 100
@@ -161,3 +178,11 @@ console.log(player_second.dropItem(sword3, [7, 7]))
 console.log(player_second.inventory)
 console.log(map.checkObjectOk(sword3.id))
 console.log(map.getObject(sword3.id))
+
+player.applyEffect(poisonEffect, 50)
+
+game.start(60)
+
+await new Promise((resolve, reject) => setTimeout(resolve, 5000))
+
+game.stop()

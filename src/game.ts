@@ -11,6 +11,11 @@ export class Game implements IGame {
      * Flag indicates game start status
      */
     private isStarted = false;
+
+    /**
+     * ID of game interval loop
+     */
+    private gameIntervalId: number | undefined;
     
     /**
      * Map of GameEvents listeners
@@ -91,9 +96,29 @@ export class Game implements IGame {
         if (this.isStarted) return false
 
         this.isStarted = true
-
-        setInterval(() => {
-            console.log(fps)
+        this.gameIntervalId = setInterval(() => {
+            this.options.entites.targets.forEach((entity) => entity.tick())
         }, 1000/fps)
+        this.processEvent<null>('gameStarted', {
+            eventTime: new Date(),
+            eventData: null
+        })
+
+        return true
+    }
+
+    public stop() {
+        if (!this.isStarted || !this.gameIntervalId) return false
+
+        clearInterval(this.gameIntervalId)
+
+        this.gameIntervalId = undefined
+        this.isStarted = false
+        this.processEvent<null>('gameStopped', {
+            eventTime: new Date(),
+            eventData: null
+        })
+
+        return true
     }
 }

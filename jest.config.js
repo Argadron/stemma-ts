@@ -13,6 +13,7 @@ export default {
     '^@utils$': '<rootDir>/src/utils/index.ts',
     '^@types$': '<rootDir>/src/types/index.ts',
     '^@const$': '<rootDir>/src/const/index.ts',
+    '^@factories$': '<rootDir>/src/factories/index.ts'
     },
     transform: {
     '^.+\\.tsx?$': [

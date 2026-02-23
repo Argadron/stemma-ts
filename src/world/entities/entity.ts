@@ -18,7 +18,8 @@ import type {
     IChestOpenErrorData,
     IChestOpenedData,
     IItemDroppedErrorData,
-    IItemDroppedData
+    IItemDroppedData,
+    IGameEffect
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { CreateUsableItemMetadata, Position } from "@types";
@@ -46,6 +47,8 @@ export class Entity implements ITarget {
     
     private readonly manager: EntityManager;
     private readonly map: GameMap;
+
+    private effects: (IGameEffect & { remaining: number })[] = [];
     private currentActiveItem: IItem | undefined;
 
     /**
@@ -401,6 +404,43 @@ export class Entity implements ITarget {
 
             return true
         }
+    }
+
+    /**
+     * Apply new effect to entity. If entity already has effect, duration will be rewrited
+     * @param effect - GameEffect
+     * @param duration - Effect duration
+     * @returns { void }
+     */
+    public applyEffect(effect: IGameEffect, duration: number): void {
+        const existing = this.effects.find((eff) => eff.id === effect.id)
+
+        if (existing) {
+            existing.remaining = duration
+        }
+        else {
+            this.effects.push({
+                ...effect,
+                remaining: duration
+            })
+        }
+    }
+
+    /**
+     * Entity tick actions (internal use)
+     */
+    public tick() {
+        this.effects = this.effects.filter((effect) => {
+            effect.onTick(this, effect)
+            effect.remaining --
+
+            if (effect.remaining <= 0) {
+                if (effect.onEnd) effect.onEnd(this, effect)
+
+                return false
+            }
+            else return true
+        })
     }
 
     /**

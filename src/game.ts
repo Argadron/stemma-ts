@@ -7,9 +7,19 @@ import { BASE_FPS } from "@const";
 export class Game implements IGame {
     readonly options: IGameOptions;
 
+    /**
+     * Flag indicates game start status
+     */
     private isStarted = false;
     
+    /**
+     * Map of GameEvents listeners
+     */
     private readonly eventListenersMap = new Map<keyof typeof GameEvent, EventCallback<any>[]>()
+
+    /**
+     * Map of custom events listeners
+     */
     private readonly customEventListenersMap = new Map<string, CustomEventCallback<any>[]>()
 
     public constructor(

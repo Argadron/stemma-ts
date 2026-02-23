@@ -38,6 +38,11 @@ export class GameMap implements Map {
 
     private objects: GameObject[] = []
 
+    /**
+     * Validate and executing error events for new object
+     * @param object - Object to create
+     * @param metadata - Object metadata
+     */
     private validateObject<T = any>(object: GameObject, metadata?: T) {
         if (object.type === GameObjectEnum.ITEM) {
             const itemMetadata = metadata as Partial<CreateItemMetadata & CreateUsableItemMetadata>
@@ -90,6 +95,18 @@ export class GameMap implements Map {
            }
         }
 
+        if (object.type === GameObjectEnum.TRIGGER) {
+            const triggerMetadata = object.metadata as Partial<CreateTriggerMetadata>
+
+            if (!(triggerMetadata.real) || !(triggerMetadata.trigger)) this.game.processEvent<IObjectCreatedErrorData<CreateTriggerMetadata>>('triggerCreatedError', {
+                eventTime: new Date(),
+                eventData: {
+                    objectId: object.id,
+                    mailformedMetadata: triggerMetadata
+                }
+            })
+        }
+
         if (this.checkCollisions(object, object.position)) {
             this.game.processEvent<IObjectCreatedCollisionData>('objectCreatedCollision', {
                 eventTime: new Date(),
@@ -100,7 +117,13 @@ export class GameMap implements Map {
         }
     }
 
-    public checkCollisions(entity: Entity | GameObject, newPosition: Position) {
+    /**
+     * Check collisions. Move, create, etc.
+     * @param entity - World object to iteract with new position
+     * @param newPosition - Iteract position
+     * @returns { boolean } - True if block with collision, else false
+     */
+    public checkCollisions(entity: Entity | GameObject, newPosition: Position): boolean {
         const entitesAndObjects = this.getAllInPosition(newPosition)
         const totalWeight = entitesAndObjects.reduce((accum, objOrEntity) => {
             if (objOrEntity.id === entity.id) return accum
@@ -170,7 +193,12 @@ export class GameMap implements Map {
         }
     }
 
-    public getTriggersInPosition(position: Position) {
+    /**
+     * Get all triggers in provided position
+     * @param position - Position to get triggers
+     * @returns { GameObject[] } - All triggers in position
+     */
+    public getTriggersInPosition(position: Position): GameObject[] {
         return this.objects.filter((obj) => (checkTwoPositions(obj.position, position) && obj.type === GameObjectEnum.TRIGGER))
     }
 
@@ -314,11 +342,6 @@ export class GameMap implements Map {
         return this.objects.filter((obj) => gameObjectIsItem(obj))
     }
 
-    /**
-     * Checks a given object by ID is ok: exists, no collisions in position, exists in position
-     * @param id - ID to check object
-     * @returns { boolean } - True, if all OK
-     */
     public checkObjectOk(id: number): boolean {
         const object = this.getObject(id)
 

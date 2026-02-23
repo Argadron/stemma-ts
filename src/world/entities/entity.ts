@@ -68,13 +68,31 @@ export class Entity implements ITarget {
         this.map = map
     }
 
+    /**
+     * Get one item from entity inventory
+     * @param item - Item to search
+     */
     private getItemFromInventoryByItemOrId(item: GameObject): IWorldItem | undefined
+
+    /**
+     * Get one item from entity inventory
+     * @param id - ID of item
+     */
     private getItemFromInventoryByItemOrId(id: number): IWorldItem | undefined
     private getItemFromInventoryByItemOrId(itemOrId: GameObject | number) {
         return this.inventory.find((item) => item.id === (typeof itemOrId === 'number' ? itemOrId : itemOrId.id))
     }
 
+    /**
+     * Delete one item from entity inventory
+     * @param item - Item to search
+     */
     private deleteItemFromInventory(item: IItem): boolean
+
+    /**
+     * Delete one item from entity inventory
+     * @param id - ID of item
+     */
     private deleteItemFromInventory(id: number): boolean
     private deleteItemFromInventory(itemOrId: IItem | number) {
         const currentLength = this.inventory.length
@@ -84,6 +102,11 @@ export class Entity implements ITarget {
         return currentLength === this.inventory.length ? false : true
     }
 
+    /**
+     * Get all world objects in radius (Quad)
+     * @param searchRadius - Radius to serach entities
+     * @param returnType - Type of return array
+     */
     public getNearEntitiesAndObjects(searchRadius: number, returnType?: 'ALL'): (Entity | GameObject)[];
     public getNearEntitiesAndObjects(searchRadius: number, returnType: 'ENTITES'): Entity[];
     public getNearEntitiesAndObjects(searchRadius: number, returnType: 'OBJECTS'): GameObject[];
@@ -94,6 +117,11 @@ export class Entity implements ITarget {
         return this.map.getInQuad(entityQuad, returnType)
     }
 
+    /**
+     * Attack all targets in 1x1x1x1 quad
+     * @param targets - Hard set targets to attack
+     * @returns { IAttackResult } - Result of attack
+     */
     public attack(targets?: Entity[]): IAttackResult {
         if (this.isDead) return emptyAttackResult(this)
 
@@ -128,7 +156,12 @@ export class Entity implements ITarget {
         }
     }
 
-    public pickUp(position: Position) {
+    /**
+     * Pick Up item in position
+     * @param position - Position of item 
+     * @returns { IWorldItem | false } - IWorldItem if correct pick up, else false
+     */
+    public pickUp(position: Position): IWorldItem | false {
         if (this.isDead) return false;
 
         let anyErrorData;
@@ -172,7 +205,18 @@ export class Entity implements ITarget {
         }
     }
 
+    /**
+     * Drop item to provided position
+     * @param item - Item in inventory
+     * @param position - Position to drop
+     */
     public dropItem(item: GameObject, position: Position): boolean
+
+    /**
+     * Drop item to provided position
+     * @param id - ID of item in inventory
+     * @param position - Position to drop
+     */
     public dropItem(id: number, position: Position): boolean
     public dropItem(itemOrId: GameObject | number, position: Position): boolean {
         const item = this.getItemFromInventoryByItemOrId(typeof itemOrId === 'number' ? itemOrId : itemOrId.id)
@@ -227,7 +271,16 @@ export class Entity implements ITarget {
         }
     }
 
+    /**
+     * Equip item from inventory
+     * @param item - Item in inventory
+     */
     public equipItem(item: GameObject): boolean
+
+    /**
+     * Equip item from inventory
+     * @param id - ID of item in inventory
+     */
     public equipItem(id: number): boolean
     public equipItem(itemOrId: GameObject | number): boolean {
         if (this.currentActiveItem) return false;
@@ -243,6 +296,10 @@ export class Entity implements ITarget {
         }
     }
 
+    /**
+     * Use (execute use() callback) current active item
+     * @returns { boolean } - True if correct use, else false
+     */
     public useItem(): boolean {
         if (!this.currentActiveItem) return false
         else {
@@ -269,7 +326,12 @@ export class Entity implements ITarget {
         }
     }
 
-    public move(position: Position) {
+    /**
+     * Move entity to new position
+     * @param position - Position to move
+     * @returns { boolean | Entity } - Entity reference if correct move, else false
+     */
+    public move(position: Position): boolean | Entity {
         if (this.isDead) return false;
         if (!checkTwoQuads(createQuadFromPosition(position), createQuadFromPosition(this.position, DEFAULT_WALK_STEP+this.walkBuff))) {
             this.manager.game.processEvent<IEntityMovedOutOfRangeData>('entityMovedOutOfRange', {
@@ -285,7 +347,12 @@ export class Entity implements ITarget {
         else return this.map.teleport(this.id, position)
     }
 
-    public openChest(position: Position) {
+    /**
+     * Open chest in provided position
+     * @param position - Position to open chest
+     * @returns { boolean } - True if correct open, else false
+     */
+    public openChest(position: Position): boolean {
         if (this.isDead) return false;
         
         let anyErrorData;
@@ -336,14 +403,24 @@ export class Entity implements ITarget {
         }
     }
 
+    /**
+     * Get full damage of this entity (calc entity damage + current item damage buff)
+     */
     public get fullDamage() {
         return this.currentActiveItem ? this.damage + (this.currentActiveItem.damageBuff ?? 0) : this.damage
     }
 
+    /**
+     * Get full walkBuff of this entity (calc default walk step, and all items buffs/debuffs,
+     * calc items weight (10 weight = -1 walk))
+     */
     public get walkBuff() {
         return this.inventory.reduce((accum, item) => accum+(item.walkBuff ?? 0)-(item.weight ? Math.floor(item.weight / 10) : 1), 0)
     }
 
+    /**
+     * Get full armor of this entity (calc healthBuff of items in inventory)
+     */
     public get armorHealth() {
         return this.inventory.reduce((accum, item) => accum+(item.healthBuff ?? 0), 0)
     }

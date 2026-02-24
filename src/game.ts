@@ -133,6 +133,7 @@ export class Game implements IGame {
         this.isStarted = true
         this.gameIntervalId = setInterval(() => {
             this.options.entites.targets.forEach((entity) => entity.tick())
+            this.options.map.objects.forEach((object) => object.tick())
         }, 1000/fps)
         this.processEvent<null>('gameStarted', {
             eventTime: new Date(),

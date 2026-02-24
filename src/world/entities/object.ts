@@ -1,6 +1,6 @@
 import type { GameMap } from "@world";
 import { GameObjectEnum } from "@enums";
-import type { IGameObject } from "@interfaces";
+import type { IGameObject, ITriggerActivatedData } from "@interfaces";
 import type { EntityManager } from "@";
 import type { Position } from "@types";
 import { createId, createQuadFromPosition, useAttack } from "@utils";
@@ -64,6 +64,27 @@ export class GameObject implements IGameObject {
             position: this.position,
             name: this.name,
             metadata: dtoMetadata
+        }
+    }
+
+    /**
+     * Object tick actions (Internal use)
+     */
+    public tick() {
+        if (this.type === GameObjectEnum.TRIGGER && this.metadata?.isSensor) {
+            this.metadata.currentTick = (this.metadata.currentTick ?? 0) + 1
+
+            if (this.metadata.currentTick % (this.metadata.scanInterval ?? 10) !== 0) return;
+
+            const entities = this.map.getAllInPosition(this.position, 'ENTITES')
+
+            entities.forEach((entity) => this.map.game.processEvent<ITriggerActivatedData>('triggerSensorActive', {
+                entity,
+                eventTime: new Date(),
+                eventData: {
+                    trigger: this
+                }
+            }))
         }
     }
 

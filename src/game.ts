@@ -27,6 +27,11 @@ export class Game implements IGame {
      */
     private readonly customEventListenersMap = new Map<string, CustomEventCallback<any>[]>()
 
+    /**
+     * Factories in game context
+     */
+    private readonly factories = new Map<string, any>()
+
     public constructor(
         options?: IGameOptions
     ) {
@@ -55,7 +60,7 @@ export class Game implements IGame {
             if (events) {
                 const filtrated = events.filter((subscriber) => subscriber !== cb)
 
-                if (filtrated.length !== 0) this.eventListenersMap.set(event, events)
+                if (filtrated.length !== 0) this.eventListenersMap.set(event, filtrated)
                 else this.eventListenersMap.delete(event)
             }
         }
@@ -86,10 +91,20 @@ export class Game implements IGame {
             if (events) {
                 const filtrated = events.filter((subscriber) => subscriber !== cb)
 
-                if (filtrated.length !== 0) this.customEventListenersMap.set(event, events)
+                if (filtrated.length !== 0) this.customEventListenersMap.set(event, filtrated)
                 else this.customEventListenersMap.delete(event)
             }
         }
+    }
+
+    public connectFactory<T = any>(name: string, factory: T) {
+        this.factories.set(name, factory)
+
+        return factory
+    }
+
+    public getFactory<T>(name: string) {
+        return this.factories.get(name) as T
     }
 
     public start(fps=BASE_FPS) {

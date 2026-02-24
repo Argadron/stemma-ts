@@ -43,6 +43,21 @@ export interface IGame {
     readonly registerCustomEvent: <T>(event: string, cb: CustomEventCallback<T>) => VoidFunction;
 
     /**
+     * Connect any factory instance into game
+     * @param name - Factory local name
+     * @param factory - Factory instance
+     * @returns { T }
+     */
+    readonly connectFactory: <T>(name: string, factory: T) => T;
+
+    /**
+     * Get factory by name
+     * @param name - Factory name
+     * @returns { T }
+     */
+    readonly getFactory: <T>(name: string) => T;
+
+    /**
      * Start the game
      * @param fps - FPS
      * @returns { boolean } - True if success start, else false

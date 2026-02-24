@@ -12,7 +12,7 @@ const PLAYER_SECOND = 'PLAYER_SECOND'
 const ZOMBIE = 'ZOMBIE'
 const TOWER = 'TOWER'
 
-const effectFactory = new EffectFactory()
+const effectFactory = game.connectFactory('effect', new EffectFactory())
 
 const poisonEffect = effectFactory.create({
     name: "POISON",
@@ -180,6 +180,8 @@ console.log(map.checkObjectOk(sword3.id))
 console.log(map.getObject(sword3.id))
 
 player.applyEffect(poisonEffect, 50)
+
+console.log(map.game.getFactory<EffectFactory>('effect').get(poisonEffect.id))
 
 game.start(60)
 

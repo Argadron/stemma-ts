@@ -2,7 +2,7 @@ import type { Game } from "@";
 import type { GameEvent } from "@enums";
 import type { EventCallback, CustomEventCallback, Quad, AnyPosition, Position, SnapshotCallback } from "@types";
 import type { Entity, GameObject } from "@world";
-import type { ITarget, IGameObject, IWorldItem, IEventInfo } from "@interfaces";
+import type { ITarget, IGameObject, IWorldItem, IEventInfo, IGameEffect } from "@interfaces";
 
 export interface IGame {
     /**
@@ -241,6 +241,16 @@ export interface IGameMap {
      * @returns { void }
      */
     readonly load: (rawObjects: IGameObject[]) => void;
+
+    /**
+     * Apply effect to provided Quad area
+     * @param quad - Quad to apply effect
+     * @param effect - Effect to apply
+     * @param duration - Effect duration
+     * @param excludeId - Optional ID of entity, effect will not be applied to her
+     * @returns { Entity[] } - Array of entites founded in quad on applying effect
+     */
+    readonly applyEffectToQuad: (quad: Quad, effect: IGameEffect, duration: number, excludeId?: number) => Entity[];
 }
 
 export interface ISnapshot {

@@ -48,4 +48,35 @@ export class GameObject implements IGameObject {
         }
         else return false
     }
+
+    /**
+     * Convert GameObject for snapshot DTO
+     * @returns { IGameObject }
+     */
+    public toDTO(): IGameObject {
+        const dtoMetadata = { ...this.metadata }
+
+        if (this.type === GameObjectEnum.CHEST && dtoMetadata?.items) dtoMetadata.items = dtoMetadata.items.map((i: GameObject) => i.toDTO())
+
+        return {
+            id: this.id,
+            type: this.type,
+            position: this.position,
+            name: this.name,
+            metadata: dtoMetadata
+        }
+    }
+
+    /**
+     * Load object from snapshot
+     * @param data - Object data
+     * @param manager - Entity Manager reference
+     * @param map - Game map reference
+     * @returns { GameObject }
+     */
+    public static fromSnapshot(data: IGameObject, manager: EntityManager, map: GameMap): GameObject {
+        if (data.type === GameObjectEnum.CHEST && data.metadata?.items) data.metadata.items = data.metadata.items.map((i: IGameObject) => new GameObject(i, manager, map, i.metadata))
+
+        return new GameObject(data, manager, map, data.metadata)
+    }
 }

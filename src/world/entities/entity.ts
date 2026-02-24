@@ -1,7 +1,7 @@
-import type { GameMap, GameObject } from "@world";
+import { GameObject, type GameMap } from "@world";
 import { 
     BASE_SEARCH_RADIUS, 
-    DEFAULT_WALK_STEP, 
+    DEFAULT_WALK_STEP,
     emptyAttackResult, 
     ITERACTION_ERRORS 
 } from "@const";
@@ -19,7 +19,8 @@ import type {
     IChestOpenedData,
     IItemDroppedErrorData,
     IItemDroppedData,
-    IGameEffect
+    IGameEffect,
+    IGameObject
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { CreateUsableItemMetadata, Position } from "@types";
@@ -34,6 +35,7 @@ import {
     useAttack 
 } from "@utils";
 import { GameObjectEnum } from "@enums";
+import type { EffectFactory } from "@factories";
 
 export class Entity implements ITarget {
     position: Position;
@@ -444,6 +446,23 @@ export class Entity implements ITarget {
     }
 
     /**
+     * Convert this entity to DTO
+     * @returns { Entity }
+     */
+    public toDTO(): Entity {
+        return {
+            id: this.id,
+            health: this.health,
+            damage: this.damage,
+            isDead: this.isDead,
+            name: this.name,
+            inventory: this.inventory.map((item) => ({ ...item })),
+            effects: this.effects,
+            currentActiveItem: this.currentActiveItem
+        } as any
+    }
+
+    /**
      * Get full damage of this entity (calc entity damage + current item damage buff)
      */
     public get fullDamage() {
@@ -470,5 +489,25 @@ export class Entity implements ITarget {
      */
     public get totalWeight() {
         return this.inventory.reduce((accum, item) => accum+(item.weight ?? 1), 0)
+    }
+
+    /**
+     * Load entity from snapshot
+     * @param data - Entity raw data
+     * @param manager - Entity manager reference
+     * @param map - Game map reference
+     * @returns { Entity }
+     */
+    public static fromSnapshot(data: any, manager: EntityManager, map: GameMap, effectFactory: EffectFactory): Entity {
+        const entity = new Entity(data, manager, map)
+
+        if (data.inventory && Array.isArray(data.inventory)) entity.inventory = data.inventory.map((i: IGameObject) => GameObject.fromSnapshot(i, manager, map)) 
+        if (data.currentActiveItem) entity.currentActiveItem = entity.inventory.find((item) => item.id === data.currentActiveItem.id)
+        if (data.effects && Array.isArray(data.effects)) entity.effects = data.effects.map((effect: any) => ({
+                ...effectFactory.get(effect.id),
+                remaining: effect.remaining
+            })).filter(Boolean)
+
+        return entity
     }
 }

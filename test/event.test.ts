@@ -14,7 +14,8 @@ describe('Event Tests', () => {
         subscribeToGame: false,
         unsubscribing: false,
         subscribeToCustom: false,
-        unsubscribingCustom: false
+        unsubscribingCustom: false,
+        snapshot: false
     }
 
     beforeEach(() => {
@@ -24,7 +25,8 @@ describe('Event Tests', () => {
             subscribeToGame: false,
             unsubscribing: true,
             subscribeToCustom: false,
-            unsubscribingCustom: true
+            unsubscribingCustom: true,
+            snapshot: false
         }
 
         game = g
@@ -80,5 +82,12 @@ describe('Event Tests', () => {
         })
 
         expect(events.unsubscribingCustom).toBe(true)
+    })
+    it('Test snapshot', () => {
+        const snapshot = game.save()
+
+        game.load(snapshot, () => events.snapshot = true)
+
+        expect(events.snapshot).toBe(true)
     })
 })

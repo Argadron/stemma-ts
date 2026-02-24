@@ -127,6 +127,11 @@ export enum GameEvent {
     triggerActivated = 'trigger_activated',
 
     /**
+     * Executes in every tick, when any entity stay on any trigger with active sensor
+     */
+    triggerSensorActive = 'trigger_sensor_active',
+
+    /**
      * Excutes, when this world object heared noise
      */
     gameObjectHearedNoise = 'game_object_heared_noise',

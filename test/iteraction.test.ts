@@ -1,12 +1,13 @@
-import createGame from "@";
+import createGame, { Game } from "@";
 import { GameObjectEnum } from "@enums";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, CreateTriggerMetadata, CreateUsableItemMetadata } from "@types";
-import type { IEntityManager, IGameMap, IGame, IDeadData } from "@interfaces";
+import type { IEntityManager, IGameMap, IDeadData } from "@interfaces";
 import type { Entity, GameObject } from "@world";
 import { EffectFactory } from "@factories";
+import { TIMES_60, wait60fps } from "./utils";
 
 describe('Interaction Tests', () => {
-    let game!: IGame;
+    let game!: Game;
     let manager!: IEntityManager;
     let map!: IGameMap;
     
@@ -29,7 +30,8 @@ describe('Interaction Tests', () => {
         drop: false,
         trigger: false,
         noise: false,
-        effect: false
+        effect: false,
+        sensor: false
     }
 
     beforeEach(() => {
@@ -50,7 +52,8 @@ describe('Interaction Tests', () => {
             drop: false,
             trigger: false,
             noise: false,
-            effect: false
+            effect: false,
+            sensor: false
         }
 
         player = manager.create({ name: 'PLAYER', health: 10, damage: 5, isDead: false, position: [1, 0] })
@@ -82,7 +85,8 @@ describe('Interaction Tests', () => {
             name: "TRIGGER", position: [3,0], type: GameObjectEnum.TRIGGER
         }, {
             real: GameObjectEnum.WALL,
-            trigger: (e, o) => events.trigger = true
+            trigger: (e, o) => events.trigger = true,
+            isSensor: true
         })
 
         game.on('itemPickedUp', () => events.pickUpCorrect = true)
@@ -94,6 +98,7 @@ describe('Interaction Tests', () => {
         game.on('entityMovedOutOfRange', () => events.weight = true)
         game.on('itemDropping', () => events.drop = true)
         game.on('gameObjectHearedNoise', () => events.noise = true)
+        game.on('triggerSensorActive', () => events.sensor = true)
     })
 
     it('Pick Up a Sword (correct)', () => {
@@ -191,13 +196,17 @@ describe('Interaction Tests', () => {
 
         player.applyEffect(poisonEffect, 50)
 
-        game.start(60)
-
-        await new Promise((resolve) => setTimeout(resolve, 2000))
-
-        game.stop()
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
 
         expect(events.effect).toBe(true)
         expect(player.health).toBeLessThan(10)
+    })
+    it('Sensors test', async () => {
+        player.move([2, 0])
+        player.move([3, 0])
+
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
+        expect(events.sensor).toBe(true)
     })
 });

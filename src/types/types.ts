@@ -62,9 +62,11 @@ export type CreateTowerMetadata = { damage: number }
 export type CreateChestMetadata = { items: (IWorldItem | number)[] }
 
 /**
- * Metadata for create Trigger object type
+ * Metadata for create Trigger object type.
+ * isSensor - send triggerSensorActive event in next game tick
+ * scanInterval - optional parameter for sensors (interval for checks in ticks)
  */
-export type CreateTriggerMetadata = { trigger: (e: Entity, o: GameObject) => void, real: GameObjectEnum.BLOCK | GameObjectEnum.WALL } 
+export type CreateTriggerMetadata = { trigger: (e: Entity, o: GameObject) => void, real: GameObjectEnum.BLOCK | GameObjectEnum.WALL, isSensor?: boolean; scanInterval?: number } 
 
 /**
  * Snapshot callback, optional parameter for snapshot data manipulate

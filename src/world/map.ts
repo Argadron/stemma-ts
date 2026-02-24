@@ -11,7 +11,7 @@ import type {
     ITriggerActivatedData,
     IWorldObjectHearedNoiseData
 } from "@interfaces";
-import type { EntityManager } from "@";
+import type { EntityManager, IGameEffect } from "@";
 import type { 
     Position, 
     Quad, 
@@ -369,5 +369,16 @@ export class GameMap implements Map {
         if (!getInPosition(object.position, this.objects)) return false
 
         return !this.checkCollisions(object, object.position)
+    }
+
+    public applyEffectToQuad(quad: Quad, effect: IGameEffect, duration: number, excludeId?: number) {
+        const entities = this.getInQuad(quad, 'ENTITES')
+
+        if (entities.length === 0) return []
+        else {
+            entities.forEach((entity) => excludeId === entity.id ? entity : entity.applyEffect(effect, duration))
+
+            return entities
+        }
     }
 }

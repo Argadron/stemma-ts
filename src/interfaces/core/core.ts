@@ -1,6 +1,6 @@
 import type { Game } from "@";
 import type { GameEvent } from "@enums";
-import type { EventCallback, CustomEventCallback, Quad, AnyPosition, Position } from "@types";
+import type { EventCallback, CustomEventCallback, Quad, AnyPosition, Position, SnapshotCallback } from "@types";
 import type { Entity, GameObject } from "@world";
 import type { ITarget, IGameObject, IWorldItem, IEventInfo } from "@interfaces";
 
@@ -44,7 +44,7 @@ export interface IGame {
 
     /**
      * Connect any factory instance into game
-     * @param name - Factory local name
+     * @param name - Factory key. Use factory keys enum to auto snapshots
      * @param factory - Factory instance
      * @returns { T }
      */
@@ -56,6 +56,20 @@ export interface IGame {
      * @returns { T }
      */
     readonly getFactory: <T>(name: string) => T;
+
+    /**
+     * Save a game snapshot
+     * @returns { ISnapshot }
+     */
+    readonly save: (cb?: SnapshotCallback) => ISnapshot;
+
+    /**
+     * Load a snapshot. ALL objects and entities will be rewrited
+     * @param snapshot - Game snapshot
+     * @param onLoad - Function will be executed after load snapshot
+     * @returns { boolean } - True if correct load, else false
+     */
+    readonly load: (snapshot: ISnapshot, onLoad?: (game: Game) => void) => void;
 
     /**
      * Start the game
@@ -139,6 +153,13 @@ export interface IEntityManager {
      * @returns { boolean } - True, if all OK
      */
     readonly checkEntityOk: (id: number) => boolean;
+
+    /**
+     * Internal method for reload map (delete all entities and load)
+     * @param entites - Entities to load
+     * @returns { void }
+     */
+    readonly load: (rawEntity: ITarget[]) => void;
 }
 
 export interface IGameMap {
@@ -151,6 +172,8 @@ export interface IGameMap {
      * Game reference
      */
     readonly game: Game;
+
+    readonly objects: GameObject[];
 
     /**
      * Get world objects in quad
@@ -211,4 +234,23 @@ export interface IGameMap {
      * @returns { boolean } - True, if all OK
      */
     readonly checkObjectOk: (id: number) => boolean;
+
+    /**
+     * Internal method for reload map (delete all objects and load)
+     * @param objects - Objects to load
+     * @returns { void }
+     */
+    readonly load: (rawObjects: IGameObject[]) => void;
+}
+
+export interface ISnapshot {
+    /**
+     * Array of game objects
+     */
+    readonly objects: IGameObject[];
+
+    /**
+     * Array of entities
+     */
+    readonly entities: ITarget[];
 }

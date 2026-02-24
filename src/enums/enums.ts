@@ -141,3 +141,10 @@ export enum GameEvent {
      */
     gameStopped = 'game_stopped'
 }
+
+export enum FactoryKeys {
+    /**
+     * Effects factory key
+     */
+    EFFECTS = 'EFFECTS'
+}

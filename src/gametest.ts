@@ -1,4 +1,4 @@
-import { GameObjectEnum } from "./enums/index.js";
+import { FactoryKeys, GameObjectEnum } from "./enums/index.js";
 import createGame from "./index.js";
 import type { IAttackData, IItemPickedUpErrorData, IObjectCreatedCollisionData, IObjectCreatedErrorData } from "./interfaces/index.js";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Quad } from "./types/index.js";
@@ -12,7 +12,7 @@ const PLAYER_SECOND = 'PLAYER_SECOND'
 const ZOMBIE = 'ZOMBIE'
 const TOWER = 'TOWER'
 
-const effectFactory = game.connectFactory('effect', new EffectFactory())
+const effectFactory = game.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())
 
 const poisonEffect = effectFactory.create({
     name: "POISON",
@@ -181,10 +181,18 @@ console.log(map.getObject(sword3.id))
 
 player.applyEffect(poisonEffect, 50)
 
-console.log(map.game.getFactory<EffectFactory>('effect').get(poisonEffect.id))
+console.log(map.game.getFactory<EffectFactory>(FactoryKeys.EFFECTS).get(poisonEffect.id))
+
+const snapshot = game.save((snapshot) => {
+    console.log('CORRECT SNAPSHOT, entities:', snapshot.entities.length)
+})
 
 game.start(60)
 
 await new Promise((resolve, reject) => setTimeout(resolve, 5000))
 
 game.stop()
+
+game.load(snapshot, (game) => {
+    console.log(game.options.map.objects) 
+})

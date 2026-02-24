@@ -38,7 +38,7 @@ export class GameMap implements Map {
     public readonly manager: EntityManager;
     public readonly game: Game;
 
-    private objects: GameObject[] = []
+    public objects: GameObject[] = []
 
     /**
      * Validate and executing error events for new object
@@ -211,6 +211,10 @@ export class GameMap implements Map {
      */
     public pushObject(obj: GameObject): void {
         this.objects.push(obj)
+    }
+ 
+    public load(rawObjects: IGameObject[]) {
+        this.objects = rawObjects.map((object) => GameObject.fromSnapshot(object, this.manager, this))
     }
 
     public constructor(manager: EntityManager, game: Game) {

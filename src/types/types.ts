@@ -1,5 +1,5 @@
 import { GameObjectEnum, type GameEvent } from "@enums"
-import type { IEventInfo, IGameOptions, IItem, IWorldItem } from "@interfaces"
+import type { IEventInfo, IGameOptions, IItem, ISnapshot, IWorldItem } from "@interfaces"
 import type { Entity, GameObject } from "@world"
 
 /**
@@ -65,3 +65,8 @@ export type CreateChestMetadata = { items: (IWorldItem | number)[] }
  * Metadata for create Trigger object type
  */
 export type CreateTriggerMetadata = { trigger: (e: Entity, o: GameObject) => void, real: GameObjectEnum.BLOCK | GameObjectEnum.WALL } 
+
+/**
+ * Snapshot callback, optional parameter for snapshot data manipulate
+ */
+export type SnapshotCallback = (snapshot: ISnapshot) => void;

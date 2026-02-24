@@ -7,6 +7,7 @@ import type {
  } from "@interfaces";
 import { Entity, GameMap } from "@world";
 import { getInPosition } from "@utils";
+import { FactoryKeys } from "@enums";
 
 export class EntityManager implements Manager {
     /**
@@ -15,6 +16,10 @@ export class EntityManager implements Manager {
     public entites: Entity[];
     public readonly game: Game;
     public readonly gameMap: GameMap;
+
+    public load(rawEntity: ITarget[]) {
+        this.entites = rawEntity.map((raw) => Entity.fromSnapshot(raw, this, this.gameMap, this.game.getFactory(FactoryKeys.EFFECTS)))
+    }
 
     public constructor(entites: ITarget[], game: Game) {
         this.entites = entites as Entity[]

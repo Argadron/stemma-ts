@@ -1,8 +1,9 @@
-import type { GameEvent } from "@enums";
-import type { IGame, IGameOptions, IEventInfo } from "@interfaces";
+import { FactoryKeys, type GameEvent } from "@enums";
+import type { IGame, IGameOptions, IEventInfo, ISnapshot } from "@interfaces";
 import { EntityManager } from "@";
-import type { EventCallback, CustomEventCallback } from "@types";
+import type { EventCallback, CustomEventCallback, SnapshotCallback } from "@types";
 import { BASE_FPS } from "@const";
+import { EffectFactory } from "@factories";
 
 export class Game implements IGame {
     readonly options: IGameOptions;
@@ -45,6 +46,7 @@ export class Game implements IGame {
             map: manager.gameMap,
             ...options
         }
+        this.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())
     }
 
     public on<T>(event: keyof typeof GameEvent, cb: EventCallback<T>) {
@@ -105,6 +107,24 @@ export class Game implements IGame {
 
     public getFactory<T>(name: string) {
         return this.factories.get(name) as T
+    }
+
+    public save(cb?: SnapshotCallback): ISnapshot {
+        const snapshot = {
+            entities: this.options.entites.targets.map((e) => e.toDTO()),
+            objects: this.options.map.objects.map((o) => o.toDTO())
+        }
+        
+        if (cb) cb(snapshot)
+
+        return snapshot
+    }
+
+    public load(snapshot: ISnapshot, onLoad?: (game: Game) => void) {
+        this.options.map.load(snapshot.objects)
+        this.options.entites.manager.load(snapshot.entities)
+
+        if (onLoad) onLoad(this)
     }
 
     public start(fps=BASE_FPS) {

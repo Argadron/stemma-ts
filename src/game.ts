@@ -1,9 +1,10 @@
 import { FactoryKeys, type GameEvent } from "@enums";
 import type { IGame, IGameOptions, IEventInfo, ISnapshot } from "@interfaces";
-import { EntityManager } from "@";
+import { EntityManager} from "@";
 import type { EventCallback, CustomEventCallback, SnapshotCallback } from "@types";
 import { BASE_FPS } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory } from "@factories";
+import { GlobalStore } from "@store";
 
 export class Game implements IGame {
     readonly options: IGameOptions;
@@ -44,6 +45,7 @@ export class Game implements IGame {
                 targets: manager.entites
             },
             map: manager.gameMap,
+            store: new GlobalStore({ game: this }),
             ...options
         }
         this.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())

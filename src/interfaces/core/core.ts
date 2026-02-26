@@ -3,6 +3,7 @@ import type { GameEvent } from "@enums";
 import type { EventCallback, CustomEventCallback, Quad, AnyPosition, Position, SnapshotCallback } from "@types";
 import type { Entity, GameObject } from "@world";
 import type { ITarget, IGameObject, IWorldItem, IEventInfo, IGameEffect } from "@interfaces";
+import type { GlobalStore } from "@store";
 
 export interface IGame {
     /**
@@ -98,6 +99,8 @@ export interface IGameOptions {
      * Game Map
      */
     readonly map: IGameMap;
+
+    readonly store: GlobalStore
 }
 
 export interface IEntityManager {

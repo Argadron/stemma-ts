@@ -7,6 +7,8 @@ import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory } f
 
 const [game, manager, map] = createGame()
 
+game.options.store.set('isNight', true)
+
 const PLAYER = 'PLAYER'
 const PLAYER_SECOND = 'PLAYER_SECOND'
 const ZOMBIE = 'ZOMBIE'
@@ -229,6 +231,8 @@ console.log(map.game.getFactory<IteractionsFactory>(FactoryKeys.ITERACTIONS).get
 const snapshot = game.save((snapshot) => {
     console.log('CORRECT SNAPSHOT, entities:', snapshot.entities.length)
 })
+
+console.log(game.options.store.get('isNight'))
 
 game.start(60)
 

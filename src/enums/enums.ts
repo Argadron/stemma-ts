@@ -151,5 +151,10 @@ export enum FactoryKeys {
     /**
      * Effects factory key
      */
-    EFFECTS = 'EFFECTS'
+    EFFECTS = 'EFFECTS',
+
+    /**
+     * Blueprints factory key
+     */
+    BLUEPRINTS = 'BLUEPRINTS'
 }

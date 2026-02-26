@@ -1,5 +1,5 @@
 import { GameObjectEnum, type GameEvent } from "@enums"
-import type { IEventInfo, IGameOptions, IItem, ISnapshot, IWorldItem } from "@interfaces"
+import type { IEventInfo, IGameObject, IGameOptions, IItem, ISnapshot, ITarget, IWorldItem } from "@interfaces"
 import type { Entity, GameObject } from "@world"
 
 /**
@@ -72,3 +72,8 @@ export type CreateTriggerMetadata = { trigger: (e: Entity, o: GameObject) => voi
  * Snapshot callback, optional parameter for snapshot data manipulate
  */
 export type SnapshotCallback = (snapshot: ISnapshot) => void;
+
+/**
+ * Util type for blueprint content
+ */
+export type BlueprintContent = Omit<ITarget, 'position'> | Omit<IGameObject, 'position'>

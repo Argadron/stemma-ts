@@ -3,7 +3,7 @@ import createGame from "./index.js";
 import type { IAttackData, IItemPickedUpErrorData, IObjectCreatedCollisionData, IObjectCreatedErrorData } from "./interfaces/index.js";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Quad } from "./types/index.js";
 import { BASE_SEARCH_RADIUS } from './const/index.js'
-import { EffectFactory } from "@factories";
+import { BluePrintsFactory, EffectFactory } from "@factories";
 
 const [game, manager, map] = createGame()
 
@@ -13,6 +13,7 @@ const ZOMBIE = 'ZOMBIE'
 const TOWER = 'TOWER'
 
 const effectFactory = game.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())
+const blueprintsFactory = game.connectFactory(FactoryKeys.BLUEPRINTS, new BluePrintsFactory({ game }))
 
 const poisonEffect = effectFactory.create({
     name: "POISON",
@@ -27,6 +28,15 @@ const poisonEffect = effectFactory.create({
        }
     }
 })
+
+const SUPER_ZOMBIE = blueprintsFactory.register({
+    name: 'SUPER_ZOMBIE',
+    damage: 5,
+    health: 10,
+    isDead: false
+})
+
+blueprintsFactory.create([SUPER_ZOMBIE, SUPER_ZOMBIE], [[2,0], [5,0]])
 
 const gameQuad = [
     0, 0, 100, 100
@@ -182,6 +192,7 @@ console.log(map.getObject(sword3.id))
 player.applyEffect(poisonEffect, 50)
 
 console.log(map.game.getFactory<EffectFactory>(FactoryKeys.EFFECTS).get(poisonEffect.id))
+console.log(map.game.getFactory<BluePrintsFactory>(FactoryKeys.BLUEPRINTS).get(SUPER_ZOMBIE.id))
 
 const snapshot = game.save((snapshot) => {
     console.log('CORRECT SNAPSHOT, entities:', snapshot.entities.length)

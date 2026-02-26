@@ -3,7 +3,7 @@ import createGame, { checkTwoPositions } from "./index.js";
 import type { IAttackData, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData } from "./interfaces/index.js";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Position, Quad } from "./types/index.js";
 import { BASE_SEARCH_RADIUS } from './const/index.js'
-import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory } from "@factories";
+import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 
 const [game, manager, map] = createGame()
 
@@ -19,6 +19,7 @@ const effectFactory = game.connectFactory(FactoryKeys.EFFECTS, new EffectFactory
 const blueprintsFactory = game.connectFactory(FactoryKeys.BLUEPRINTS, new BluePrintsFactory({ game }))
 const questsFactory = game.connectFactory(FactoryKeys.QUESTS, new QuestsFactory({ game }))
 const iteractionFactory = game.connectFactory(FactoryKeys.ITERACTIONS, new IteractionsFactory({ game }))
+const soundsFactory = game.connectFactory(FactoryKeys.SOUNDS, new SoundsFactory({ game }))
 
 const poisonEffect = effectFactory.create({
     name: "POISON",
@@ -56,6 +57,14 @@ const buffDamage = iteractionFactory.create({
 })
 
 blueprintsFactory.create([SUPER_ZOMBIE, SUPER_ZOMBIE], [[2,0], [5,0]])
+
+const topSounds = soundsFactory.create({
+    name: "DOOR_OPEN",
+    category: "SFX",
+    volume: 5
+})
+
+soundsFactory.play(topSounds.id)
 
 const gameQuad = [
     0, 0, 100, 100
@@ -227,6 +236,7 @@ console.log(map.game.getFactory<EffectFactory>(FactoryKeys.EFFECTS).get(poisonEf
 console.log(map.game.getFactory<BluePrintsFactory>(FactoryKeys.BLUEPRINTS).get(SUPER_ZOMBIE.id))
 console.log(map.game.getFactory<QuestsFactory>(FactoryKeys.QUESTS).get(killQuest.id))
 console.log(map.game.getFactory<IteractionsFactory>(FactoryKeys.ITERACTIONS).get(buffDamage.id))
+console.log(map.game.getFactory<SoundsFactory>(FactoryKeys.SOUNDS).get(topSounds.id))
 
 const snapshot = game.save((snapshot) => {
     console.log('CORRECT SNAPSHOT, entities:', snapshot.entities.length)

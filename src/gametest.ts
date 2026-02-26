@@ -142,7 +142,7 @@ const testEvent = game.registerCustomEvent<TestEvent>('event', (opts, event, dat
 })
 
 game.processCustomEvent<TestEvent>('event', {
-    eventTime: new Date(),
+    eventTime: game.currentTick,
     eventData: {
         a: "привет"
     }
@@ -207,7 +207,7 @@ console.log(manager.checkEntityOk(player.id))
 testEvent()
 
 game.processCustomEvent('event', {
-    eventTime: new Date(),
+    eventTime: game.currentTick,
     eventData: {
         a: "привет"
     }

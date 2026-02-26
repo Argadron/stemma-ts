@@ -18,6 +18,11 @@ export class Game implements IGame {
      * ID of game interval loop
      */
     private gameIntervalId: number | undefined;
+
+    /**
+     * Current game tick
+     */
+    private _currentTick = 0;
     
     /**
      * Map of GameEvents listeners
@@ -138,11 +143,13 @@ export class Game implements IGame {
 
         this.isStarted = true
         this.gameIntervalId = setInterval(() => {
+            this._currentTick ++
+
             this.options.entites.targets.forEach((entity) => entity.tick())
             this.options.map.objects.forEach((object) => object.tick())
         }, 1000/fps)
         this.processEvent<null>('gameStarted', {
-            eventTime: new Date(),
+            eventTime: this._currentTick,
             eventData: null
         })
 
@@ -157,10 +164,17 @@ export class Game implements IGame {
         this.gameIntervalId = undefined
         this.isStarted = false
         this.processEvent<null>('gameStopped', {
-            eventTime: new Date(),
+            eventTime: this._currentTick,
             eventData: null
         })
 
         return true
+    }
+
+    /**
+     * Returns a current game tick
+     */
+    public get currentTick() {
+        return this._currentTick
     }
 }

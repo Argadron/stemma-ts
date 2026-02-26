@@ -47,7 +47,7 @@ export class SoundsFactory implements ISoundsFactory {
         if (!sound) return false
         else {
             this.options.game.processEvent<IPlaySoundData>('playSound', {
-                eventTime: new Date(),
+                eventTime: this.options.game.currentTick,
                 eventData: {
                     sound,
                     position

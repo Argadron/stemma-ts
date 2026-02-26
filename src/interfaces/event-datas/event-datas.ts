@@ -1,4 +1,4 @@
-import type { IChest, IItem, ITarget, IWorldItem } from "@interfaces";
+import type { IChest, IItem, ITarget, IWorldItem, IGameSound } from "@interfaces";
 import type { Position, AnyPosition } from "@types";
 import type { Entity, GameObject } from "@world";
 import type { EntityManager } from "@"
@@ -208,4 +208,9 @@ export interface IGlobalStateChangedData<T = any> {
     readonly key: string;
     readonly newValue: T;
     readonly oldValue: T;
+}
+
+export interface IPlaySoundData {
+    readonly sound: IGameSound;
+    readonly position?: Position | undefined;
 }

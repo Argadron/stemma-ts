@@ -149,7 +149,12 @@ export enum GameEvent {
     /**
      * Executes, when global world state changed
      */
-    globalStateChanged = 'global_state_changed'
+    globalStateChanged = 'global_state_changed',
+
+    /**
+     * Executes, when code request play sound
+     */
+    playSound = 'play_sound'
 }
 
 export enum FactoryKeys {
@@ -172,4 +177,9 @@ export enum FactoryKeys {
      * Iteractions factory key
      */
     ITERACTIONS = 'ITERACTIONS',
+
+    /**
+     * Sounds factory key
+     */
+    SOUNDS = 'SOUNDS'
 }

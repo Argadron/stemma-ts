@@ -41,6 +41,16 @@ export function checkTwoQuads(quadA: Quad, quadB: Quad): boolean {
 }
 
 /**
+ * Checks quadA overlapping quadB
+ * @param quadA - A quad to check
+ * @param quadB - B quad to check
+ * @returns { boolean } - True if overlapping, else false
+ */
+export function checkQuadsOverlapping(quadA: Quad, quadB: Quad): boolean {
+    return (quadA[0] < quadB[2] && quadA[2] > quadB[0] && quadA[1] < quadB[3] && quadA[3] > quadB[1])
+}
+
+/**
  * Get a central position of Quad
  * @param quad - Quad to get center Position
  * @returns {Position} - Central position

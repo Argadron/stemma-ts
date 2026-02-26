@@ -1,9 +1,10 @@
-import type { GameMap } from "@world";
-import { GameObjectEnum } from "@enums";
+import type { Entity, GameMap } from "@world";
+import { FactoryKeys, GameObjectEnum } from "@enums";
 import type { IGameObject, ITriggerActivatedData } from "@interfaces";
 import type { EntityManager } from "@";
 import type { Position } from "@types";
-import { createId, createQuadFromPosition, useAttack } from "@utils";
+import { checkQuadsOverlapping, createId, createQuadFromPosition, useAttack } from "@utils";
+import { IteractionsFactory } from "@factories"
 
 export class GameObject implements IGameObject {
     readonly id: number;
@@ -11,6 +12,7 @@ export class GameObject implements IGameObject {
     type: GameObjectEnum;
     position: Position;
     name: string;
+    iteractionId?: number | undefined;
     metadata?: any;
 
     private readonly map: GameMap;
@@ -20,6 +22,7 @@ export class GameObject implements IGameObject {
        this.name = obj.name
        this.position = obj.position
        this.type = obj.type
+       this.iteractionId = obj.iteractionId
        this.manager = manager
        this.map = map
        this.metadata = metadata
@@ -50,6 +53,30 @@ export class GameObject implements IGameObject {
     }
 
     /**
+     * Interact action with this GameObject
+     * @param e - Entity, who make iteraction
+     * @returns { boolean } - True if success interact, else false
+     */
+    public interact(entity: Entity): boolean {
+        if (this.iteractionId !== undefined) {
+            if (!checkQuadsOverlapping(createQuadFromPosition(this.position), createQuadFromPosition(entity.position, 2))) return false
+
+            const iteraction = this.manager.game.getFactory<IteractionsFactory>(FactoryKeys.ITERACTIONS).get(this.iteractionId)
+
+            if (!iteraction) return false
+            else {
+                if (!iteraction.can || iteraction.can(entity, this)) {
+                    iteraction.use(entity, this, this.manager.game)
+
+                    return true
+                }
+                else return false
+            }
+        }
+        else return false
+    }
+
+    /**
      * Convert GameObject for snapshot DTO
      * @returns { IGameObject }
      */
@@ -63,6 +90,7 @@ export class GameObject implements IGameObject {
             type: this.type,
             position: this.position,
             name: this.name,
+            iteractionId: this.iteractionId,
             metadata: dtoMetadata
         }
     }

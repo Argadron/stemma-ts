@@ -3,18 +3,20 @@ import createGame, { checkTwoPositions } from "./index.js";
 import type { IAttackData, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData } from "./interfaces/index.js";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Position, Quad } from "./types/index.js";
 import { BASE_SEARCH_RADIUS } from './const/index.js'
-import { BluePrintsFactory, EffectFactory, QuestsFactory } from "@factories";
+import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory } from "@factories";
 
 const [game, manager, map] = createGame()
 
 const PLAYER = 'PLAYER'
 const PLAYER_SECOND = 'PLAYER_SECOND'
 const ZOMBIE = 'ZOMBIE'
+const BLOCK = 'BLOCK'
 const TOWER = 'TOWER'
 
 const effectFactory = game.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())
 const blueprintsFactory = game.connectFactory(FactoryKeys.BLUEPRINTS, new BluePrintsFactory({ game }))
 const questsFactory = game.connectFactory(FactoryKeys.QUESTS, new QuestsFactory({ game }))
+const iteractionFactory = game.connectFactory(FactoryKeys.ITERACTIONS, new IteractionsFactory({ game }))
 
 const poisonEffect = effectFactory.create({
     name: "POISON",
@@ -46,6 +48,11 @@ const killQuest = questsFactory.create({
     }
 })
 
+const buffDamage = iteractionFactory.create({
+    can: (e) => e.name === PLAYER,
+    use: (e) => e.damage ++
+})
+
 blueprintsFactory.create([SUPER_ZOMBIE, SUPER_ZOMBIE], [[2,0], [5,0]])
 
 const gameQuad = [
@@ -68,6 +75,13 @@ const tower = map.createObject<CreateTowerMetadata>({
     type: GameObjectEnum.TOWER
 }, {
     damage: 50
+})
+
+const buffBlock = map.createObject({
+    name: BLOCK,
+    type: GameObjectEnum.BLOCK,
+    position: [7, 6],
+    iteractionId: buffDamage.id
 })
 
 const player = manager.create({
@@ -203,9 +217,14 @@ console.log(map.getObject(sword3.id))
 
 player.applyEffect(poisonEffect, 50)
 
+buffBlock.interact(player)
+
+console.log(player)
+
 console.log(map.game.getFactory<EffectFactory>(FactoryKeys.EFFECTS).get(poisonEffect.id))
 console.log(map.game.getFactory<BluePrintsFactory>(FactoryKeys.BLUEPRINTS).get(SUPER_ZOMBIE.id))
 console.log(map.game.getFactory<QuestsFactory>(FactoryKeys.QUESTS).get(killQuest.id))
+console.log(map.game.getFactory<IteractionsFactory>(FactoryKeys.ITERACTIONS).get(buffDamage.id))
 
 const snapshot = game.save((snapshot) => {
     console.log('CORRECT SNAPSHOT, entities:', snapshot.entities.length)

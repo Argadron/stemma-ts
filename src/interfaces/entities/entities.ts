@@ -17,6 +17,11 @@ export interface IGameObject extends Pick<ITarget, 'position' | 'name'> {
      * Internal object id. Will be generated automatic
      */
     readonly id?: number;
+
+    /**
+     * ID for execute iteract script
+     */
+    readonly iteractionId?: number | undefined;
 }
 
 export interface IWorldItem extends IItem {

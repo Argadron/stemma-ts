@@ -332,6 +332,21 @@ export class Entity implements ITarget {
     }
 
     /**
+     * Interact with provided position
+     * @param position - Position to interaction
+     * @returns { boolean } - True if success interact, else false
+     */
+    public interactPosition(position: Position): boolean {
+        if (this.isDead) return false
+        else {
+            const objects = this.map.getAllInPosition(position, 'OBJECTS')
+
+            if (objects.length === 0) return false
+            else return objects.some((object) => object.interact(this))
+        }
+    }
+
+    /**
      * Move entity to new position
      * @param position - Position to move
      * @returns { boolean | Entity } - Entity reference if correct move, else false

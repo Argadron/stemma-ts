@@ -161,5 +161,10 @@ export enum FactoryKeys {
     /**
      * Quests factory key
      */
-    QUESTS = 'QUESTS'
+    QUESTS = 'QUESTS',
+
+    /**
+     * Iteractions factory key
+     */
+    ITERACTIONS = 'ITERACTIONS',
 }

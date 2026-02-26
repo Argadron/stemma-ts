@@ -156,5 +156,10 @@ export enum FactoryKeys {
     /**
      * Blueprints factory key
      */
-    BLUEPRINTS = 'BLUEPRINTS'
+    BLUEPRINTS = 'BLUEPRINTS',
+
+    /**
+     * Quests factory key
+     */
+    QUESTS = 'QUESTS'
 }

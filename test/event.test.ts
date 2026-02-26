@@ -64,7 +64,7 @@ describe('Event Tests', () => {
 
         game.processCustomEvent('superAttack', {
             eventData: {},
-            eventTime: new Date()
+            eventTime: game.currentTick
         })
 
         expect(events.subscribeToCustom).toBe(true)
@@ -78,7 +78,7 @@ describe('Event Tests', () => {
 
         game.processCustomEvent('superAttack', {
             eventData: {},
-            eventTime: new Date()
+            eventTime: game.currentTick
         })
 
         expect(events.unsubscribingCustom).toBe(true)

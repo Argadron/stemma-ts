@@ -108,7 +108,7 @@ export class GameObject implements IGameObject {
 
             entities.forEach((entity) => this.map.game.processEvent<ITriggerActivatedData>('triggerSensorActive', {
                 entity,
-                eventTime: new Date(),
+                eventTime: this.map.game.currentTick,
                 eventData: {
                     trigger: this
                 }

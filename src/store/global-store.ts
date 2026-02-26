@@ -21,7 +21,7 @@ export class GlobalStore implements IGlobalStore {
 
         this.state.set(key, value)
         this.options.game.processEvent<IGlobalStateChangedData>('globalStateChanged', {
-            eventTime: new Date(),
+            eventTime: this.options.game.currentTick,
             eventData: {
                 key,
                 newValue: value,

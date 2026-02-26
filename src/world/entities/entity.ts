@@ -146,7 +146,7 @@ export class Entity implements ITarget {
         }
 
         this.manager.game.processEvent<IAttackData>('attack', {
-            eventTime: new Date(),
+            eventTime: this.map.game.currentTick,
             entity: this,
             eventData: {
                 attacker: this,
@@ -186,7 +186,7 @@ export class Entity implements ITarget {
         if (anyErrorData) {
             this.manager.game.processEvent<IItemPickedUpErrorData>('itemPickedUpError', {
                 entity: this,
-                eventTime: new Date(),
+                eventTime: this.map.game.currentTick,
                 eventData: anyErrorData
             })
 
@@ -200,7 +200,7 @@ export class Entity implements ITarget {
             this.map.deleteObject(inventoryItem.id)
             this.manager.game.processEvent<IItemPickedUpData>('itemPickedUp', {
                 entity: this,
-                eventTime: new Date(),
+                eventTime: this.map.game.currentTick,
                 eventData: {
                     item: inventoryItem!
                 }
@@ -232,7 +232,7 @@ export class Entity implements ITarget {
                     position,
                     reason: ITERACTION_ERRORS.NOT_FOUND
                 },
-                eventTime: new Date(),
+                eventTime: this.map.game.currentTick,
                 entity: this
             })
 
@@ -241,7 +241,7 @@ export class Entity implements ITarget {
         else {
             if (this.map.checkCollisions(item as GameObject, position)) {
                 this.manager.game.processEvent<IItemDroppedErrorData>('itemDroppingError', {
-                    eventTime: new Date(),
+                    eventTime: this.map.game.currentTick,
                     entity: this,
                     eventData: {
                         item,
@@ -261,7 +261,7 @@ export class Entity implements ITarget {
                 }, item.metadata)
                 this.map.game.processEvent<IItemDroppedData>('itemDropping', {
                     entity: this,
-                    eventTime: new Date(),
+                    eventTime: this.map.game.currentTick,
                     eventData: {
                         item,
                         position
@@ -315,7 +315,7 @@ export class Entity implements ITarget {
             metadata.onUse(this)
 
             this.manager.game.processEvent<IItemUsedData>('itemUsed', {
-                eventTime: new Date(),
+                eventTime: this.map.game.currentTick,
                 entity: this,
                 eventData: {
                     item: this.currentActiveItem
@@ -356,7 +356,7 @@ export class Entity implements ITarget {
         if (!checkTwoQuads(createQuadFromPosition(position), createQuadFromPosition(this.position, DEFAULT_WALK_STEP+this.walkBuff))) {
             this.manager.game.processEvent<IEntityMovedOutOfRangeData>('entityMovedOutOfRange', {
                 entity: this,
-                eventTime: new Date(),
+                eventTime: this.map.game.currentTick,
                 eventData: {
                     tryMoveTo: position
                 }
@@ -392,7 +392,7 @@ export class Entity implements ITarget {
         if (anyErrorData) {
             this.manager.game.processEvent<IChestOpenErrorData>('chestOpenedError', {
                 entity: this,
-                eventTime: new Date(),
+                eventTime: this.map.game.currentTick,
                 eventData: {
                     ...anyErrorData,
                     position,
@@ -412,7 +412,7 @@ export class Entity implements ITarget {
 
             this.map.game.processEvent<IChestOpenedData>('chestOpened', {
                     entity: this,
-                    eventTime: new Date(),
+                    eventTime: this.map.game.currentTick,
                     eventData: {
                         chest: realChest.metadata
                     }

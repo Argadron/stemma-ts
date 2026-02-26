@@ -10,9 +10,9 @@ export interface IEventInfo<T> {
     readonly eventData: T;
 
     /**
-     * Time, when event did execute
+     * Time (tick), when event did execute
      */
-    readonly eventTime: Date;
+    readonly eventTime: number;
 
     /**
      * Entity trigger event, if exists

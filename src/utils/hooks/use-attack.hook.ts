@@ -18,7 +18,7 @@ export function useAttack(game: Game, dmg: number, attacker: Entity | GameObject
         victim.dropInventory()
     
         game.processEvent<IDeadData>('entityDead', {
-            eventTime: new Date(),
+            eventTime: game.currentTick,
             entity: victim,
             eventData: {
                 entity: victim,

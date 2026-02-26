@@ -50,7 +50,7 @@ export class GameMap implements Map {
             const itemMetadata = metadata as Partial<CreateItemMetadata & CreateUsableItemMetadata>
 
             if (!itemMetadata?.damageBuff && !itemMetadata?.healthBuff && !itemMetadata.onUse && !itemMetadata.weight) this.game.processEvent<IObjectCreatedErrorData<CreateItemMetadata>>('itemCreatedError', {
-                eventTime: new Date(),
+                eventTime: this.game.currentTick,
                 eventData: {
                     mailformedMetadata: itemMetadata,
                     objectId: object.id
@@ -62,7 +62,7 @@ export class GameMap implements Map {
             const towerMetadata = metadata as Partial<CreateTowerMetadata>
 
             if (!(towerMetadata?.damage)) this.game.processEvent<IObjectCreatedErrorData<CreateTowerMetadata>>('towerCreatedError', {
-                eventTime: new Date(),
+                eventTime: this.game.currentTick,
                 eventData: {
                     objectId: object.id,
                     mailformedMetadata: towerMetadata
@@ -81,7 +81,7 @@ export class GameMap implements Map {
            else isCreateOk = false
 
            if (!isCreateOk) this.game.processEvent<IObjectCreatedErrorData<CreateChestMetadata>>('chestCreatedError', {
-                eventTime: new Date(),
+                eventTime: this.game.currentTick,
                 eventData: {
                     mailformedMetadata: chestMetadata,
                     objectId: object.id
@@ -101,7 +101,7 @@ export class GameMap implements Map {
             const triggerMetadata = object.metadata as Partial<CreateTriggerMetadata>
 
             if (!(triggerMetadata.real) || !(triggerMetadata.trigger)) this.game.processEvent<IObjectCreatedErrorData<CreateTriggerMetadata>>('triggerCreatedError', {
-                eventTime: new Date(),
+                eventTime: this.game.currentTick,
                 eventData: {
                     objectId: object.id,
                     mailformedMetadata: triggerMetadata
@@ -111,7 +111,7 @@ export class GameMap implements Map {
 
         if (this.checkCollisions(object, object.position)) {
             this.game.processEvent<IObjectCreatedCollisionData>('objectCreatedCollision', {
-                eventTime: new Date(),
+                eventTime: this.game.currentTick,
                 eventData: {
                     object
                 }
@@ -262,7 +262,7 @@ export class GameMap implements Map {
         if (this.checkCollisions(entity, position)) {
             this.game.processEvent<IMovedCollisionData>('entityMovedCollision', {
                 entity,
-                eventTime: new Date(),
+                eventTime: this.game.currentTick,
                 eventData: {
                     entity,
                     startPosition: entity.position,
@@ -275,7 +275,7 @@ export class GameMap implements Map {
 
         this.game.processEvent<IMovedData>('entityMoved', {
             entity,
-            eventTime: new Date(),
+            eventTime: this.game.currentTick,
             eventData: {
                 entity,
                 startPosition: entity.position,
@@ -295,7 +295,7 @@ export class GameMap implements Map {
 
             this.game.processEvent<IWorldObjectHearedNoiseData>('gameObjectHearedNoise', {
             entity: worldObject,
-            eventTime: new Date(),
+            eventTime: this.game.currentTick,
             eventData: {
                 fromEntity: entity
             }})
@@ -308,7 +308,7 @@ export class GameMap implements Map {
 
             this.game.processEvent<ITriggerActivatedData>('triggerActivated', {
                 entity,
-                eventTime: new Date(),
+                eventTime: this.game.currentTick,
                 eventData: {
                     trigger: trig
                 }

@@ -34,7 +34,7 @@ export class EntityManager implements Manager {
     public create(target: ITarget) {
         if (this.gameMap.checkCollisions(target as Entity, target.position)) {
             this.game.processEvent<IEntityCreatedCollisionData>('entityCreatedCollision', {
-                eventTime: new Date(),
+                eventTime: this.game.currentTick,
                 eventData: {
                     target
                 }
@@ -84,7 +84,7 @@ export class EntityManager implements Manager {
 
             this.game.processEvent<IDeadData>('entityDead', {
                 entity,
-                eventTime: new Date(),
+                eventTime: this.game.currentTick,
                 eventData: {
                     entity,
                     killer: this

@@ -1,5 +1,5 @@
 import { GameObjectEnum } from "@enums"
-import type { IChest, IGameObject, IWorldItem } from "@interfaces"
+import type { IChest, IGameObject, ITarget, IWorldItem } from "@interfaces"
 import type { AnyPosition, Position, Quad } from "@types"
 import { GameObject, type Entity } from "@world"
 
@@ -30,6 +30,17 @@ export function anyWorldObjectIsGameObject(obj: Entity | GameObject): obj is Gam
     const unknownWorldObject = obj as any
 
     return unknownWorldObject.type && unknownWorldObject.id
+}
+
+/**
+ * Checks a given blueprint value is Target (Entity)
+ * @param blueprint - Blueprint to check
+ * @returns { blueprint is ITarget } - True if blueprint value is Target, else false
+ */
+export function blueprintIsTarget(blueprint: ITarget | IGameObject): blueprint is ITarget {
+    const anyBlueprint = blueprint as any
+
+    return (anyBlueprint.isDead !== undefined)
 }
 
 /**

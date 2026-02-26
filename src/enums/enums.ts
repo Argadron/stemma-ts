@@ -144,7 +144,12 @@ export enum GameEvent {
     /**
      * Executes, when game stopped
      */
-    gameStopped = 'game_stopped'
+    gameStopped = 'game_stopped',
+
+    /**
+     * Executes, when global world state changed
+     */
+    globalStateChanged = 'global_state_changed'
 }
 
 export enum FactoryKeys {

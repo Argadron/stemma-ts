@@ -3,7 +3,7 @@ import type { IGame, IGameOptions, IEventInfo, ISnapshot } from "@interfaces";
 import { EntityManager } from "@";
 import type { EventCallback, CustomEventCallback, SnapshotCallback } from "@types";
 import { BASE_FPS } from "@const";
-import { BluePrintsFactory, EffectFactory, QuestsFactory } from "@factories";
+import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory } from "@factories";
 
 export class Game implements IGame {
     readonly options: IGameOptions;
@@ -49,6 +49,7 @@ export class Game implements IGame {
         this.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())
         this.connectFactory(FactoryKeys.BLUEPRINTS, new BluePrintsFactory({ game: this }))
         this.connectFactory(FactoryKeys.QUESTS, new QuestsFactory({ game: this }))
+        this.connectFactory(FactoryKeys.ITERACTIONS, new IteractionsFactory({ game: this }))
     }
 
     public on<T>(event: keyof typeof GameEvent, cb: EventCallback<T>) {

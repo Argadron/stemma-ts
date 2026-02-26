@@ -1,9 +1,9 @@
 import { FactoryKeys, GameObjectEnum } from "./enums/index.js";
-import createGame from "./index.js";
-import type { IAttackData, IItemPickedUpErrorData, IObjectCreatedCollisionData, IObjectCreatedErrorData } from "./interfaces/index.js";
-import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Quad } from "./types/index.js";
+import createGame, { checkTwoPositions } from "./index.js";
+import type { IAttackData, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData } from "./interfaces/index.js";
+import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Position, Quad } from "./types/index.js";
 import { BASE_SEARCH_RADIUS } from './const/index.js'
-import { BluePrintsFactory, EffectFactory } from "@factories";
+import { BluePrintsFactory, EffectFactory, QuestsFactory } from "@factories";
 
 const [game, manager, map] = createGame()
 
@@ -14,6 +14,7 @@ const TOWER = 'TOWER'
 
 const effectFactory = game.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())
 const blueprintsFactory = game.connectFactory(FactoryKeys.BLUEPRINTS, new BluePrintsFactory({ game }))
+const questsFactory = game.connectFactory(FactoryKeys.QUESTS, new QuestsFactory({ game }))
 
 const poisonEffect = effectFactory.create({
     name: "POISON",
@@ -34,6 +35,15 @@ const SUPER_ZOMBIE = blueprintsFactory.register({
     damage: 5,
     health: 10,
     isDead: false
+})
+
+const killQuest = questsFactory.create({
+    name: "Move to 5,6",
+    injectEvents: ['entityMoved'],
+    onEvent: (options, event, data, self) => checkTwoPositions([5, 6], (data.eventData as IMovedData).newPosition as Position),
+    onComplete: (e) => {
+        console.log('QUEST COMPLETED FOR', e.name)
+    }
 })
 
 blueprintsFactory.create([SUPER_ZOMBIE, SUPER_ZOMBIE], [[2,0], [5,0]])
@@ -83,6 +93,8 @@ const zombie = manager.create({
     isDead: false,
     position: [4, 5]
 })
+
+questsFactory.activate(killQuest.id, player.id)
 
 game.on<IAttackData>('attack', (opts, event, data) => {
     console.log(data.eventData.victims)
@@ -193,6 +205,7 @@ player.applyEffect(poisonEffect, 50)
 
 console.log(map.game.getFactory<EffectFactory>(FactoryKeys.EFFECTS).get(poisonEffect.id))
 console.log(map.game.getFactory<BluePrintsFactory>(FactoryKeys.BLUEPRINTS).get(SUPER_ZOMBIE.id))
+console.log(map.game.getFactory<QuestsFactory>(FactoryKeys.QUESTS).get(killQuest.id))
 
 const snapshot = game.save((snapshot) => {
     console.log('CORRECT SNAPSHOT, entities:', snapshot.entities.length)

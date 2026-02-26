@@ -1,5 +1,4 @@
-import type { Game } from "@";
-import type { ITarget, IGameObject } from "@interfaces"
+import type { ITarget, IGameObject, IBaseFactoriesOptions } from "@interfaces"
 import { GameObject, type Entity } from "@world";
 import type { BlueprintContent, Position } from "@types"
 
@@ -28,11 +27,16 @@ export interface IBluePrintsFactory {
     create(blueprint: IBluePrint | IBluePrint[], position: Position[] | Position): (Entity | GameObject) | (Entity | GameObject)[];
 }
 
-export interface IBluePrintsFactoryOptions {
-    readonly game: Game;
-}
+export interface IBluePrintsFactoryOptions extends IBaseFactoriesOptions {}
 
 export interface IBluePrint {
+    /**
+     * ID of blueprint
+     */
     readonly id: number;
+
+    /**
+     * Blueprint content
+     */
     readonly blueprint: BlueprintContent;
 }

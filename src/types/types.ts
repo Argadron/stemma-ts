@@ -1,5 +1,6 @@
+import type { Game } from "@"
 import { GameObjectEnum, type GameEvent } from "@enums"
-import type { IEventInfo, IGameObject, IGameOptions, IItem, ISnapshot, ITarget, IWorldItem } from "@interfaces"
+import type { ICommand, IEventInfo, IGameObject, IGameOptions, IItem, ISnapshot, ITarget, IWorldItem } from "@interfaces"
 import type { Entity, GameObject } from "@world"
 
 /**
@@ -77,3 +78,8 @@ export type SnapshotCallback = (snapshot: ISnapshot) => void;
  * Util type for blueprint content
  */
 export type BlueprintContent = Omit<ITarget, 'position'> | Omit<IGameObject, 'position'>
+
+/**
+ * Middleware function type
+ */
+export type MiddlewareFn = (command: ICommand, next: VoidFunction, game: Game, ctx?: Record<string, any>) => void;

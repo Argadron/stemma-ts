@@ -1,6 +1,6 @@
 import type { Game } from "@";
-import type { GameEvent } from "@enums";
-import type { EventCallback, CustomEventCallback, Quad, AnyPosition, Position, SnapshotCallback } from "@types";
+import type { CommandType, GameEvent } from "@enums";
+import type { EventCallback, CustomEventCallback, Quad, AnyPosition, Position, SnapshotCallback, MiddlewareFn } from "@types";
 import type { Entity, GameObject } from "@world";
 import type { ITarget, IGameObject, IWorldItem, IEventInfo, IGameEffect } from "@interfaces";
 import type { GlobalStore } from "@store";
@@ -71,6 +71,20 @@ export interface IGame {
      * @returns { boolean } - True if correct load, else false
      */
     readonly load: (snapshot: ISnapshot, onLoad?: (game: Game) => void) => void;
+
+    /**
+     * Register a middleware
+     * @param middleware - Middleware function
+     * @returns { void }
+     */
+    readonly use: (middleware: MiddlewareFn | MiddlewareFn[]) => void;
+
+    /**
+     * Command dispatcher method
+     * @param command - Command to executing
+     * @returns { void }
+     */
+    readonly dispatch: (command: ICommand) => void;
 
     /**
      * Start the game
@@ -266,4 +280,26 @@ export interface ISnapshot {
      * Array of entities
      */
     readonly entities: ITarget[];
+}
+
+export interface ICommand<T = any> {
+    /**
+     * Tick, when cmd executed
+     */
+    readonly tick: number;
+
+    /**
+     * Command type
+     */
+    readonly type: CommandType;
+
+    /**
+     * Entity ID, who start cmd
+     */
+    readonly entityId?: number;
+
+    /**
+     * Cmd data
+     */
+    readonly data: T
 }

@@ -1,9 +1,10 @@
-import { FactoryKeys, GameObjectEnum } from "./enums/index.js";
+import { CommandType, FactoryKeys, GameObjectEnum } from "./enums/index.js";
 import createGame, { checkTwoPositions } from "./index.js";
 import type { IAttackData, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData } from "./interfaces/index.js";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Position, Quad } from "./types/index.js";
 import { BASE_SEARCH_RADIUS } from './const/index.js'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
+import { loggerMiddleware } from "@middlewares";
 
 const [game, manager, map] = createGame()
 
@@ -243,6 +244,17 @@ const snapshot = game.save((snapshot) => {
 })
 
 console.log(game.options.store.get('isNight'))
+
+game.use(loggerMiddleware)
+
+game.dispatch({
+    type: CommandType.USE_ITEM,
+    entityId: player.id,
+    tick: game.currentTick,
+    data: {
+        
+    }
+})
 
 game.start(60)
 

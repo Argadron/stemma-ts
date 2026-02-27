@@ -14,7 +14,8 @@ export default {
     '^@types$': '<rootDir>/src/types/index.ts',
     '^@const$': '<rootDir>/src/const/index.ts',
     '^@factories$': '<rootDir>/src/factories/index.ts',
-    '^@store$': '<rootDir>/src/store/index.ts'
+    '^@store$': '<rootDir>/src/store/index.ts',
+    '^@middlewares$': '<rootDir>/src/middlewares/index.ts',
     },
     transform: {
     '^.+\\.tsx?$': [

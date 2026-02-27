@@ -1,7 +1,7 @@
-import { FactoryKeys, type GameEvent } from "@enums";
-import type { IGame, IGameOptions, IEventInfo, ISnapshot } from "@interfaces";
+import { CommandType, FactoryKeys, type GameEvent } from "@enums";
+import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand } from "@interfaces";
 import { EntityManager} from "@";
-import type { EventCallback, CustomEventCallback, SnapshotCallback } from "@types";
+import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn } from "@types";
 import { BASE_FPS } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
@@ -38,6 +38,64 @@ export class Game implements IGame {
      * Factories in game context
      */
     private readonly factories = new Map<string, any>()
+
+    /**
+     * Array of game middlewares
+     */
+    private readonly middlewares: MiddlewareFn[] = []
+
+    private kernelExecute(command: ICommand) {
+            switch(command.type) {
+                case CommandType.SET_STATE:
+                    this.options.store.set(command.data.key, command.data.value)
+                    break
+                case CommandType.CREATE_ENTITY:
+                    this.options.entites.manager.create(command.data.target)
+                    break
+                
+                default: 
+                    const entity = this.options.entites.manager.get(command.entityId!)
+
+                    if (!entity) return
+                    else {
+                        switch (command.type) {
+                            case CommandType.ATTACK:
+                                entity.attack(command.data.entities)
+                                break
+                            case CommandType.APPLY_EFFECT:
+                                entity.applyEffect(command.data.effect, command.data.duration)
+                                break
+                
+                            case CommandType.DROP_INVENTORY:
+                                entity.dropInventory()
+                                break
+                            case CommandType.DROP_ITEM:
+                                entity.dropItem(command.data.item, command.data.position)
+                                break
+                            case CommandType.EQUIP_ITEM:
+                                entity.equipItem(command.data.item)
+                                break
+                            case CommandType.INTERACT_POSITION:
+                                entity.interactPosition(command.data.position)
+                                break
+                            case CommandType.MOVE:
+                                entity.move(command.data.position)
+                                break
+                            case CommandType.OPEN_CHEST:
+                                entity.openChest(command.data.position)
+                                break
+                            case CommandType.PICKUP:
+                                entity.pickUp(command.data.position)
+                                break
+                            case CommandType.USE_ITEM:
+                                entity.useItem()
+                                break
+                            default:
+                                throw new Error(`[Game]: Unknown command type ${command.type}`)
+                        }
+                    }
+            }
+    }
 
     public constructor(
         options?: IGameOptions
@@ -136,6 +194,28 @@ export class Game implements IGame {
         this.options.entites.manager.load(snapshot.entities)
 
         if (onLoad) onLoad(this)
+    }
+
+    public use(middleware: MiddlewareFn | MiddlewareFn[]) {
+        if (Array.isArray(middleware)) {
+            for (const middlw of middleware) this.middlewares.push(middlw)
+        }
+        else this.middlewares.push(middleware)
+    }
+
+    public dispatch(command: ICommand) {
+        const ctx = {}
+
+        let index = 0;
+
+        const next = () => {
+            const middleware = this.middlewares[index++]
+
+            if (middleware) middleware(command, next, this, ctx)
+            else this.kernelExecute(command)
+        }
+
+        next()
     }
 
     public start(fps=BASE_FPS) {

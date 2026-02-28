@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game, UndoManager } from "@";
 import type { CommandType, GameEvent } from "@enums";
 import type { EventCallback, CustomEventCallback, Quad, AnyPosition, Position, SnapshotCallback, MiddlewareFn } from "@types";
 import type { Entity, GameObject } from "@world";
@@ -118,6 +118,11 @@ export interface IGameOptions {
      * Global game state store
      */
     readonly store: GlobalStore;
+
+    /**
+     * Snapshots manager
+     */
+    readonly undoManager: UndoManager;
 
     /**
      * If true, baseChecksMiddleware will not be injected automatic
@@ -304,6 +309,11 @@ export interface ISnapshot {
      * Array of entities
      */
     readonly entities: ITarget[];
+
+    /**
+     * Global state 
+     */
+    readonly state: Record<string, any>;
 }
 
 export interface ICommand<T = any> {

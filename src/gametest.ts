@@ -253,6 +253,7 @@ console.log(map.game.getFactory<IteractionsFactory>(FactoryKeys.ITERACTIONS).get
 console.log(map.game.getFactory<SoundsFactory>(FactoryKeys.SOUNDS).get(topSounds.id))
 
 const snapshot = game.save((snapshot) => {
+    console.log(snapshot.state)
     console.log('CORRECT SNAPSHOT, entities:', snapshot.entities.length)
 })
 
@@ -267,6 +268,7 @@ game.dispatch({
     }
 })
 
+
 game.start(60)
 
 await new Promise((resolve, reject) => setTimeout(resolve, 5000))
@@ -274,5 +276,18 @@ await new Promise((resolve, reject) => setTimeout(resolve, 5000))
 game.stop()
 
 game.load(snapshot, (game) => {
-    console.log(game.options.map.objects) 
+    console.log(game.options.store.get('isNight')) 
 })
+
+game.dispatch({
+    type: CommandType.SET_STATE,
+    tick: game.currentTick,
+    data: {
+        key: 'isNight',
+        value: false
+    }
+})
+
+game.options.undoManager.undo()
+
+console.log(game.options.store.get('isNight'))

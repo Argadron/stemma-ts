@@ -7,6 +7,7 @@ import type {
 
 export * from "./game.js"
 export * from "./manager.js"
+export * from "./undo-manager.js"
 export * from "./const/index.js"
 export * from "./enums/index.js"
 export * from "./interfaces/index.js"

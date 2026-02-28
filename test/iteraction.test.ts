@@ -5,7 +5,6 @@ import type { IEntityManager, IGameMap, IDeadData, ITowerShootedData } from "@in
 import type { Entity, GameObject } from "@world";
 import { EffectFactory } from "@factories";
 import { TIMES_60, wait60fps } from "./utils";
-import {  DropItemGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
 
 describe('Interaction Tests', () => {
     let game!: Game;
@@ -37,7 +36,10 @@ describe('Interaction Tests', () => {
     }
 
     beforeEach(() => {
-        const [g, m, mapInstance] = createGame()
+        const [g, m, mapInstance] = createGame({
+            usingEntityMiddlewares: true,
+            usingObjectMiddlewares: true
+        })
 
         game = g
         manager = m
@@ -103,8 +105,6 @@ describe('Interaction Tests', () => {
         game.on('gameObjectHearedNoise', () => events.noise = true)
         game.on('triggerSensorActive', () => events.sensor = true)
         game.on<ITowerShootedData>('towerShooted', (o, e, d) => events.deaths = d.eventData.deathsCount)
-
-        game.use([MovementGuard, UseItemGuard, DropItemGuard, PickUpGuard, EquipItemGuard, OpenChestGuard, ShootGuard])
     })
 
     it('Pick Up a Sword (correct)', () => {

@@ -123,6 +123,16 @@ export interface IGameOptions {
      * If true, baseChecksMiddleware will not be injected automatic
      */
     readonly disableBaseMiddleware?: boolean;
+
+    /**
+     * Flag to activate all built-in entities middlewares
+     */
+    readonly usingEntityMiddlewares?: boolean;
+
+    /**
+     * Flag to activate built-in object middlewares
+     */
+    readonly usingObjectMiddlewares?: boolean;
 }
 
 export interface IInitGameOptions extends Partial<IGameOptions> {}

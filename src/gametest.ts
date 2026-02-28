@@ -4,12 +4,14 @@ import type { IAttackData, IItemPickedUpErrorData, IMovedData, IObjectCreatedCol
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Position, Quad } from "./types/index.js";
 import { BASE_SEARCH_RADIUS } from './const/index.js'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
-import { DropItemGuard, EntityInteractGuard, EquipItemGuard, loggerMiddleware, MovementGuard, OpenChestGuard, PickUpGuard, UseItemGuard } from "@middlewares";
+import { loggerMiddleware } from "@middlewares";
 
-const [game, manager, map] = createGame()
+const [game, manager, map] = createGame({
+    usingEntityMiddlewares: true,
+    usingObjectMiddlewares: true
+})
 
-
-game.use([loggerMiddleware, MovementGuard, UseItemGuard, DropItemGuard, PickUpGuard, EquipItemGuard, OpenChestGuard, EntityInteractGuard])
+game.use([loggerMiddleware])
 
 game.options.store.set('isNight', true)
 

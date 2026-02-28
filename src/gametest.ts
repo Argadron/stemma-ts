@@ -8,6 +8,9 @@ import { DropItemGuard, EntityInteractGuard, EquipItemGuard, loggerMiddleware, M
 
 const [game, manager, map] = createGame()
 
+
+game.use([loggerMiddleware, MovementGuard, UseItemGuard, DropItemGuard, PickUpGuard, EquipItemGuard, OpenChestGuard, EntityInteractGuard])
+
 game.options.store.set('isNight', true)
 
 const PLAYER = 'PLAYER'
@@ -252,8 +255,6 @@ const snapshot = game.save((snapshot) => {
 })
 
 console.log(game.options.store.get('isNight'))
-
-game.use([loggerMiddleware, MovementGuard, UseItemGuard, DropItemGuard, PickUpGuard, EquipItemGuard, OpenChestGuard, EntityInteractGuard])
 
 game.dispatch({
     type: CommandType.USE_ITEM,

@@ -1,7 +1,8 @@
 import type { IGlobalStateChangedData, IGlobalStore, IGlobalStoreOptions } from "@interfaces";
 
 export class GlobalStore implements IGlobalStore {
-    private readonly state = new Map<string, any>()
+    public state = new Map<string, any>()
+    
     private readonly options: IGlobalStoreOptions;
 
     public constructor(options: IGlobalStoreOptions) {

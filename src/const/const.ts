@@ -47,3 +47,8 @@ export const ITERACTION_ERRORS = {
     CHEST_MAILFORMED: "CHEST MAILFORMED",
     COLLISION: "COLLISION"
 } as const
+
+/**
+ * Default limit in undo manager
+ */
+export const BASE_HISTORY_LIMIT = 30

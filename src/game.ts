@@ -1,6 +1,6 @@
 import { CommandType, FactoryKeys, type GameEvent } from "@enums";
 import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions } from "@interfaces";
-import { EntityManager} from "@";
+import { EntityManager, UndoManager} from "@";
 import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn } from "@types";
 import { BASE_FPS } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
@@ -118,6 +118,7 @@ export class Game implements IGame {
             },
             map: manager.gameMap,
             store: new GlobalStore({ game: this }),
+            undoManager: new UndoManager({ game: this }),
             ...options
         }
         this.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())
@@ -194,7 +195,8 @@ export class Game implements IGame {
     public save(cb?: SnapshotCallback): ISnapshot {
         const snapshot = {
             entities: this.options.entites.targets.map((e) => e.toDTO()),
-            objects: this.options.map.objects.map((o) => o.toDTO())
+            objects: this.options.map.objects.map((o) => o.toDTO()),
+            state: Object.fromEntries(this.options.store.state)
         }
         
         if (cb) cb(snapshot)
@@ -205,6 +207,8 @@ export class Game implements IGame {
     public load(snapshot: ISnapshot, onLoad?: (game: Game) => void) {
         this.options.map.load(snapshot.objects)
         this.options.entites.manager.load(snapshot.entities)
+        
+        for (const key of Object.keys(snapshot.state)) this.options.store.set(key, snapshot.state[key])
 
         if (onLoad) onLoad(this)
     }
@@ -217,6 +221,8 @@ export class Game implements IGame {
     }
 
     public dispatch(command: ICommand) {
+        this.options.undoManager.push(this.save())
+
         const ctx = {}
 
         let index = 0;

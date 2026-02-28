@@ -5,7 +5,7 @@ import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn
 import { BASE_FPS } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
-import { baseChecksMiddleware } from "@middlewares";
+import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
 
 export class Game implements IGame {
     readonly options: IGameOptions;
@@ -127,6 +127,8 @@ export class Game implements IGame {
         this.connectFactory(FactoryKeys.SOUNDS, new SoundsFactory({ game: this }))
 
         if (!(options?.disableBaseMiddleware)) this.use(baseChecksMiddleware)
+        if (options?.usingEntityMiddlewares) this.use([DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, UseItemGuard])
+        if (options?.usingObjectMiddlewares) this.use([ShootGuard])
     }
 
     public on<T>(event: keyof typeof GameEvent, cb: EventCallback<T>) {

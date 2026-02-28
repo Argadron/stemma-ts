@@ -7,7 +7,6 @@ import type {
     IObjectCreatedCollisionData, 
     IObjectCreatedErrorData,
     IGameMap as Map,
-    IWorldItem,
     ITriggerActivatedData,
     IWorldObjectHearedNoiseData
 } from "@interfaces";
@@ -27,12 +26,11 @@ import {
     checkTwoPositions, 
     gameObjectIsItem, 
     getInPosition, 
-    anyWorldObjectIsGameObject, 
-    gameObjectIsChest,
-    createQuadFromPosition
+    createQuadFromPosition,
+    checkCollisions
 } from "@utils";
 import { Entity, GameObject } from "@world";
-import { BASE_HEARING_RADIUS, BASE_MAX_WEIGHT_LIMIT_ON_POSITION } from "@const";
+import { BASE_HEARING_RADIUS } from "@const";
 
 export class GameMap implements Map {
     public readonly manager: EntityManager;
@@ -108,91 +106,6 @@ export class GameMap implements Map {
                 }
             })
         }
-
-        if (this.checkCollisions(object, object.position)) {
-            this.game.processEvent<IObjectCreatedCollisionData>('objectCreatedCollision', {
-                eventTime: this.game.currentTick,
-                eventData: {
-                    object
-                }
-            })
-        }
-    }
-
-    /**
-     * Check collisions. Move, create, etc.
-     * @param entity - World object to iteract with new position
-     * @param newPosition - Iteract position
-     * @returns { boolean } - True if block with collision, else false
-     */
-    public checkCollisions(entity: Entity | GameObject, newPosition: Position): boolean {
-        const entitesAndObjects = this.getAllInPosition(newPosition)
-        const totalWeight = entitesAndObjects.reduce((accum, objOrEntity) => {
-            if (objOrEntity.id === entity.id) return accum
-            if (anyWorldObjectIsGameObject(objOrEntity)) {
-                if (gameObjectIsChest(objOrEntity)) return accum += objOrEntity.metadata?.items.reduce((accum: number, chestItem: GameObject) => accum += (chestItem.metadata?.weight ?? 1), 0)
-                if (gameObjectIsItem(objOrEntity)) return accum += (objOrEntity.metadata?.weight ?? 1)
-                else return accum
-            }
-            else return accum
-        }, 0)
-
-        let isCollision = false
-
-        if (entitesAndObjects.length === 0) return false
-        else {
-            for (const collision of entitesAndObjects) {
-                if (collision.id !== entity.id) {
-                    const entityIsEntity = !anyWorldObjectIsGameObject(entity)
-                    const collisionIsEntity = !anyWorldObjectIsGameObject(collision)
-
-                    if (entityIsEntity) {
-                        if (!collisionIsEntity) {
-                            if (collision.type !== GameObjectEnum.ITEM && collision.type !== GameObjectEnum.TRIGGER) {
-                                isCollision = true
-
-                                break
-                            }
-                        }
-                        else {
-                            if (!collision.isDead) {
-                                isCollision = true
-
-                                break
-                            }
-                        }
-                    }
-                    if (!collisionIsEntity) {
-                        if (collision.type !== GameObjectEnum.ITEM && 
-                            collision.type !== GameObjectEnum.TRIGGER &&
-                            (!entityIsEntity && entity.type !== GameObjectEnum.ITEM && entity.type !== GameObjectEnum.TRIGGER)
-                        ) {
-                            isCollision = true
-
-                            break
-                        }
-                        if (!entityIsEntity && entity.type === GameObjectEnum.ITEM) {
-                            const entityCheckCollision = (entity as IWorldItem).metadata?.weight as number ?? 1
-
-                            if ((totalWeight + entityCheckCollision) >= BASE_MAX_WEIGHT_LIMIT_ON_POSITION) {
-                                isCollision = true
-
-                                break
-                            }
-                        }
-                    }
-                    else {
-                        if (!collision.isDead) {
-                            isCollision = true
-
-                            break
-                        }
-                    }
-                }
-            }
-
-            return isCollision
-        }
     }
 
     /**
@@ -259,20 +172,6 @@ export class GameMap implements Map {
 
         const position = convertAnyPositionToPosition(to)
 
-        if (this.checkCollisions(entity, position)) {
-            this.game.processEvent<IMovedCollisionData>('entityMovedCollision', {
-                entity,
-                eventTime: this.game.currentTick,
-                eventData: {
-                    entity,
-                    startPosition: entity.position,
-                    collisionPosition: to
-                }
-            })
-
-            return false
-        }
-
         this.game.processEvent<IMovedData>('entityMoved', {
             entity,
             eventTime: this.game.currentTick,
@@ -337,7 +236,7 @@ export class GameMap implements Map {
     }
 
     public createObject<T = any>(obj: IGameObject, metadata?: T) {
-        const object = new GameObject(obj, this.manager, this, metadata)
+        const object = new GameObject(obj, this.manager, this, metadata ?? obj.metadata)
 
         this.objects.push(object)
         this.validateObject(object, metadata ?? obj.metadata)
@@ -368,7 +267,7 @@ export class GameMap implements Map {
         if (!object) return false
         if (!getInPosition(object.position, this.objects)) return false
 
-        return !this.checkCollisions(object, object.position)
+        return !checkCollisions(this.getAllInPosition(object.position), object)
     }
 
     public applyEffectToQuad(quad: Quad, effect: IGameEffect, duration: number, excludeId?: number) {

@@ -102,6 +102,11 @@ export enum GameEvent {
     towerCreatedError = 'tower_created_error',
 
     /**
+     * Executes, when tower make a shoot
+     */
+    towerShooted = 'tower_shooted',
+
+    /**
      * Executes, when chest will not be created
      */
     chestCreatedError = 'chest_created_error',
@@ -236,6 +241,11 @@ export enum CommandType {
     APPLY_EFFECT = 'APPLY_EFFECT',
 
     /**
+     * Tower shoot command
+     */
+    TOWER_SHOOT = 'TOWER_SHOOT',
+
+    /**
      * Set global state command
      */
     SET_STATE = 'SET_STATE',
@@ -243,5 +253,10 @@ export enum CommandType {
     /**
      * Create entity command
      */
-    CREATE_ENTITY = 'CREATE_ENTITY'
+    CREATE_ENTITY = 'CREATE_ENTITY',
+
+    /**
+     * Create game object cmd
+     */
+    CREATE_OBJECT = 'CREATE_OBJECT'
 }

@@ -1,6 +1,7 @@
 import { createGame, type Game } from "@"
 import type { IEntityManager, IGameMap } from "@interfaces"
 import type { Entity } from "@world"
+import { CommandType } from "@enums"
 
 describe('Event Tests', () => {
     let game!: Game
@@ -42,8 +43,15 @@ describe('Event Tests', () => {
             events.subscribeToGame = true
         })
 
-        player.attack([zombie])
-
+        game.dispatch({
+            type: CommandType.ATTACK,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                entities: [zombie]
+            }
+        })
+        
         expect(events.subscribeToGame).toBe(true)
     })
     it('Test subscribe to events and unsubscribe', () => {
@@ -53,7 +61,14 @@ describe('Event Tests', () => {
 
         attackEvent()
 
-        player.attack([zombie])
+        game.dispatch({
+            type: CommandType.ATTACK,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                entities: [zombie]
+            }
+        })
 
         expect(events.unsubscribing).toBe(true)
     })

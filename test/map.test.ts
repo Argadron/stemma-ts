@@ -1,6 +1,6 @@
 import createGame, { Game } from "@"
 import type { CreateItemMetadata, Quad } from "@types"
-import { FactoryKeys, GameObjectEnum } from "@enums"
+import { CommandType, FactoryKeys, GameObjectEnum } from "@enums"
 import { Entity, GameObject } from "@world"
 import type { IEntityManager, IGameMap } from "@interfaces"
 import { EffectFactory } from "@factories"
@@ -43,11 +43,19 @@ describe('Map Tests', () => {
     })
 
     it('Create object', () => {
-        expect(map.createObject({
-            name: "object",
-            position: [1, 0],
-            type: GameObjectEnum.BLOCK
-        }).shoot).toBeDefined()
+        game.dispatch({
+            type: CommandType.CREATE_OBJECT,
+            tick: game.currentTick,
+            data: {
+                object: {
+                    name: "object",
+                    position: [1, 0],
+                    type: GameObjectEnum.BLOCK
+                }
+            }
+        })
+
+        expect(map.getAllInPosition([1, 0]).length).toBeGreaterThan(0)
     })
     it('Check object is OK', () => {
         expect(map.checkObjectOk(sword.id)).toBe(true)

@@ -1,32 +1,21 @@
 import { GameObject, type GameMap } from "@world";
-import { 
-    BASE_SEARCH_RADIUS, 
-    DEFAULT_WALK_STEP,
-    emptyAttackResult, 
-    ITERACTION_ERRORS 
-} from "@const";
+import { BASE_SEARCH_RADIUS } from "@const";
 import type { 
     IAttackData, 
     IAttackResult,
-    IEntityMovedOutOfRangeData, 
-    IItemPickedUpData, 
-    IItemPickedUpErrorData, 
+    IItemPickedUpData,  
     IItemUsedData,
     ITarget, 
     IWorldItem,
     IItem,
-    IChestOpenErrorData,
     IChestOpenedData,
-    IItemDroppedErrorData,
     IItemDroppedData,
     IGameEffect,
     IGameObject
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { CreateUsableItemMetadata, Position } from "@types";
-import { 
-    canIteract,
-    checkTwoQuads, 
+import {
     convertGameObjectToInventoryItem, 
     createId, 
     createQuadFromPosition, 
@@ -45,13 +34,13 @@ export class Entity implements ITarget {
     name: string;
     inventory: IItem[] = [];
     
-    readonly id = createId()
+    public readonly id = createId()
+    public currentActiveItem: IItem | undefined;
     
     private readonly manager: EntityManager;
     private readonly map: GameMap;
 
     private effects: (IGameEffect & { remaining: number })[] = [];
-    private currentActiveItem: IItem | undefined;
 
     /**
      * Drop all items in current entity position (for Internal use, dont activate if entity alive)
@@ -74,21 +63,6 @@ export class Entity implements ITarget {
     }
 
     /**
-     * Get one item from entity inventory
-     * @param item - Item to search
-     */
-    private getItemFromInventoryByItemOrId(item: GameObject): IWorldItem | undefined
-
-    /**
-     * Get one item from entity inventory
-     * @param id - ID of item
-     */
-    private getItemFromInventoryByItemOrId(id: number): IWorldItem | undefined
-    private getItemFromInventoryByItemOrId(itemOrId: GameObject | number) {
-        return this.inventory.find((item) => item.id === (typeof itemOrId === 'number' ? itemOrId : itemOrId.id))
-    }
-
-    /**
      * Delete one item from entity inventory
      * @param item - Item to search
      */
@@ -105,6 +79,21 @@ export class Entity implements ITarget {
         this.inventory = this.inventory.filter((item) => item.id !== (typeof itemOrId === 'number' ? itemOrId : itemOrId.id))
 
         return currentLength === this.inventory.length ? false : true
+    }
+
+    /**
+     * Get one item from entity inventory
+     * @param item - Item to search
+     */
+    public getItemFromInventoryByItemOrId(item: GameObject): IWorldItem | undefined
+
+    /**
+     * Get one item from entity inventory
+     * @param id - ID of item
+     */
+    public getItemFromInventoryByItemOrId(id: number): IWorldItem | undefined
+    public getItemFromInventoryByItemOrId(itemOrId: GameObject | number) {
+        return this.inventory.find((item) => item.id === (typeof itemOrId === 'number' ? itemOrId : itemOrId.id))
     }
 
     /**
@@ -128,8 +117,6 @@ export class Entity implements ITarget {
      * @returns { IAttackResult } - Result of attack
      */
     public attack(targets?: Entity[]): IAttackResult {
-        if (this.isDead) return emptyAttackResult(this)
-
         let entites: Entity[];
         let counter = 0;
 
@@ -164,50 +151,22 @@ export class Entity implements ITarget {
     /**
      * Pick Up item in position
      * @param position - Position of item 
-     * @returns { IWorldItem | false } - IWorldItem if correct pick up, else false
+     * @returns { IWorldItem  } - IWorldItem 
      */
-    public pickUp(position: Position): IWorldItem | false {
-        if (this.isDead) return false;
+    public pickUp(position: Position): IWorldItem {
+        const item = getItemInPosition(position, this.map.getAllItems())!
 
-        let anyErrorData;
-
-        if (!canIteract(this, position)) anyErrorData = {
-            reason: ITERACTION_ERRORS.OUT_OF_REACH,
-            position
-        }
-
-        const item = getItemInPosition(position, this.map.getAllItems())
-
-        if (!item) anyErrorData = {
-            reason: ITERACTION_ERRORS.NOT_FOUND,
-            position
-        }
-
-        if (anyErrorData) {
-            this.manager.game.processEvent<IItemPickedUpErrorData>('itemPickedUpError', {
-                entity: this,
-                eventTime: this.map.game.currentTick,
-                eventData: anyErrorData
-            })
-
-            return false
-        }
-        else {
-            const inventoryItem = item!
-
-            this.inventory.push(inventoryItem)
-
-            this.map.deleteObject(inventoryItem.id)
-            this.manager.game.processEvent<IItemPickedUpData>('itemPickedUp', {
-                entity: this,
-                eventTime: this.map.game.currentTick,
-                eventData: {
-                    item: inventoryItem!
-                }
-            })
+        this.inventory.push(item)
+        this.map.deleteObject(item.id)
+        this.manager.game.processEvent<IItemPickedUpData>('itemPickedUp', {
+            entity: this,
+            eventTime: this.map.game.currentTick,
+            eventData: {
+                item
+            }
+        })
             
-            return inventoryItem
-        }
+        return item
     }
 
     /**
@@ -215,135 +174,89 @@ export class Entity implements ITarget {
      * @param item - Item in inventory
      * @param position - Position to drop
      */
-    public dropItem(item: GameObject, position: Position): boolean
+    public dropItem(item: GameObject, position: Position): void
 
     /**
      * Drop item to provided position
      * @param id - ID of item in inventory
      * @param position - Position to drop
      */
-    public dropItem(id: number, position: Position): boolean
-    public dropItem(itemOrId: GameObject | number, position: Position): boolean {
-        const item = this.getItemFromInventoryByItemOrId(typeof itemOrId === 'number' ? itemOrId : itemOrId.id)
+    public dropItem(id: number, position: Position): void
+    public dropItem(itemOrId: GameObject | number, position: Position): void {
+        const item = this.getItemFromInventoryByItemOrId(typeof itemOrId === 'number' ? itemOrId : itemOrId.id)!
 
-        if (!item) {
-            this.manager.game.processEvent<IItemDroppedErrorData>('itemDroppingError', {
-                eventData: {
-                    position,
-                    reason: ITERACTION_ERRORS.NOT_FOUND
-                },
-                eventTime: this.map.game.currentTick,
-                entity: this
-            })
-
-            return false
-        }
-        else {
-            if (this.map.checkCollisions(item as GameObject, position)) {
-                this.manager.game.processEvent<IItemDroppedErrorData>('itemDroppingError', {
-                    eventTime: this.map.game.currentTick,
-                    entity: this,
-                    eventData: {
-                        item,
-                        position,
-                        reason: ITERACTION_ERRORS.COLLISION
-                    }
-                })
-
-                return false
+        this.map.createObject({
+            ...item,
+            metadata: undefined,
+            position,
+            type: GameObjectEnum.ITEM
+        }, item.metadata)
+        this.map.game.processEvent<IItemDroppedData>('itemDropping', {
+            entity: this,
+            eventTime: this.map.game.currentTick,
+            eventData: {
+                item,
+                position
             }
-            else {
-                this.map.createObject({
-                    ...item,
-                    metadata: undefined,
-                    position,
-                    type: GameObjectEnum.ITEM
-                }, item.metadata)
-                this.map.game.processEvent<IItemDroppedData>('itemDropping', {
-                    entity: this,
-                    eventTime: this.map.game.currentTick,
-                    eventData: {
-                        item,
-                        position
-                    }
-                })
-                this.deleteItemFromInventory(item)
+        })
+        this.deleteItemFromInventory(item)
 
-                if (item.id === this.currentActiveItem?.id) this.currentActiveItem = undefined
-
-                return true
-            }
-        }
+        if (item.id === this.currentActiveItem?.id) this.currentActiveItem = undefined
     }
 
     /**
      * Equip item from inventory
      * @param item - Item in inventory
      */
-    public equipItem(item: GameObject): boolean
+    public equipItem(item: GameObject): IWorldItem
 
     /**
      * Equip item from inventory
      * @param id - ID of item in inventory
      */
-    public equipItem(id: number): boolean
-    public equipItem(itemOrId: GameObject | number): boolean {
-        if (this.currentActiveItem) return false;
-        else {
-            const item = this.getItemFromInventoryByItemOrId(typeof itemOrId === 'number' ? itemOrId : itemOrId.id)
+    public equipItem(id: number): IWorldItem
+    public equipItem(itemOrId: GameObject | number): IWorldItem {
+        const item = this.getItemFromInventoryByItemOrId(typeof itemOrId === 'number' ? itemOrId : itemOrId.id)!
 
-            if (!item) return false
-            else {
-                this.currentActiveItem = item
+        this.currentActiveItem = item
 
-                return true
-            }
-        }
+        return item
     }
 
     /**
      * Use (execute use() callback) current active item
-     * @returns { boolean } - True if correct use, else false
+     * @returns { void }
      */
-    public useItem(): boolean {
-        if (!this.currentActiveItem) return false
-        else {
-            const metadata = this.currentActiveItem.metadata as CreateUsableItemMetadata
+    public useItem(): void {
+        const item = this.currentActiveItem!
+        const metadata = item.metadata as CreateUsableItemMetadata
 
-            if (!metadata || !(metadata?.onUse)) return false
+        metadata.onUse(this)
 
-            metadata.onUse(this)
-
-            this.manager.game.processEvent<IItemUsedData>('itemUsed', {
-                eventTime: this.map.game.currentTick,
-                entity: this,
-                eventData: {
-                    item: this.currentActiveItem
-                }
-            })
-
-            if (metadata.isConsumable) {
-                this.deleteItemFromInventory(this.currentActiveItem)
-                this.currentActiveItem = undefined
+        this.manager.game.processEvent<IItemUsedData>('itemUsed', {
+            eventTime: this.map.game.currentTick,
+            entity: this,
+            eventData: {
+                item
             }
+        })
 
-            return true
+        if (metadata.isConsumable) {
+            this.deleteItemFromInventory(item)
+            this.currentActiveItem = undefined
         }
     }
 
     /**
      * Interact with provided position
      * @param position - Position to interaction
+     * @param preComputedObjects - GameObjects from context, if exists
      * @returns { boolean } - True if success interact, else false
      */
-    public interactPosition(position: Position): boolean {
-        if (this.isDead) return false
-        else {
-            const objects = this.map.getAllInPosition(position, 'OBJECTS')
+    public interactPosition(position: Position, preComputedObjects?: GameObject[]): boolean {
+        const objects = preComputedObjects ?? this.map.getAllInPosition(position, 'OBJECTS')
 
-            if (objects.length === 0) return false
-            else return objects.some((object) => object.interact(this))
-        }
+        return objects.some((object) => object.interact(this))
     }
 
     /**
@@ -352,75 +265,30 @@ export class Entity implements ITarget {
      * @returns { boolean | Entity } - Entity reference if correct move, else false
      */
     public move(position: Position): boolean | Entity {
-        if (this.isDead) return false;
-        if (!checkTwoQuads(createQuadFromPosition(position), createQuadFromPosition(this.position, DEFAULT_WALK_STEP+this.walkBuff))) {
-            this.manager.game.processEvent<IEntityMovedOutOfRangeData>('entityMovedOutOfRange', {
-                entity: this,
-                eventTime: this.map.game.currentTick,
-                eventData: {
-                    tryMoveTo: position
-                }
-            })
-
-            return false
-        }
-        else return this.map.teleport(this.id, position)
+        return this.map.teleport(this.id, position)
     }
 
     /**
      * Open chest in provided position
      * @param position - Position to open chest
-     * @returns { boolean } - True if correct open, else false
+     * @returns { void } 
      */
-    public openChest(position: Position): boolean {
-        if (this.isDead) return false;
-        
-        let anyErrorData;
+    public openChest(position: Position): void {    
+        const chest = getChestInPosition(position, this.map.getAllInPosition(position, 'OBJECTS'))!
 
-        if (!canIteract(this, position)) anyErrorData = {
-            reason: ITERACTION_ERRORS.OUT_OF_REACH,
-            position
-        }
+        chest.metadata?.items.forEach((item: GameObject) => {
+            this.inventory.push(convertGameObjectToInventoryItem(item))
+            this.map.deleteObject(item.id)
+        })
 
-        const chest = getChestInPosition(position, this.map.getAllInPosition(position, 'OBJECTS'))
-
-        if (!chest) anyErrorData = {
-            reason: ITERACTION_ERRORS.NOT_FOUND,
-            position
-        }
-
-        if (anyErrorData) {
-            this.manager.game.processEvent<IChestOpenErrorData>('chestOpenedError', {
+        this.map.game.processEvent<IChestOpenedData>('chestOpened', {
                 entity: this,
                 eventTime: this.map.game.currentTick,
                 eventData: {
-                    ...anyErrorData,
-                    position,
-                    chest: (chest!).metadata
+                    chest
                 }
             })
-
-            return false
-        }
-        else {
-            const realChest = chest!
-
-            realChest.metadata?.items.forEach((item: GameObject) => {
-                this.inventory.push(convertGameObjectToInventoryItem(item))
-                this.map.deleteObject(item.id)
-            })
-
-            this.map.game.processEvent<IChestOpenedData>('chestOpened', {
-                    entity: this,
-                    eventTime: this.map.game.currentTick,
-                    eventData: {
-                        chest: realChest.metadata
-                    }
-                })
-            this.map.deleteObject(realChest.id)
-
-            return true
-        }
+        this.map.deleteObject(chest.id)
     }
 
     /**

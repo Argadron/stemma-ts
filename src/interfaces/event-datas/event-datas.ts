@@ -44,6 +44,12 @@ export interface IDeadData {
     readonly killer: Entity | GameObject | EntityManager;
 }
 
+export interface ITowerShootedData {
+    readonly tower: GameObject;
+    readonly deathsCount: number;
+    readonly victims: Entity[];
+}
+
 export interface IMovedData {
     /**
      * Entity who moved
@@ -115,7 +121,7 @@ export interface IChestOpenErrorData {
     /**
      * Chest reference
      */
-    readonly chest: IChest;
+    readonly chest?: IChest;
 
     /**
      * Reason, why entity cant open chest

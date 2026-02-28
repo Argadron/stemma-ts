@@ -29,7 +29,7 @@ export function gameObjectIsChest(obj: IGameObject): obj is IChest & IGameObject
 export function anyWorldObjectIsGameObject(obj: Entity | GameObject): obj is GameObject {
     const unknownWorldObject = obj as any
 
-    return unknownWorldObject.type && unknownWorldObject.id
+    return unknownWorldObject.type && unknownWorldObject.metadata
 }
 
 /**

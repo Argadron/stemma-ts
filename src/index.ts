@@ -2,7 +2,7 @@ import { Game } from "@";
 import type { 
     IEntityManager,
     IGameMap,
-    IGameOptions, 
+    IInitGameOptions, 
 } from "@interfaces";
 
 export * from "./game.js"
@@ -21,7 +21,7 @@ export * from "./store/global-store.js"
  * @param options - Init game options
  * @returns { [game: Game, manager: IEntityManager, map: IGameMap] } - Array with main game iteract objects
  */
-export const createGame = (options?: IGameOptions): [game: Game, manager: IEntityManager, map: IGameMap] => {
+export const createGame = (options?: IInitGameOptions): [game: Game, manager: IEntityManager, map: IGameMap] => {
     const game = new Game(options)
 
     return [game, game.options.entites.manager, game.options.map] as const

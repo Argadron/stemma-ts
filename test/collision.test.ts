@@ -1,6 +1,6 @@
 import type { Game } from "@"
 import { createGame } from "@"
-import { GameObjectEnum } from "@enums"
+import { CommandType, GameObjectEnum } from "@enums"
 import type { 
     IEntityCreatedCollisionData, 
     IMovedCollisionData, 
@@ -12,6 +12,7 @@ import type {
 import { checkTwoPositions, positionIsPosition } from "@utils"
 import type { Position } from "@types"
 import type { Entity, GameObject } from "@world"
+import { CollisionGuard, MovementGuard } from "@middlewares"
 
 describe('Collisions Tests', () => {
     let game!: Game
@@ -74,6 +75,8 @@ describe('Collisions Tests', () => {
              if (checkTwoPositions(newPosition, [2, 0])) moveToDoesntCollisionObjectTest = true
            }
         })
+
+        game.use([MovementGuard, CollisionGuard])
     })
 
     const PLAYER = 'PLAYER'
@@ -89,67 +92,116 @@ describe('Collisions Tests', () => {
     let collisionByChestWeightTest = false
     
     it('Create entity in collision place', () => {
-        manager.create({
-            name: PLAYER,
-            health: 10,
-            damage: 10,
-            isDead: false,
-            position: [1, 0]
+        game.dispatch({
+            type: CommandType.CREATE_ENTITY,
+            tick: game.currentTick,
+            data: {
+                target: {
+                    name: PLAYER,
+                    health: 10,
+                    damage: 10,
+                    isDead: false,
+                    position: [1, 0]
+                }
+            }
         })
 
         expect(collisionCreateTest).toBe(true)
     })
 
     it('Create object in collision place', () => {
-        map.createObject({
-            name: WALL,
-            position: [0, 1],
-            type: GameObjectEnum.WALL
+        game.dispatch({
+            type: CommandType.CREATE_OBJECT,
+            tick: game.currentTick,
+            data: {
+                object: {
+                    name: WALL,
+                    position: [0, 1],
+                    type: GameObjectEnum.WALL
+                }
+            }
         })
 
         expect(collisionCreateObjectTest).toBe(true)
     })
 
     it('Walk to collision entity', () => {
-        zombie.move(player.position)
+        game.dispatch({
+            type: CommandType.MOVE,
+            entityId: zombie.id,
+            tick: game.currentTick,
+            data: {
+                position: player.position
+            }
+        })
 
         expect(collisionMoveToEntityTest).toBe(true)
     })
 
     it('Walk to collision object', () => {
-        player.move(wall.position)
+        game.dispatch({
+            type: CommandType.MOVE,
+            entityId: player.id,
+            tick: game.currentTick,
+            data: {
+                position: wall.position
+            }
+        })
 
         expect(collisionMoveToObjectTest).toBe(true)
+        expect(player.position).not.toEqual(wall.position)
     })
 
     it('Walk to doesnt collision object', () => {
-        const sword = map.createObject({
-            name: "sword",
-            position: [2, 0],
-            type: GameObjectEnum.ITEM
-        }, {
-            damage: 5
+        game.dispatch({
+            type: CommandType.CREATE_OBJECT,
+            tick: game.currentTick,
+            data: {
+                object: {
+                    name: "sword",
+                    position: [2, 0],
+                    type: GameObjectEnum.ITEM,
+                    metadata: { weight: 51 }
+                }
+            }
         })
 
-        player.move(sword.position)
+        game.dispatch({
+            type: CommandType.MOVE,
+            entityId: player.id,
+            tick: game.currentTick,
+            data: {
+                position: [2, 0]
+            }
+        })
 
         expect(moveToDoesntCollisionObjectTest).toBe(true)
     })
 
     it('Collision by weight', () => {
-        map.createObject({
-            name: "sword",
-            position: [2, 0],
-            type: GameObjectEnum.ITEM
-        }, {
-            weight: 50
+        game.dispatch({
+            type: CommandType.CREATE_OBJECT,
+            tick: game.currentTick,
+            data: {
+                object: {
+                    name: "sword2",
+                    position: [2, 0],
+                    type: GameObjectEnum.ITEM,
+                    metadata: { weight: 51 }
+                }
+            }
         })
-        map.createObject({
-            name: "sword2",
-            position: [2, 0],
-            type: GameObjectEnum.ITEM
-        }, {
-            weight: 51
+        game.dispatch({
+            type: CommandType.CREATE_OBJECT,
+            tick: game.currentTick,
+            data: {
+                object: {
+                    name: "sword2",
+                    position: [2, 0],
+                    type: GameObjectEnum.ITEM,
+                    metadata: { weight: 50 }
+                }
+            }
         })
 
         expect(collisionByWeightTest).toBe(true)
@@ -177,12 +229,30 @@ describe('Collisions Tests', () => {
         }, {
             items: [sword1, sword2]
         })
-        map.createObject({
-            name: "sword3",
-            position: [2, 1],
-            type: GameObjectEnum.ITEM
-        }, {
-            weight: 1
+        game.dispatch({
+            type: CommandType.CREATE_OBJECT,
+            tick: game.currentTick,
+            data: {
+                object: {
+                    name: "sword2",
+                    position: [2, 0],
+                    type: GameObjectEnum.ITEM,
+                    metadata: { weight: 51 }
+                }
+            }
+        })
+
+        game.dispatch({
+            type: CommandType.CREATE_OBJECT,
+            tick: game.currentTick,
+            data: {
+                object: {
+                    name: "sword3",
+                    position: [2, 1],
+                    type: GameObjectEnum.ITEM,
+                    metadata: { weight: 1 }
+                }
+            }
         })
 
         expect(collisionByChestWeightTest).toBe(true)

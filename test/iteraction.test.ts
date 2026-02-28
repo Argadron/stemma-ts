@@ -1,10 +1,11 @@
 import createGame, { Game } from "@";
-import { GameObjectEnum } from "@enums";
+import { CommandType, GameObjectEnum } from "@enums";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, CreateTriggerMetadata, CreateUsableItemMetadata } from "@types";
-import type { IEntityManager, IGameMap, IDeadData } from "@interfaces";
+import type { IEntityManager, IGameMap, IDeadData, ITowerShootedData } from "@interfaces";
 import type { Entity, GameObject } from "@world";
 import { EffectFactory } from "@factories";
 import { TIMES_60, wait60fps } from "./utils";
+import {  DropItemGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
 
 describe('Interaction Tests', () => {
     let game!: Game;
@@ -31,7 +32,8 @@ describe('Interaction Tests', () => {
         trigger: false,
         noise: false,
         effect: false,
-        sensor: false
+        sensor: false,
+        deaths: 0
     }
 
     beforeEach(() => {
@@ -53,7 +55,8 @@ describe('Interaction Tests', () => {
             trigger: false,
             noise: false,
             effect: false,
-            sensor: false
+            sensor: false,
+            deaths: 0
         }
 
         player = manager.create({ name: 'PLAYER', health: 10, damage: 5, isDead: false, position: [1, 0] })
@@ -99,21 +102,54 @@ describe('Interaction Tests', () => {
         game.on('itemDropping', () => events.drop = true)
         game.on('gameObjectHearedNoise', () => events.noise = true)
         game.on('triggerSensorActive', () => events.sensor = true)
+        game.on<ITowerShootedData>('towerShooted', (o, e, d) => events.deaths = d.eventData.deathsCount)
+
+        game.use([MovementGuard, UseItemGuard, DropItemGuard, PickUpGuard, EquipItemGuard, OpenChestGuard, ShootGuard])
     })
 
     it('Pick Up a Sword (correct)', () => {
-        player.pickUp(sword.position)
+        game.dispatch({
+            type: CommandType.PICKUP,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                position: sword.position
+            }
+        })
 
         expect(events.pickUpCorrect).toBe(true)
     })
     it('Drop test', () => {
-        player.pickUp(sword.position)
-        player.dropItem(sword, [2, 0])
+        game.dispatch({
+            type: CommandType.PICKUP,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                position: sword.position
+            }
+        })
+        
+        game.dispatch({
+            type: CommandType.DROP_ITEM,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                item: sword,
+                position: [2, 0]
+            }
+        })
 
         expect(events.drop).toBe(true)
     })
     it('Dead and drop inventory test', () => {
-        player.pickUp(magicSword.position)
+        game.dispatch({
+            type: CommandType.PICKUP,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                position: magicSword.position
+            }
+        })
 
         game.on<IDeadData>('entityDead', (o, e, d) => {
             manager.delete(d.eventData.entity.id)
@@ -124,61 +160,162 @@ describe('Interaction Tests', () => {
         expect(map.checkObjectOk(magicSword.id)).toBe(true)
     })
     it('Shoot test', () => {
-        const shoot = tower.shoot()
+        game.dispatch({
+            type: CommandType.TOWER_SHOOT,
+            tick: game.currentTick,
+            objectId: tower.id,
+            data: {}
+        })
 
-        let deaths = 0
-
-        if (shoot) {
-            deaths = shoot.deathsCounter
-        }
-
-        expect(deaths).toBe(2)
+        expect(events.deaths).toBe(2)
     })
     it('Item buff check', () => {
-        player.pickUp(sword.position)
-        player.equipItem(sword)
+        game.dispatch({
+            type: CommandType.PICKUP,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                position: sword.position
+            }
+        })
+        game.dispatch({
+            type: CommandType.EQUIP_ITEM,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                item: sword
+            }
+        })
 
         expect(player.damage).toBe(5)
         expect(player.fullDamage).toBe(15)
     })
     it('Item use check', () => {
-        player.pickUp(magicSword.position)
-        player.equipItem(magicSword)
-        player.useItem()
+        game.dispatch({
+            type: CommandType.PICKUP,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                position: magicSword.position
+            }
+        })
+        game.dispatch({
+            type: CommandType.EQUIP_ITEM,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                item: magicSword
+            }
+        })
+        
+        game.dispatch({
+            type: CommandType.USE_ITEM,
+            entityId: player.id,
+            tick: game.currentTick,
+            data: {}
+        })
 
         expect(events.using).toBe(true)
         expect(player.damage).toBe(6)
     })
     it('Open chest', () => {
-        player.openChest(chest.position)
+        game.dispatch({
+            type: CommandType.OPEN_CHEST,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                position: chest.position
+            }
+        })
 
         expect(events.chest).toBe(true)
     })
     it('Move with weight', () => {
-        const result = player.move([2, 0])
-
-        player.pickUp(sword.position)
-        player.move([1, 0])
-
-        expect(result !== false).toBe(true)
+        game.dispatch({
+            type: CommandType.MOVE,
+            entityId: player.id,
+            tick: game.currentTick,
+            data: {
+                position: [2, 0]
+            }
+        })
+        game.dispatch({
+            type: CommandType.PICKUP,
+            entityId: player.id,
+            tick: game.currentTick,
+            data: {
+                position: sword.position
+            }
+        })
+        game.dispatch({
+            type: CommandType.MOVE,
+            entityId: player.id,
+            tick: game.currentTick,
+            data: {
+                position: [1, 0]
+            }
+        })
+        
         expect(events.weight).toBe(true)
     })
     it('Kill test', () => {
-        player.pickUp(sword.position)
-        player.equipItem(sword)
-        player.attack([zombie])
+        game.dispatch({
+            type: CommandType.PICKUP,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                position: sword.position
+            }
+        })
+        game.dispatch({
+            type: CommandType.EQUIP_ITEM,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                item: sword
+            }
+        })
+        game.dispatch({
+            type: CommandType.ATTACK,
+            tick: game.currentTick,
+            entityId: player.id,
+            data: {
+                entities: [zombie]
+            }
+        })
 
         expect(events.kill).toBe(true)
         expect(zombie.isDead).toBe(true)
     })
     it('Activate trigger test', () => {
-        player.move([2, 0])
-        player.move([3, 0])
+        game.dispatch({
+            type: CommandType.MOVE,
+            entityId: player.id,
+            tick: game.currentTick,
+            data: {
+                position: [2, 0]
+            }
+        })
+        game.dispatch({
+            type: CommandType.MOVE,
+            entityId: player.id,
+            tick: game.currentTick,
+            data: {
+                position: [3, 0]
+            }
+        })
 
         expect(events.trigger).toBe(true)
     })
     it('Heard noise test', () => {
-        player.move([2, 0])
+        game.dispatch({
+            type: CommandType.MOVE,
+            entityId: player.id,
+            tick: game.currentTick,
+            data: {
+                position: [2, 0]
+            }
+        })
 
         expect(events.noise).toBe(true)
     })
@@ -202,8 +339,22 @@ describe('Interaction Tests', () => {
         expect(player.health).toBeLessThan(10)
     })
     it('Sensors test', async () => {
-        player.move([2, 0])
-        player.move([3, 0])
+        game.dispatch({
+            type: CommandType.MOVE,
+            entityId: player.id,
+            tick: game.currentTick,
+            data: {
+                position: [2, 0]
+            }
+        })
+        game.dispatch({
+            type: CommandType.MOVE,
+            entityId: player.id,
+            tick: game.currentTick,
+            data: {
+                position: [3, 0]
+            }
+        })
 
         await wait60fps(game, TIMES_60.TWO_SECONDS)
 

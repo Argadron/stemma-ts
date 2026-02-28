@@ -1,9 +1,9 @@
 import type { Entity, GameMap } from "@world";
 import { FactoryKeys, GameObjectEnum } from "@enums";
-import type { IGameObject, ITriggerActivatedData } from "@interfaces";
+import type { IGameObject, ITriggerActivatedData, ITowerShootedData } from "@interfaces";
 import type { EntityManager } from "@";
 import type { Position } from "@types";
-import { checkQuadsOverlapping, createId, createQuadFromPosition, useAttack } from "@utils";
+import { createId, createQuadFromPosition, useAttack } from "@utils";
 import { IteractionsFactory } from "@factories"
 
 export class GameObject implements IGameObject {
@@ -31,49 +31,42 @@ export class GameObject implements IGameObject {
 
     /**
      * Shoot method. (attack in entity eqvivalent, only works on Tower object type)
-     * @returns { false | { deathsCounter: number } } - Count of deaths if success shoot, else false
+     * @returns { { deathsCounter: number } } - Count of deaths
      */
-    public shoot(): false | { deathsCounter: number; } {
-        if (this.type === GameObjectEnum.TOWER) {
-            const entites = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES')
+    public shoot(): { deathsCounter: number; } {
+        const entites = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES')
 
-            let counter = 0;
+        let counter = 0;
 
-            for (const victim of entites) {
-                const { isDead } = useAttack(this.map.game, this.metadata.damage, this, victim)
+        for (const victim of entites) {
+            const { isDead } = useAttack(this.map.game, this.metadata.damage, this, victim)
 
-                if (isDead) counter++
-            }
-
-            return {
-                deathsCounter: counter
-            }
+            if (isDead) counter++
         }
-        else return false
+
+        this.map.game.processEvent<ITowerShootedData>('towerShooted', {
+            eventTime: this.map.game.currentTick,
+            eventData: {
+                tower: this,
+                victims: entites,
+                deathsCount: counter
+            }
+        })
+
+        return {
+            deathsCounter: counter
+        }
     }
 
     /**
      * Interact action with this GameObject
      * @param e - Entity, who make iteraction
-     * @returns { boolean } - True if success interact, else false
+     * @returns { void } 
      */
-    public interact(entity: Entity): boolean {
-        if (this.iteractionId !== undefined) {
-            if (!checkQuadsOverlapping(createQuadFromPosition(this.position), createQuadFromPosition(entity.position, 2))) return false
+    public interact(entity: Entity): void {
+        const iteraction = this.manager.game.getFactory<IteractionsFactory>(FactoryKeys.ITERACTIONS).get(this.iteractionId!)!
 
-            const iteraction = this.manager.game.getFactory<IteractionsFactory>(FactoryKeys.ITERACTIONS).get(this.iteractionId)
-
-            if (!iteraction) return false
-            else {
-                if (!iteraction.can || iteraction.can(entity, this)) {
-                    iteraction.use(entity, this, this.manager.game)
-
-                    return true
-                }
-                else return false
-            }
-        }
-        else return false
+        iteraction.use(entity, this, this.manager.game)
     }
 
     /**

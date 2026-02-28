@@ -6,7 +6,7 @@ import type {
     IDeadData
  } from "@interfaces";
 import { Entity, GameMap } from "@world";
-import { getInPosition } from "@utils";
+import { checkCollisions, getInPosition } from "@utils";
 import { FactoryKeys } from "@enums";
 
 export class EntityManager implements Manager {
@@ -32,17 +32,6 @@ export class EntityManager implements Manager {
     }
 
     public create(target: ITarget) {
-        if (this.gameMap.checkCollisions(target as Entity, target.position)) {
-            this.game.processEvent<IEntityCreatedCollisionData>('entityCreatedCollision', {
-                eventTime: this.game.currentTick,
-                eventData: {
-                    target
-                }
-            })
-
-            return target as Entity
-        }
-
         const entity = new Entity(target, this, this.gameMap)
 
         this.entites.push(entity)
@@ -101,6 +90,6 @@ export class EntityManager implements Manager {
         if (!entity) return false
         if (!getInPosition(entity.position, this.entites)) return false
 
-        return !this.gameMap.checkCollisions(entity, entity.position)
+        return !checkCollisions(this.gameMap.getAllInPosition(entity.position), entity)
     }
 }

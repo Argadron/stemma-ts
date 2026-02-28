@@ -1,5 +1,6 @@
 import createGame from "@"
 import { Entity } from "@world"
+import { CommandType } from "@enums"
 
 describe('Manager Tests', () => {
     const [game, manager, map] = createGame()
@@ -15,13 +16,21 @@ describe('Manager Tests', () => {
     })
 
     it('Create entity', () => {
-        expect(manager.create({
-            name: "entity",
-            health: 10,
-            isDead: false,
-            position: [1, 2],
-            damage: 10
-        }).attack).toBeDefined()
+        game.dispatch({
+            type: CommandType.CREATE_ENTITY,
+            tick: game.currentTick,
+            data: {
+                target: {
+                    name: "entity",
+                    health: 10,
+                    isDead: false,
+                    position: [1, 2],
+                    damage: 10
+                }
+            }
+        })
+
+        expect(map.getAllInPosition([1, 2]).length).toBeGreaterThan(0)
     })
     it('Get entity', () => {
         expect(manager.get(player.id)).toBeInstanceOf(Entity)

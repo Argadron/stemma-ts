@@ -114,8 +114,18 @@ export interface IGameOptions {
      */
     readonly map: IGameMap;
 
-    readonly store: GlobalStore
+    /**
+     * Global game state store
+     */
+    readonly store: GlobalStore;
+
+    /**
+     * If true, baseChecksMiddleware will not be injected automatic
+     */
+    readonly disableBaseMiddleware?: boolean;
 }
+
+export interface IInitGameOptions extends Partial<IGameOptions> {}
 
 export interface IEntityManager {
     /**
@@ -215,7 +225,11 @@ export interface IGameMap {
      * @param position - Position to get objects
      * @returns { (Entity | GameObject)[] } - Array of world objects
      */
-    readonly getAllInPosition: (position: Position) => (Entity | GameObject)[];
+    getAllInPosition(position: Position, returnType?: 'ALL'): (Entity | GameObject)[];
+    getAllInPosition(position: Position, returnType: 'ENTITES'): Entity[];
+    getAllInPosition(position: Position, returnType: 'OBJECTS'): GameObject[];
+    getAllInPosition(position: Position, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
+    getAllInPosition(position: Position, returnType:'ALL' | 'ENTITES' | 'OBJECTS'): (Entity | GameObject)[];
 
     /**
      * Create game object
@@ -297,6 +311,11 @@ export interface ICommand<T = any> {
      * Entity ID, who start cmd
      */
     readonly entityId?: number;
+
+    /**
+     * Object id, who start cmd
+     */
+    readonly objectId?: number;
 
     /**
      * Cmd data

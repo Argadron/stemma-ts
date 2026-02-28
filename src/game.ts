@@ -1,10 +1,11 @@
 import { CommandType, FactoryKeys, type GameEvent } from "@enums";
-import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand } from "@interfaces";
+import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions } from "@interfaces";
 import { EntityManager} from "@";
 import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn } from "@types";
 import { BASE_FPS } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
+import { baseChecksMiddleware } from "@middlewares";
 
 export class Game implements IGame {
     readonly options: IGameOptions;
@@ -44,7 +45,7 @@ export class Game implements IGame {
      */
     private readonly middlewares: MiddlewareFn[] = []
 
-    private kernelExecute(command: ICommand) {
+    private kernelExecute(command: ICommand, ctx: Record<string, any>) {
             switch(command.type) {
                 case CommandType.SET_STATE:
                     this.options.store.set(command.data.key, command.data.value)
@@ -52,10 +53,18 @@ export class Game implements IGame {
                 case CommandType.CREATE_ENTITY:
                     this.options.entites.manager.create(command.data.target)
                     break
+                case CommandType.CREATE_OBJECT:
+                    this.options.map.createObject(command.data.object)
+                    break
                 
                 default: 
                     const entity = this.options.entites.manager.get(command.entityId!)
 
+                    if (command.type === CommandType.TOWER_SHOOT) {
+                        this.options.map.getObject(command.objectId!)?.shoot()
+
+                        return
+                    }
                     if (!entity) return
                     else {
                         switch (command.type) {
@@ -76,7 +85,7 @@ export class Game implements IGame {
                                 entity.equipItem(command.data.item)
                                 break
                             case CommandType.INTERACT_POSITION:
-                                entity.interactPosition(command.data.position)
+                                entity.interactPosition(command.data.position, ctx.objects)
                                 break
                             case CommandType.MOVE:
                                 entity.move(command.data.position)
@@ -98,7 +107,7 @@ export class Game implements IGame {
     }
 
     public constructor(
-        options?: IGameOptions
+        options?: IInitGameOptions
     ) {
         const manager = new EntityManager([], this)
 
@@ -116,6 +125,8 @@ export class Game implements IGame {
         this.connectFactory(FactoryKeys.QUESTS, new QuestsFactory({ game: this }))
         this.connectFactory(FactoryKeys.ITERACTIONS, new IteractionsFactory({ game: this }))
         this.connectFactory(FactoryKeys.SOUNDS, new SoundsFactory({ game: this }))
+
+        if (!(options?.disableBaseMiddleware)) this.use(baseChecksMiddleware)
     }
 
     public on<T>(event: keyof typeof GameEvent, cb: EventCallback<T>) {
@@ -212,7 +223,7 @@ export class Game implements IGame {
             const middleware = this.middlewares[index++]
 
             if (middleware) middleware(command, next, this, ctx)
-            else this.kernelExecute(command)
+            else this.kernelExecute(command, ctx)
         }
 
         next()

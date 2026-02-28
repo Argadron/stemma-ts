@@ -4,9 +4,12 @@ import type { IAttackData, IItemPickedUpErrorData, IMovedData, IObjectCreatedCol
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Position, Quad } from "./types/index.js";
 import { BASE_SEARCH_RADIUS } from './const/index.js'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
-import { loggerMiddleware } from "@middlewares";
+import { DropItemGuard, EntityInteractGuard, EquipItemGuard, loggerMiddleware, MovementGuard, OpenChestGuard, PickUpGuard, UseItemGuard } from "@middlewares";
 
 const [game, manager, map] = createGame()
+
+
+game.use([loggerMiddleware, MovementGuard, UseItemGuard, DropItemGuard, PickUpGuard, EquipItemGuard, OpenChestGuard, EntityInteractGuard])
 
 game.options.store.set('isNight', true)
 
@@ -198,6 +201,16 @@ const chest2 = map.createObject<CreateChestMetadata>({
 player.pickUp([4, 4])
 player.equipItem(sword)
 
+game.dispatch({
+    type: CommandType.INTERACT_POSITION,
+    tick: game.currentTick,
+    entityId: player.id,
+    data: {
+        position: buffBlock.position
+    }
+})
+
+console.log('INTERACT', player.damage)
 console.log(player.attack())
 console.log(player.move([5, 6]))
 console.log('NEAR', player.getNearEntitiesAndObjects(BASE_SEARCH_RADIUS, 'OBJECTS'))
@@ -229,8 +242,6 @@ console.log(map.getObject(sword3.id))
 
 player.applyEffect(poisonEffect, 50)
 
-buffBlock.interact(player)
-
 console.log(player)
 
 console.log(map.game.getFactory<EffectFactory>(FactoryKeys.EFFECTS).get(poisonEffect.id))
@@ -244,8 +255,6 @@ const snapshot = game.save((snapshot) => {
 })
 
 console.log(game.options.store.get('isNight'))
-
-game.use(loggerMiddleware)
 
 game.dispatch({
     type: CommandType.USE_ITEM,

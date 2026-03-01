@@ -3,7 +3,7 @@ import { FactoryKeys, GameObjectEnum } from "@enums";
 import type { IGameObject, ITriggerActivatedData, ITowerShootedData } from "@interfaces";
 import type { EntityManager } from "@";
 import type { Position } from "@types";
-import { createId, createQuadFromPosition, useAttack } from "@utils";
+import { canSee, createId, createQuadFromPosition, useAttack } from "@utils";
 import { IteractionsFactory } from "@factories"
 
 export class GameObject implements IGameObject {
@@ -34,7 +34,7 @@ export class GameObject implements IGameObject {
      * @returns { { deathsCounter: number } } - Count of deaths
      */
     public shoot(): { deathsCounter: number; } {
-        const entites = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES')
+        const entites = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES').filter((victim) => canSee(this.position, victim.position, this.map))
 
         let counter = 0;
 

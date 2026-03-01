@@ -138,6 +138,23 @@ export interface IGameOptions {
      * Flag to activate built-in object middlewares
      */
     readonly usingObjectMiddlewares?: boolean;
+
+    /**
+     * Optional command bus options
+     */
+    readonly commandBusOptions?: ICommandBusOptions;
+}
+
+export interface ICommandBusOptions {
+    /**
+     * Flag indicates, will be used CommandQueue for all commands or not
+     */
+    readonly usingCommangQueue?: boolean;
+
+    /**
+     * Max commands will be executed in current tick
+     */
+    readonly maxCommandsPerTick?: number;
 }
 
 export interface IInitGameOptions extends Partial<IGameOptions> {}

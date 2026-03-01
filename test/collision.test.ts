@@ -13,6 +13,7 @@ import { checkTwoPositions, positionIsPosition } from "@utils"
 import type { Position } from "@types"
 import type { Entity, GameObject } from "@world"
 import { CollisionGuard, MovementGuard } from "@middlewares"
+import { TIMES_60, wait60fps } from "./utils"
 
 describe('Collisions Tests', () => {
     let game!: Game
@@ -91,7 +92,7 @@ describe('Collisions Tests', () => {
     let collisionByWeightTest = false
     let collisionByChestWeightTest = false
     
-    it('Create entity in collision place', () => {
+    it('Create entity in collision place', async () => {
         game.dispatch({
             type: CommandType.CREATE_ENTITY,
             tick: game.currentTick,
@@ -106,10 +107,12 @@ describe('Collisions Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(collisionCreateTest).toBe(true)
     })
 
-    it('Create object in collision place', () => {
+    it('Create object in collision place', async () => {
         game.dispatch({
             type: CommandType.CREATE_OBJECT,
             tick: game.currentTick,
@@ -122,10 +125,12 @@ describe('Collisions Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(collisionCreateObjectTest).toBe(true)
     })
 
-    it('Walk to collision entity', () => {
+    it('Walk to collision entity', async () => {
         game.dispatch({
             type: CommandType.MOVE,
             entityId: zombie.id,
@@ -135,10 +140,12 @@ describe('Collisions Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(collisionMoveToEntityTest).toBe(true)
     })
 
-    it('Walk to collision object', () => {
+    it('Walk to collision object', async () => {
         game.dispatch({
             type: CommandType.MOVE,
             entityId: player.id,
@@ -148,11 +155,13 @@ describe('Collisions Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(collisionMoveToObjectTest).toBe(true)
         expect(player.position).not.toEqual(wall.position)
     })
 
-    it('Walk to doesnt collision object', () => {
+    it('Walk to doesnt collision object', async () => {
         game.dispatch({
             type: CommandType.CREATE_OBJECT,
             tick: game.currentTick,
@@ -175,10 +184,12 @@ describe('Collisions Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(moveToDoesntCollisionObjectTest).toBe(true)
     })
 
-    it('Collision by weight', () => {
+    it('Collision by weight', async () => {
         game.dispatch({
             type: CommandType.CREATE_OBJECT,
             tick: game.currentTick,
@@ -204,9 +215,11 @@ describe('Collisions Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(collisionByWeightTest).toBe(true)
     })
-    it('Collision by chest weight', () => {
+    it('Collision by chest weight', async () => {
         const sword1 = map.createObject({
             name: "sword",
             position: [2, 0],
@@ -254,6 +267,8 @@ describe('Collisions Tests', () => {
                 }
             }
         })
+
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
 
         expect(collisionByChestWeightTest).toBe(true)
     })

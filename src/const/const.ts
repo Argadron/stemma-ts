@@ -52,3 +52,8 @@ export const ITERACTION_ERRORS = {
  * Default limit in undo manager
  */
 export const BASE_HISTORY_LIMIT = 30
+
+/**
+ * Base command limit will be executed in current tick
+ */
+export const BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT = 10

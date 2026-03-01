@@ -107,7 +107,7 @@ describe('Interaction Tests', () => {
         game.on<ITowerShootedData>('towerShooted', (o, e, d) => events.deaths = d.eventData.deathsCount)
     })
 
-    it('Pick Up a Sword (correct)', () => {
+    it('Pick Up a Sword (correct)', async () => {
         game.dispatch({
             type: CommandType.PICKUP,
             tick: game.currentTick,
@@ -117,9 +117,11 @@ describe('Interaction Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(events.pickUpCorrect).toBe(true)
     })
-    it('Drop test', () => {
+    it('Drop test', async () => {
         game.dispatch({
             type: CommandType.PICKUP,
             tick: game.currentTick,
@@ -139,9 +141,11 @@ describe('Interaction Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(events.drop).toBe(true)
     })
-    it('Dead and drop inventory test', () => {
+    it('Dead and drop inventory test', async () => {
         game.dispatch({
             type: CommandType.PICKUP,
             tick: game.currentTick,
@@ -155,11 +159,13 @@ describe('Interaction Tests', () => {
             manager.delete(d.eventData.entity.id)
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         manager.kill(player.id)
 
         expect(map.checkObjectOk(magicSword.id)).toBe(true)
     })
-    it('Shoot test', () => {
+    it('Shoot test', async () => {
         game.dispatch({
             type: CommandType.TOWER_SHOOT,
             tick: game.currentTick,
@@ -167,9 +173,11 @@ describe('Interaction Tests', () => {
             data: {}
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(events.deaths).toBe(2)
     })
-    it('Item buff check', () => {
+    it('Item buff check', async () => {
         game.dispatch({
             type: CommandType.PICKUP,
             tick: game.currentTick,
@@ -187,10 +195,12 @@ describe('Interaction Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(player.damage).toBe(5)
         expect(player.fullDamage).toBe(15)
     })
-    it('Item use check', () => {
+    it('Item use check', async () => {
         game.dispatch({
             type: CommandType.PICKUP,
             tick: game.currentTick,
@@ -215,10 +225,12 @@ describe('Interaction Tests', () => {
             data: {}
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(events.using).toBe(true)
         expect(player.damage).toBe(6)
     })
-    it('Open chest', () => {
+    it('Open chest', async () => {
         game.dispatch({
             type: CommandType.OPEN_CHEST,
             tick: game.currentTick,
@@ -228,9 +240,11 @@ describe('Interaction Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(events.chest).toBe(true)
     })
-    it('Move with weight', () => {
+    it('Move with weight', async () => {
         game.dispatch({
             type: CommandType.MOVE,
             entityId: player.id,
@@ -255,10 +269,12 @@ describe('Interaction Tests', () => {
                 position: [1, 0]
             }
         })
+
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
         
         expect(events.weight).toBe(true)
     })
-    it('Kill test', () => {
+    it('Kill test', async () => {
         game.dispatch({
             type: CommandType.PICKUP,
             tick: game.currentTick,
@@ -284,10 +300,12 @@ describe('Interaction Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(events.kill).toBe(true)
         expect(zombie.isDead).toBe(true)
     })
-    it('Activate trigger test', () => {
+    it('Activate trigger test', async () => {
         game.dispatch({
             type: CommandType.MOVE,
             entityId: player.id,
@@ -305,9 +323,11 @@ describe('Interaction Tests', () => {
             }
         })
 
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
+
         expect(events.trigger).toBe(true)
     })
-    it('Heard noise test', () => {
+    it('Heard noise test', async () => {
         game.dispatch({
             type: CommandType.MOVE,
             entityId: player.id,
@@ -316,6 +336,8 @@ describe('Interaction Tests', () => {
                 position: [2, 0]
             }
         })
+
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
 
         expect(events.noise).toBe(true)
     })

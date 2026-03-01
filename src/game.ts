@@ -2,7 +2,7 @@ import { CommandType, FactoryKeys, type GameEvent } from "@enums";
 import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions } from "@interfaces";
 import { EntityManager, UndoManager} from "@";
 import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn } from "@types";
-import { BASE_FPS } from "@const";
+import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
 import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
@@ -45,7 +45,18 @@ export class Game implements IGame {
      */
     private readonly middlewares: MiddlewareFn[] = []
 
-    private kernelExecute(command: ICommand, ctx: Record<string, any>) {
+    /**
+     * Array of commands waiting to execute
+     */
+    private readonly commandQueue: ICommand[] = [];
+
+    /**
+     * Internal kernel execute a cmd
+     * @param command - Command to execute
+     * @param ctx - Command context
+     * @returns { void }
+     */
+    private kernelExecute(command: ICommand, ctx: Record<string, any>): void {
             switch(command.type) {
                 case CommandType.SET_STATE:
                     this.options.store.set(command.data.key, command.data.value)
@@ -104,6 +115,28 @@ export class Game implements IGame {
                         }
                     }
             }
+    }
+
+    /**
+     * Proccess a cmd
+     * @param cmd - Cmd to process
+     * @returns { void }
+     */
+    private proccessCmd(cmd: ICommand): void {
+        this.options.undoManager.push(this.save())
+
+        const ctx = {}
+
+        let index = 0;
+
+        const next = () => {
+            const middleware = this.middlewares[index++]
+
+            if (middleware) middleware(cmd, next, this, ctx)
+            else this.kernelExecute(cmd, ctx)
+        }
+
+        next()
     }
 
     public constructor(
@@ -221,20 +254,8 @@ export class Game implements IGame {
     }
 
     public dispatch(command: ICommand) {
-        this.options.undoManager.push(this.save())
-
-        const ctx = {}
-
-        let index = 0;
-
-        const next = () => {
-            const middleware = this.middlewares[index++]
-
-            if (middleware) middleware(command, next, this, ctx)
-            else this.kernelExecute(command, ctx)
-        }
-
-        next()
+        if (this.options.commandBusOptions?.usingCommangQueue) this.commandQueue.push(command) 
+        else this.proccessCmd(command)
     }
 
     public start(fps=BASE_FPS) {
@@ -244,6 +265,7 @@ export class Game implements IGame {
         this.gameIntervalId = setInterval(() => {
             this._currentTick ++
 
+            this.tick()
             this.options.entites.targets.forEach((entity) => entity.tick())
             this.options.map.objects.forEach((object) => object.tick())
         }, 1000/fps)
@@ -268,6 +290,24 @@ export class Game implements IGame {
         })
 
         return true
+    }
+
+    /**
+     * Internal game tick processes
+     */
+    public tick() {
+        if (this.options.commandBusOptions?.usingCommangQueue) {
+            let executed = 0;
+
+            while (executed < (this.options.commandBusOptions?.maxCommandsPerTick ?? BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT)) {
+                const cmd = this.commandQueue.shift()
+
+                if (cmd) this.proccessCmd(cmd)
+                else break
+
+                executed ++
+            }
+        }
     }
 
     /**

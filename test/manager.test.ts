@@ -1,6 +1,7 @@
 import createGame from "@"
 import { Entity } from "@world"
 import { CommandType } from "@enums"
+import { TIMES_60, wait60fps } from "./utils"
 
 describe('Manager Tests', () => {
     const [game, manager, map] = createGame()
@@ -15,7 +16,7 @@ describe('Manager Tests', () => {
         position: [1, 0]
     })
 
-    it('Create entity', () => {
+    it('Create entity', async () => {
         game.dispatch({
             type: CommandType.CREATE_ENTITY,
             tick: game.currentTick,
@@ -29,6 +30,8 @@ describe('Manager Tests', () => {
                 }
             }
         })
+
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
 
         expect(map.getAllInPosition([1, 2]).length).toBeGreaterThan(0)
     })

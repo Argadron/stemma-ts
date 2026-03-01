@@ -2,6 +2,7 @@ import { createGame, type Game } from "@"
 import type { IEntityManager, IGameMap } from "@interfaces"
 import type { Entity } from "@world"
 import { CommandType } from "@enums"
+import { TIMES_60, wait60fps } from "./utils"
 
 describe('Event Tests', () => {
     let game!: Game
@@ -38,7 +39,7 @@ describe('Event Tests', () => {
         zombie = manager.create({ name: 'ZOMBIE', health: 10, damage: 10, isDead: false, position: [1, 1] })
     })
 
-    it('Test subscribe to GameEvent and executing', () => {
+    it('Test subscribe to GameEvent and executing', async () => {
         game.on('attack', (o, e, d) => {
             events.subscribeToGame = true
         })
@@ -51,6 +52,8 @@ describe('Event Tests', () => {
                 entities: [zombie]
             }
         })
+
+        await wait60fps(game, TIMES_60.TWO_SECONDS)
         
         expect(events.subscribeToGame).toBe(true)
     })

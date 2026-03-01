@@ -81,7 +81,7 @@ export class GameObject implements IGameObject {
         return {
             id: this.id,
             type: this.type,
-            position: this.position,
+            position: [...this.position],
             name: this.name,
             iteractionId: this.iteractionId,
             metadata: dtoMetadata
@@ -117,8 +117,14 @@ export class GameObject implements IGameObject {
      * @returns { GameObject }
      */
     public static fromSnapshot(data: IGameObject, manager: EntityManager, map: GameMap): GameObject {
-        if (data.type === GameObjectEnum.CHEST && data.metadata?.items) data.metadata.items = data.metadata.items.map((i: IGameObject) => new GameObject(i, manager, map, i.metadata))
+        const metadata = data.metadata ?? {}
 
-        return new GameObject(data, manager, map, data.metadata)
+        if (data.type === GameObjectEnum.CHEST && data.metadata?.items) metadata.items = data.metadata.items.map((i: IGameObject) => GameObject.fromSnapshot(i, manager, map))
+
+        const object = new GameObject(data, manager, map, metadata)
+
+        map.addToGrid(object)
+
+        return object
     }
 }

@@ -340,8 +340,9 @@ export class Entity implements ITarget {
             isDead: this.isDead,
             name: this.name,
             inventory: this.inventory.map((item) => ({ ...item })),
-            effects: this.effects,
-            currentActiveItem: this.currentActiveItem
+            effects: this.effects.map((effect) => ({ ...effect })),
+            currentActiveItemId: this.currentActiveItem?.id,
+            position: [...this.position]
         } as any
     }
 
@@ -385,11 +386,13 @@ export class Entity implements ITarget {
         const entity = new Entity(data, manager, map)
 
         if (data.inventory && Array.isArray(data.inventory)) entity.inventory = data.inventory.map((i: IGameObject) => GameObject.fromSnapshot(i, manager, map)) 
-        if (data.currentActiveItem) entity.currentActiveItem = entity.inventory.find((item) => item.id === data.currentActiveItem.id)
+        if (data.currentActiveItem) entity.currentActiveItem = entity.inventory.find((item) => item.id === data.currentActiveItemId)
         if (data.effects && Array.isArray(data.effects)) entity.effects = data.effects.map((effect: any) => ({
                 ...effectFactory.get(effect.id),
                 remaining: effect.remaining
             })).filter(Boolean)
+
+        manager.addToGrid(entity)
 
         return entity
     }

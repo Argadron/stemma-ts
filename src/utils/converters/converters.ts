@@ -1,4 +1,4 @@
-import type { AnyPosition, Position } from "@types"
+import type { AnyPosition, GridPosition, Position } from "@types"
 import { getCenter, positionIsQuad } from "@utils"
 import type { Entity, GameObject } from "@world"
 import type { IWorldItem } from "@interfaces"
@@ -43,4 +43,24 @@ export function convertGameObjectToInventoryItem(obj: IWorldItem | GameObject): 
         weight: obj.metadata?.weight ?? 1,
         metadata: obj.metadata ?? {}
     }
+}
+
+/**
+ * Convert position to Grid Position
+ * @param position - Position to convert
+ * @returns { GridPosition } - Converted position
+ */
+export function convertPositionToGridPosition(position: Position): GridPosition {
+    return `${position[0]}:${position[1]}`
+}
+
+/**
+ * Convert grid position to default position
+ * @param grid - Grid position
+ * @returns { Position } - Converted position
+ */
+export function convertGridPositionToPosition(grid: GridPosition): Position {
+    const gridArray = grid.split(':').map(Number)
+
+    return [gridArray[0]!, gridArray[1]!]
 }

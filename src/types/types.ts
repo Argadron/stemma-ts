@@ -83,3 +83,8 @@ export type BlueprintContent = Omit<ITarget, 'position'> | Omit<IGameObject, 'po
  * Middleware function type
  */
 export type MiddlewareFn = (command: ICommand, next: VoidFunction, game: Game, ctx: Record<string, any>) => void;
+
+/**
+ * Grid position type
+ */
+export type GridPosition = `${number}:${number}`

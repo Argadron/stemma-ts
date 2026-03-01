@@ -1,10 +1,8 @@
 import { Game } from "@";
 import { GameObjectEnum } from "@enums";
-import type { 
-    IMovedCollisionData, 
+import type {
     IMovedData, 
     IGameObject, 
-    IObjectCreatedCollisionData, 
     IObjectCreatedErrorData,
     IGameMap as Map,
     ITriggerActivatedData,
@@ -19,7 +17,8 @@ import type {
     CreateItemMetadata, 
     CreateUsableItemMetadata, 
     CreateChestMetadata, 
-    CreateTriggerMetadata
+    CreateTriggerMetadata,
+    GridPosition
 } from "@types";
 import { 
     convertAnyPositionToPosition, 
@@ -27,12 +26,15 @@ import {
     gameObjectIsItem, 
     getInPosition, 
     createQuadFromPosition,
-    checkCollisions
+    checkCollisions,
+    convertPositionToGridPosition
 } from "@utils";
 import { Entity, GameObject } from "@world";
 import { BASE_HEARING_RADIUS } from "@const";
 
 export class GameMap implements Map {
+    private readonly grid = new Map<GridPosition, Set<GameObject>>()
+
     public readonly manager: EntityManager;
     public readonly game: Game;
 
@@ -114,7 +116,9 @@ export class GameMap implements Map {
      * @returns { GameObject[] } - All triggers in position
      */
     public getTriggersInPosition(position: Position): GameObject[] {
-        return this.objects.filter((obj) => (checkTwoPositions(obj.position, position) && obj.type === GameObjectEnum.TRIGGER))
+        const grid = this.grid.get(convertPositionToGridPosition(position))
+
+        return grid ? Array.from(grid).filter((o) => o.type === GameObjectEnum.TRIGGER) : []
     }
 
     /**
@@ -123,11 +127,40 @@ export class GameMap implements Map {
      * @returns { void }
      */
     public pushObject(obj: GameObject): void {
+        this.addToGrid(obj)
         this.objects.push(obj)
     }
  
     public load(rawObjects: IGameObject[]) {
         this.objects = rawObjects.map((object) => GameObject.fromSnapshot(object, this.manager, this))
+    }
+
+    /**
+     * Add new object to grid map
+     * @param object - Object to add
+     * @returns { void }
+     */
+    public addToGrid(object: GameObject): void {
+        const gridPosition = convertPositionToGridPosition(object.position)
+
+        if (!this.grid.has(gridPosition)) this.grid.set(gridPosition, new Set([object]))
+        else this.grid.get(gridPosition)!.add(object)
+    }
+
+    /**
+     * Delete object from grid map
+     * @param entity - Object to delete
+     * @returns { void }
+     */
+    public deleteFromGrid(object: GameObject): void {
+        const gridPosition = convertPositionToGridPosition(object.position)
+        const cell = this.grid.get(gridPosition)
+
+        if (cell) {
+            cell.delete(object)
+
+            if (cell.size === 0) this.grid.delete(gridPosition)
+        }
     }
 
     public constructor(manager: EntityManager, game: Game) {
@@ -141,27 +174,26 @@ export class GameMap implements Map {
     public getInQuad(quad: Quad, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
     public getInQuad(quad: Quad, returnType:'ALL' | 'ENTITES' | 'OBJECTS' = 'ALL') {
         const [minX, minY, maxX, maxY] = quad; 
+        
+        const entities: Entity[] = [];
+        const objects: GameObject[] = [];
 
-        const entites = this.manager.entites.filter((entity) => {
-            const [xB, yB] = entity.position
+        for (let x = Math.floor(minX); x <= Math.floor(maxX); x++) {
+            for (let y = Math.floor(minY); y <= Math.floor(maxY); y++) {
+                const gridCoord: GridPosition = `${x}:${y}`
 
-            return xB >= minX && xB <= maxX && 
-            yB >= minY && yB <= maxY
-        })
-        const objects = this.objects.filter((object) => {
-            const [xB, yB] = object.position
-
-            return xB >= minX && xB <= maxX && 
-            yB >= minY && yB <= maxY
-        })
+                if (returnType === 'ALL' || returnType === 'ENTITES') this.manager.grid.get(gridCoord)?.forEach((e) => entities.push(e))
+                if (returnType === 'ALL' || returnType === 'OBJECTS') this.grid.get(gridCoord)?.forEach((o) => objects.push(o))
+            }
+        }
 
         switch (returnType) {
             case 'ENTITES':
-                return entites
+                return entities
             case 'OBJECTS':
                 return objects
             default:
-                return [...objects, ...entites]
+                return [...objects, ...entities]
         }
     }
 
@@ -182,7 +214,11 @@ export class GameMap implements Map {
             }
         })
 
+        const oldPosition = [...entity.position] as Position
+
         entity.position = position
+
+        this.manager.updateGrid(entity, oldPosition)
         
         const triggers = this.getTriggersInPosition(position)
         
@@ -222,16 +258,18 @@ export class GameMap implements Map {
     public getAllInPosition(position: Position, returnType: 'OBJECTS'): GameObject[];
     public getAllInPosition(position: Position, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
     public getAllInPosition(position: Position, returnType:'ALL' | 'ENTITES' | 'OBJECTS'='ALL') {
-        const entites = this.manager.entites.filter((entity) => checkTwoPositions(position, entity.position))
-        const objects = this.objects.filter((obj) => checkTwoPositions(obj.position, position))
+        const gridPosition = convertPositionToGridPosition(position)
+
+        const objects = Array.from(this.grid.get(gridPosition) ?? [])
+        const entities = Array.from(this.manager.grid.get(gridPosition) ?? [])
 
         switch (returnType) {
             case 'ENTITES':
-                return entites
+                return entities
             case 'OBJECTS':
                 return objects
             default:
-                return [...objects, ...entites]
+                return [...objects, ...entities]
         }
     }
 
@@ -239,18 +277,22 @@ export class GameMap implements Map {
         const object = new GameObject(obj, this.manager, this, metadata ?? obj.metadata)
 
         this.objects.push(object)
+        this.addToGrid(object)
         this.validateObject(object, metadata ?? obj.metadata)
 
         return object
     }
 
     public deleteObject(id: number) {
-        const currentLength = this.objects.length
+        const object = this.getObject(id)
 
-        this.objects = this.objects.filter((object) => !(object.id === id))
+        if (object) {
+            this.deleteFromGrid(object)
+            this.objects = this.objects.filter((object) => !(object.id === id))
 
-        if (this.objects.length === currentLength) return false
-        else return true
+            return true
+        }
+        else return false
     }
 
     public getObject(id: number) {

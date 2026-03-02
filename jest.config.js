@@ -17,6 +17,7 @@ export default {
     '^@store$': '<rootDir>/src/store/index.ts',
     '^@middlewares$': '<rootDir>/src/middlewares/index.ts',
     '^@plugins$': '<rootDir>/src/plugins/index.ts',
+    '^@decorators$': '<rootDir>/src/decorators/index.ts',
     },
     transform: {
     '^.+\\.tsx?$': [

@@ -1,4 +1,5 @@
 import type { Game } from "@";
+import { OnEvent, OnTick } from "@decorators";
 import type { IPlugin } from "@interfaces";
 import { anyWorldObjectIsGameObject } from "@utils";
 
@@ -14,6 +15,16 @@ export class RegenerationPlugin implements IPlugin {
 
     public constructor(health?: number) {
         this.HEALTH_REGEN_VALUE = health ?? 1
+    }
+
+    @OnTick(100)
+    public tick(g: Game) {
+        console.log(g.currentTick)
+    }
+
+    @OnEvent('gameStarted')
+    public onStart(d: any) {
+       console.log('LOGGING START')
     }
 
     public install(game: Game) {

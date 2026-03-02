@@ -20,6 +20,8 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "paths": {
       "@enums": ["src/enums/index.ts"],
       "@const": ["src/const/index.ts"],
@@ -27,6 +29,7 @@
       "@store": ["src/store/index.ts"],
       "@middlewares": ["src/middlewares/index.ts"],
       "@plugins": ["src/plugins/index.ts"],
+      "@decorators": ["src/decorators/index.ts"],
       "@interfaces": ["src/interfaces/index.ts"],
       "@types": ["src/types/index.ts"],
       "@utils": ["src/utils/index.ts"],

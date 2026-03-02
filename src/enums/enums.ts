@@ -258,5 +258,15 @@ export enum CommandType {
     /**
      * Create game object cmd
      */
-    CREATE_OBJECT = 'CREATE_OBJECT'
+    CREATE_OBJECT = 'CREATE_OBJECT',
+
+    /**
+     * Set entity tag cmd
+     */
+    SET_ENTITY_TAG = 'SET_ENTITY_TAG',
+
+    /**
+     * Delete entity tag cmd
+     */
+    DELETE_ENTITY_TAG = 'DELETE_ENTITY_TAG'
 }

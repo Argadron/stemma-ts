@@ -397,12 +397,12 @@ export interface IPlugin {
      * @param game - Game reference
      * @returns { void }
      */
-    readonly beforeTick: (game: Game) => void;
+    readonly beforeTick?: (game: Game) => void;
 
     /**
      * Executes after current tick
      * @param game - Game reference
      * @returns { void }
      */
-    readonly afterTick: (game: Game) => void;
+    readonly afterTick?: (game: Game) => void;
 }

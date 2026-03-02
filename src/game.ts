@@ -6,6 +6,7 @@ import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
 import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
+import { extractMethodFromPlugin } from "@utils";
 
 export class Game implements IGame {
     readonly options: IGameOptions;
@@ -240,6 +241,14 @@ export class Game implements IGame {
     }
 
     public registerPlugin(plugin: IPlugin) {
+        const proto = Object.getPrototypeOf(plugin)
+
+        if (proto.__events) proto.__events.forEach((e: { event: keyof typeof GameEvent, methodName: string }) => this.on(e.event, (o, ev, d) => {
+            const method = extractMethodFromPlugin(plugin, e.methodName)
+
+            if (method) method.call(plugin, d)
+        })) 
+
         const installResult = plugin.install(this)
 
         if (installResult) {
@@ -327,7 +336,17 @@ export class Game implements IGame {
     public tick() {
         this.plugins.forEach((plugin) => {
             try {
-                plugin.beforeTick(this)
+                if (plugin.beforeTick) plugin.beforeTick(this)
+
+                const proto = Object.getPrototypeOf(plugin)
+
+                if (proto.__ticks) proto.__ticks.forEach((t: { methodName: string, interval: number, type: 'before' | 'after' }) => {
+                    if (t.type === 'before' && (this._currentTick % t.interval === 0)) {
+                        const method = extractMethodFromPlugin(plugin, t.methodName)
+
+                        if (method) method.call(plugin, this)
+                    }
+                })
             } catch (e) {
                 console.error(`[${plugin.name}] error:`, e)
             }
@@ -348,7 +367,17 @@ export class Game implements IGame {
 
         this.plugins.forEach((plugin) => {
             try {
-                plugin.afterTick(this)
+                if (plugin.afterTick) plugin.afterTick(this)
+
+                const proto = Object.getPrototypeOf(plugin)
+
+                if (proto.__ticks) proto.__ticks.forEach((t: { methodName: string, interval: number, type: 'before' | 'after' }) => {
+                    if (t.type === 'after' && (this._currentTick % t.interval === 0)) {
+                        const method = extractMethodFromPlugin(plugin, t.methodName)
+
+                        if (method) method.call(plugin, this)
+                    }
+                })
             } catch (e) {
                 console.error(`[${plugin.name}] error:`, e)
             }

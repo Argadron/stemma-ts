@@ -1,5 +1,5 @@
 import type { Game } from "@";
-import type { IChest, IGameObject, IWorldItem, ICommand } from "@interfaces";
+import type { IChest, IGameObject, IWorldItem, ICommand, IPlugin } from "@interfaces";
 import type { Position } from "@types";
 import { 
     checkTwoPositions, 
@@ -114,4 +114,14 @@ export function extractEntityFromMiddlewareContext(command: ICommand, ctx: Recor
  */
 export function extractObjectFromMiddlewareContext(command: ICommand, ctx: Record<string, any>, game: Game): GameObject | undefined {
     return ctx.object ?? game.options.map.getObject(command.objectId!)
+}
+
+/**
+ * Extract method from provided plugin
+ * @param plugin - Plugin to extract
+ * @param methodName - Method name
+ * @returns { Function | undefined } - Metod if founded, else undefined
+ */
+export function extractMethodFromPlugin(plugin: IPlugin, methodName: string): Function | undefined {
+    return (plugin as any)[methodName]
 }

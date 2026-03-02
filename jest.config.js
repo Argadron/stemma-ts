@@ -16,6 +16,7 @@ export default {
     '^@factories$': '<rootDir>/src/factories/index.ts',
     '^@store$': '<rootDir>/src/store/index.ts',
     '^@middlewares$': '<rootDir>/src/middlewares/index.ts',
+    '^@plugins$': '<rootDir>/src/plugins/index.ts',
     },
     transform: {
     '^.+\\.tsx?$': [

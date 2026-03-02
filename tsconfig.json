@@ -26,6 +26,7 @@
       "@factories": ["src/factories/index.ts"],
       "@store": ["src/store/index.ts"],
       "@middlewares": ["src/middlewares/index.ts"],
+      "@plugins": ["src/plugins/index.ts"],
       "@interfaces": ["src/interfaces/index.ts"],
       "@types": ["src/types/index.ts"],
       "@utils": ["src/utils/index.ts"],

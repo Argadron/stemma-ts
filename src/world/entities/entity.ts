@@ -27,20 +27,20 @@ import { GameObjectEnum } from "@enums";
 import type { EffectFactory } from "@factories";
 
 export class Entity implements ITarget {
-    position: Position;
-    health: number;
-    damage: number;
-    isDead: boolean;
-    name: string;
-    inventory: IItem[] = [];
-    
-    public readonly id = createId()
+    public position: Position;
+    public health: number;
+    public damage: number;
+    public isDead: boolean;
+    public name: string;
+    public inventory: IItem[] = [];
+    public readonly id = createId();
     public currentActiveItem: IItem | undefined;
     
     private readonly manager: EntityManager;
     private readonly map: GameMap;
 
     private effects: (IGameEffect & { remaining: number })[] = [];
+    private tags = new Set<string>();
 
     /**
      * Drop all items in current entity position (for Internal use, dont activate if entity alive)
@@ -341,9 +341,37 @@ export class Entity implements ITarget {
             name: this.name,
             inventory: this.inventory.map((item) => ({ ...item })),
             effects: this.effects.map((effect) => ({ ...effect })),
+            tags: Array.from(this.tags),
             currentActiveItemId: this.currentActiveItem?.id,
             position: [...this.position]
         } as any
+    }
+
+    /**
+     * Checks this entity has tag
+     * @param tag - Tag to check
+     * @returns { boolean } - True if has, else false
+     */
+    public hasTag(tag: string): boolean {
+        return this.tags.has(tag)
+    }
+
+    /**
+     * Push new tag
+     * @param tag - Tag to push
+     * @returns { void }
+     */
+    public addTag(tag: string): void {
+        this.tags.add(tag)
+    }
+
+    /**
+     * Remove tag from this entity
+     * @param tag - Tag to remove
+     * @returns { boolean } - True if success remove, else false
+     */
+    public removeTag(tag: string): boolean {
+        return this.tags.delete(tag)
     }
 
     /**
@@ -391,6 +419,7 @@ export class Entity implements ITarget {
                 ...effectFactory.get(effect.id),
                 remaining: effect.remaining
             })).filter(Boolean)
+        if (data.tags && Array.isArray(data.tags)) entity.tags = new Set(data.tags)
 
         manager.addToGrid(entity)
 

@@ -267,7 +267,26 @@ game.dispatch({
         
     }
 })
+game.dispatch({
+    type: CommandType.SET_ENTITY_TAG,
+    isSystem: true,
+    entityId: player.id,
+    tick: game.currentTick,
+    data: {
+        tag: 'stunned'
+    }
+})
+game.dispatch({
+    type: CommandType.DELETE_ENTITY_TAG,
+    isSystem: true,
+    entityId: player.id,
+    tick: game.currentTick,
+    data: {
+        tag: 'stunned'
+    }
+})
 
+console.log(player.hasTag('stunned'), 'stunned')
 
 game.start(60)
 

@@ -355,6 +355,11 @@ export interface ICommand<T = any> {
     readonly objectId?: number;
 
     /**
+     * If command indicated as system, then all middlewares will be skipped
+     */
+    readonly isSystem?: boolean;
+
+    /**
      * Cmd data
      */
     readonly data: T

@@ -110,6 +110,12 @@ export class Game implements IGame {
                             case CommandType.USE_ITEM:
                                 entity.useItem()
                                 break
+                            case CommandType.SET_ENTITY_TAG:
+                                entity.addTag(command.data.tag)
+                                break
+                            case CommandType.DELETE_ENTITY_TAG:
+                                entity.removeTag(command.data.tag)
+                                break
                             default:
                                 throw new Error(`[Game]: Unknown command type ${command.type}`)
                         }
@@ -127,16 +133,19 @@ export class Game implements IGame {
 
         const ctx = {}
 
-        let index = 0;
+        if (!cmd.isSystem) {
+            let index = 0;
 
-        const next = () => {
-            const middleware = this.middlewares[index++]
+            const next = () => {
+                const middleware = this.middlewares[index++]
 
-            if (middleware) middleware(cmd, next, this, ctx)
-            else this.kernelExecute(cmd, ctx)
+                if (middleware) middleware(cmd, next, this, ctx)
+                else this.kernelExecute(cmd, ctx)
+            }
+
+            next()
         }
-
-        next()
+        else this.kernelExecute(cmd, ctx)
     }
 
     public constructor(

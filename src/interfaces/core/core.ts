@@ -59,6 +59,20 @@ export interface IGame {
     readonly getFactory: <T>(name: string) => T;
 
     /**
+     * Register a new plugin
+     * @param plugin - Plugin to install
+     * @returns { boolean } - True if success install, else false
+     */
+    readonly registerPlugin: (plugin: IPlugin) => boolean; 
+
+    /**
+     * Get plugin by name
+     * @param name - Name of plugin
+     * @returns { IPlugin | undefined } - Plugin if founded, else undefined
+     */
+    readonly getPlugin: (name: string) => IPlugin | undefined;
+
+    /**
      * Save a game snapshot
      * @returns { ISnapshot }
      */
@@ -363,4 +377,32 @@ export interface ICommand<T = any> {
      * Cmd data
      */
     readonly data: T
+}
+
+export interface IPlugin {
+    /**
+     * Name of this plugin
+     */
+    readonly name: string;
+
+    /**
+     * Plugin installation. Must return true, if install did success
+     * @param game - Game reference
+     * @returns { boolean } - True, if success, else false
+     */
+    readonly install: (game: Game) => boolean;
+
+    /**
+     * Executes before next tick
+     * @param game - Game reference
+     * @returns { void }
+     */
+    readonly beforeTick: (game: Game) => void;
+
+    /**
+     * Executes after current tick
+     * @param game - Game reference
+     * @returns { void }
+     */
+    readonly afterTick: (game: Game) => void;
 }

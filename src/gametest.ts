@@ -5,6 +5,7 @@ import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Posi
 import { BASE_SEARCH_RADIUS } from './const/index.js'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
+import { RegenerationPlugin } from "@plugins";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
@@ -12,6 +13,7 @@ const [game, manager, map] = createGame({
 })
 
 game.use([loggerMiddleware])
+game.registerPlugin(new RegenerationPlugin(20))
 
 game.options.store.set('isNight', true)
 
@@ -287,6 +289,7 @@ game.dispatch({
 })
 
 console.log(player.hasTag('stunned'), 'stunned')
+console.log(game.getPlugin('customLogger'))
 
 game.start(60)
 

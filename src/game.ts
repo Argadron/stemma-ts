@@ -1,5 +1,5 @@
 import { CommandType, FactoryKeys, type GameEvent } from "@enums";
-import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions } from "@interfaces";
+import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin } from "@interfaces";
 import { EntityManager, UndoManager} from "@";
 import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn } from "@types";
 import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT } from "@const";
@@ -39,6 +39,11 @@ export class Game implements IGame {
      * Factories in game context
      */
     private readonly factories = new Map<string, any>()
+
+    /**
+     * Plugins in current game context
+     */
+    private readonly plugins = new Map<string, IPlugin>()
 
     /**
      * Array of game middlewares
@@ -234,6 +239,21 @@ export class Game implements IGame {
         return this.factories.get(name) as T
     }
 
+    public registerPlugin(plugin: IPlugin) {
+        const installResult = plugin.install(this)
+
+        if (installResult) {
+            this.plugins.set(plugin.name, plugin)
+
+            return true
+        }
+        else return false
+    }
+
+    public getPlugin(name: string) {
+        return this.plugins.get(name)
+    }
+
     public save(cb?: SnapshotCallback): ISnapshot {
         const snapshot = {
             entities: this.options.entites.targets.map((e) => e.toDTO()),
@@ -305,6 +325,14 @@ export class Game implements IGame {
      * Internal game tick processes
      */
     public tick() {
+        this.plugins.forEach((plugin) => {
+            try {
+                plugin.beforeTick(this)
+            } catch (e) {
+                console.error(`[${plugin.name}] error:`, e)
+            }
+        })
+
         if (this.options.commandBusOptions?.usingCommangQueue) {
             let executed = 0;
 
@@ -317,6 +345,14 @@ export class Game implements IGame {
                 executed ++
             }
         }
+
+        this.plugins.forEach((plugin) => {
+            try {
+                plugin.afterTick(this)
+            } catch (e) {
+                console.error(`[${plugin.name}] error:`, e)
+            }
+        })
     }
 
     /**

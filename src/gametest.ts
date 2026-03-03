@@ -1,11 +1,12 @@
 import { CommandType, FactoryKeys, GameObjectEnum } from "./enums/index.js";
-import createGame, { checkTwoPositions } from "./index.js";
-import type { IAttackData, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData } from "./interfaces/index.js";
+import createGame, { checkTwoPositions, useVisibility } from "./index.js";
+import type { IAttackData, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData, IUseValidationResult, IUseVisibilityContext } from "./interfaces/index.js";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Position, Quad } from "./types/index.js";
-import { BASE_SEARCH_RADIUS } from './const/index.js'
+import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from './const/index.js'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
 import { RegenerationPlugin } from "@plugins";
+import { useValidation } from "./utils/hooks/use-validation.hook.js";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
@@ -295,6 +296,18 @@ game.processCustomEvent('decorator', {
     eventData: {},
     eventTime: game.currentTick
 })
+
+game.registerCustomEvent<IUseVisibilityContext>(USE_VISIBILITY_EVENT, (o, e, d) => {
+    d.eventData.factor = 0
+})
+game.registerCustomEvent<IUseValidationResult>(`${USE_VALIDATION_EVENT_PREFIX}:${CommandType.USE_ITEM}`, (o, e, d) => {
+    d.eventData.errors.push('OUT OF REACH')
+})
+
+console.log(useVisibility(game, player, player_second))
+console.log(useValidation(game, player, CommandType.USE_ITEM, {
+    forTest: true
+}))
 
 game.start(60)
 

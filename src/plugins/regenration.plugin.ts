@@ -21,16 +21,12 @@ export class RegenerationPlugin implements IPlugin {
 
     @OnTick({ interval: 100 })
     public tick(g: Game) {
-        console.log(g.currentTick)
-        console.log(this.HEALTH_REGEN_VALUE)
-
         if (g.currentTick % 10 === 0) g.options.store.set(this.storePluginKey, this.HEALTH_REGEN_VALUE++)
     }
 
     @OnEvent('gameStarted')
     public onStart(data: IEventInfo<any>) {
-        console.log(data)
-       console.log('LOGGING START')
+
     }
 
     @OnCustomEvent('decorator')

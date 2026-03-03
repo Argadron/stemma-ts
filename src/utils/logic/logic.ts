@@ -1,5 +1,5 @@
 import type { Game } from "@";
-import type { IChest, IGameObject, IWorldItem, ICommand, IPlugin } from "@interfaces";
+import type { IChest, IGameObject, IWorldItem, ICommand, IPlugin, IGameMap } from "@interfaces";
 import type { Position } from "@types";
 import { 
     checkTwoPositions, 
@@ -9,7 +9,7 @@ import {
     gameObjectIsChest, 
     gameObjectIsItem 
 } from "@utils";
-import type { Entity, GameMap, GameObject } from "@world";
+import type { Entity, GameObject } from "@world";
 import { GameObjectEnum } from "@enums";
 
 /**
@@ -62,7 +62,7 @@ export function canIteract(entity: Entity, iteractPosition: Position): boolean {
  * @param map - GameMap reference
  * @returns { boolean } - True if can, else false
  */
-export function canSee(startPosition: Position, endPosition: Position, map: GameMap): boolean {
+export function canSee(startPosition: Position, endPosition: Position, map: IGameMap): boolean {
     let x0 = Math.round(startPosition[0])
     let y0 = Math.round(startPosition[1])
     

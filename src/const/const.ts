@@ -57,3 +57,13 @@ export const BASE_HISTORY_LIMIT = 30
  * Base command limit will be executed in current tick
  */
 export const BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT = 10
+
+/**
+ * Name of event for use visibility hook
+ */
+export const USE_VISIBILITY_EVENT = 'useVisibility:calcVisibility'
+
+/**
+ * Prefix for all validation events
+ */
+export const USE_VALIDATION_EVENT_PREFIX = 'useValidation'

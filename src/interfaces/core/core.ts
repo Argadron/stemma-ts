@@ -361,12 +361,12 @@ export interface ICommand<T = any> {
     /**
      * Entity ID, who start cmd
      */
-    readonly entityId?: number;
+    readonly entityId?: number | undefined;
 
     /**
      * Object id, who start cmd
      */
-    readonly objectId?: number;
+    readonly objectId?: number | undefined;
 
     /**
      * If command indicated as system, then all middlewares will be skipped

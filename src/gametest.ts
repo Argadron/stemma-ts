@@ -291,6 +291,11 @@ game.dispatch({
 console.log(player.hasTag('stunned'), 'stunned')
 console.log(game.getPlugin('customLogger'))
 
+game.processCustomEvent('decorator', {
+    eventData: {},
+    eventTime: game.currentTick
+})
+
 game.start(60)
 
 await new Promise((resolve, reject) => setTimeout(resolve, 5000))

@@ -1,6 +1,6 @@
 import type { Game } from "@";
-import { OnEvent, OnTick } from "@decorators";
-import type { IPlugin } from "@interfaces";
+import { InjectStoreValue, OnCustomEvent, OnEvent, OnTick } from "@decorators";
+import type { IPlugin, IEventInfo } from "@interfaces";
 import { anyWorldObjectIsGameObject } from "@utils";
 
 /**
@@ -9,7 +9,9 @@ import { anyWorldObjectIsGameObject } from "@utils";
 export class RegenerationPlugin implements IPlugin {
     public readonly name = 'REGENERATION_PLUGIN'
 
-    private readonly HEALTH_REGEN_VALUE: number;
+    @InjectStoreValue(`REGENERATION_PLUGIN:health_regen_value`)
+    private HEALTH_REGEN_VALUE: number;
+
     private readonly REGENERATION_INTERVAL = 60;
     private readonly storePluginKey = `${this.name}:health_regen_value`
 
@@ -17,14 +19,23 @@ export class RegenerationPlugin implements IPlugin {
         this.HEALTH_REGEN_VALUE = health ?? 1
     }
 
-    @OnTick(100)
+    @OnTick({ interval: 100 })
     public tick(g: Game) {
         console.log(g.currentTick)
+        console.log(this.HEALTH_REGEN_VALUE)
+
+        if (g.currentTick % 10 === 0) g.options.store.set(this.storePluginKey, this.HEALTH_REGEN_VALUE++)
     }
 
     @OnEvent('gameStarted')
-    public onStart(d: any) {
+    public onStart(data: IEventInfo<any>) {
+        console.log(data)
        console.log('LOGGING START')
+    }
+
+    @OnCustomEvent('decorator')
+    public decorator() {
+        console.log('DECORATOR EVENT')
     }
 
     public install(game: Game) {

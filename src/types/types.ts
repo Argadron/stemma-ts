@@ -88,3 +88,33 @@ export type MiddlewareFn = (command: ICommand, next: VoidFunction, game: Game, c
  * Grid position type
  */
 export type GridPosition = `${number}:${number}`
+
+/**
+ * Base method decorator properties type
+ */
+export type BaseMethodDecorator = { readonly methodName: string }
+
+/**
+ * Base property properties type
+ */
+export type BasePropertyDecorator = { readonly propertyName: string }
+
+/**
+ * Properties for OnEvent decorator
+ */
+export type OnEventDecoratorProperties = BaseMethodDecorator & { readonly event: keyof typeof GameEvent }
+
+/**
+ * Properties for OnCustomEvent decorator
+ */
+export type OnCustomEventDecoratorProperties = BaseMethodDecorator & { readonly event: string }
+
+/**
+ * Properties for OnTickDecorator
+ */
+export type OnTickDecoratorProperties = BaseMethodDecorator & { readonly interval: number; readonly type?: 'before' | 'after' }
+
+/**
+ * Properties for InjectStoreValue decorator
+ */
+export type InjectStoreValueDecoratorProperties = BasePropertyDecorator & { readonly key: string }

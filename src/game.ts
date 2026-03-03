@@ -1,12 +1,12 @@
 import { CommandType, FactoryKeys, type GameEvent } from "@enums";
-import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin } from "@interfaces";
+import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData } from "@interfaces";
 import { EntityManager, UndoManager} from "@";
-import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn } from "@types";
+import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn, OnEventDecoratorProperties, OnTickDecoratorProperties, OnCustomEventDecoratorProperties, InjectStoreValueDecoratorProperties } from "@types";
 import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
 import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
-import { extractMethodFromPlugin } from "@utils";
+import { extractMethodFromPlugin, extractPropertyFromPlugin } from "@utils";
 
 export class Game implements IGame {
     readonly options: IGameOptions;
@@ -243,11 +243,29 @@ export class Game implements IGame {
     public registerPlugin(plugin: IPlugin) {
         const proto = Object.getPrototypeOf(plugin)
 
-        if (proto.__events) proto.__events.forEach((e: { event: keyof typeof GameEvent, methodName: string }) => this.on(e.event, (o, ev, d) => {
+        if (proto.__events) proto.__events.forEach((e: OnEventDecoratorProperties) => this.on(e.event, (options, event, data) => {
             const method = extractMethodFromPlugin(plugin, e.methodName)
 
-            if (method) method.call(plugin, d)
+            if (method) method.call(plugin, { options, event, data })
         })) 
+
+        if (proto.__customEvents) proto.__customEvents.forEach((e: OnCustomEventDecoratorProperties) => this.registerCustomEvent(e.event, (options, event, data) => {
+            const method = extractMethodFromPlugin(plugin, e.methodName)
+
+            if (method) method.call(plugin, { options, event, data })
+        }))
+
+        if (proto.__injectedValues) proto.__injectedValues.forEach((v: InjectStoreValueDecoratorProperties) => {
+            const property = extractPropertyFromPlugin(plugin, v.propertyName)
+
+            if (property) {
+                const anyPlugin = plugin as any
+
+                anyPlugin[property] = this.options.store.get(v.key)
+
+                this.on<IGlobalStateChangedData>('globalStateChanged', (o, e, d) => (d.eventData.key === v.key) ? anyPlugin[property] = d.eventData.newValue : null)
+            }
+        })
 
         const installResult = plugin.install(this)
 
@@ -340,7 +358,7 @@ export class Game implements IGame {
 
                 const proto = Object.getPrototypeOf(plugin)
 
-                if (proto.__ticks) proto.__ticks.forEach((t: { methodName: string, interval: number, type: 'before' | 'after' }) => {
+                if (proto.__ticks) proto.__ticks.forEach((t: OnTickDecoratorProperties) => {
                     if (t.type === 'before' && (this._currentTick % t.interval === 0)) {
                         const method = extractMethodFromPlugin(plugin, t.methodName)
 
@@ -371,7 +389,7 @@ export class Game implements IGame {
 
                 const proto = Object.getPrototypeOf(plugin)
 
-                if (proto.__ticks) proto.__ticks.forEach((t: { methodName: string, interval: number, type: 'before' | 'after' }) => {
+                if (proto.__ticks) proto.__ticks.forEach((t: OnTickDecoratorProperties) => {
                     if (t.type === 'after' && (this._currentTick % t.interval === 0)) {
                         const method = extractMethodFromPlugin(plugin, t.methodName)
 

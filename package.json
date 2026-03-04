@@ -15,7 +15,7 @@
   },
   "keywords": [],
   "author": "Argadron",
-  "license": "ISC",
+  "license": "MIT",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

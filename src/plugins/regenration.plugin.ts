@@ -1,8 +1,8 @@
 import type { Game } from "@";
-import { InjectLiveQuery, InjectStoreValue, OnCustomEvent, OnEvent, OnTick } from "@decorators";
+import { InjectLiveQuery, InjectLiveQueryObject, InjectStoreValue, OnCustomEvent, OnEvent, OnTick } from "@decorators";
 import type { IPlugin, IEventInfo } from "@interfaces";
 import { anyWorldObjectIsGameObject } from "@utils";
-import type { Entity } from "@world"
+import type { Entity, GameObject } from "@world"
 
 /**
  * This is a example Regenration plugin (regenerate hp every second)
@@ -18,6 +18,11 @@ export class RegenerationPlugin implements IPlugin {
         includeDeaths: true
     })
     public matchingEntities!: Set<Entity>;
+
+    @InjectLiveQueryObject({
+        where: (o) => o.name === 'BLOCK'
+    })
+    public matchingObjects!: Set<GameObject>;
 
     private readonly REGENERATION_INTERVAL = 60;
     private readonly storePluginKey = `${this.name}:health_regen_value`

@@ -24,6 +24,10 @@ export interface IEntityCreatedData {
     readonly fromTarget: ITarget;
 }
 
+export interface IObjectDeletedOrCreatedData {
+    readonly object: GameObject;
+}
+
 export interface IEntityTagsChangedData {
     readonly tag: string;
     readonly type: 'DELETE' | 'ADD';

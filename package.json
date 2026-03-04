@@ -14,7 +14,8 @@
     "build": "tsc && tsc-alias",
     "start:dev": "npm run build && nodemon",
     "test": "jest",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "prepare": "npm run build"
   },
   "keywords": ["typescript-game", "game", "game-engine", "ts-game", "ts-game-engine", "stemma", "stemma-ts", "js-game"],
   "author": "Argadron",

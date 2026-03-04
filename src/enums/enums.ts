@@ -37,6 +37,21 @@ export enum GameEvent {
     attack = 'attack',
 
     /**
+     * Executes, when any entity created in world
+     */
+    entityCreated = 'entity_created',
+
+    /**
+     * Executes, when any entity deleted from world
+     */
+    entityDeleted = 'entity_deleted',
+
+    /**
+     * Executes, when any entity updated her tags
+     */
+    entityTagsChanged = 'entity_tags_changed',
+
+    /**
      * Executes, when any entity dead
      */
     entityDead = 'entity_dead',

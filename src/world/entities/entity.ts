@@ -10,6 +10,7 @@ import type {
     IItem,
     IChestOpenedData,
     IItemDroppedData,
+    IEntityTagsChangedData,
     IGameEffect,
     IGameObject
 } from "@interfaces";
@@ -348,12 +349,12 @@ export class Entity implements ITarget {
     }
 
     /**
-     * Checks this entity has tag
-     * @param tag - Tag to check
+     * Checks this entity has tag(s)
+     * @param tag - Tag(s) to check
      * @returns { boolean } - True if has, else false
      */
-    public hasTag(tag: string): boolean {
-        return this.tags.has(tag)
+    public hasTag(tag: string | string[]): boolean {
+        return Array.isArray(tag) ? tag.every((tag) => this.tags.has(tag)) : this.tags.has(tag)
     }
 
     /**
@@ -362,6 +363,14 @@ export class Entity implements ITarget {
      * @returns { void }
      */
     public addTag(tag: string): void {
+        this.map.game.processEvent<IEntityTagsChangedData>('entityTagsChanged', {
+            entity: this,
+            eventTime: this.map.game.currentTick,
+            eventData: {
+                tag,
+                type: 'ADD'
+            }
+        })
         this.tags.add(tag)
     }
 
@@ -371,6 +380,15 @@ export class Entity implements ITarget {
      * @returns { boolean } - True if success remove, else false
      */
     public removeTag(tag: string): boolean {
+        this.map.game.processEvent<IEntityTagsChangedData>('entityTagsChanged', {
+            entity: this,
+            eventTime: this.map.game.currentTick,
+            eventData: {
+                tag,
+                type: 'DELETE'
+            }
+        })
+
         return this.tags.delete(tag)
     }
 

@@ -2,7 +2,8 @@ import { Game } from "@";
 import type { 
     ITarget,
     IEntityManager as Manager,
-    IDeadData
+    IDeadData,
+    IEntityCreatedData
  } from "@interfaces";
 import type { GridPosition, Position } from "@types";
 import { Entity, GameMap } from "@world";
@@ -89,6 +90,13 @@ export class EntityManager implements Manager {
 
         this.addToGrid(entity)
         this.entites.push(entity)
+        this.game.processEvent<IEntityCreatedData>('entityCreated', {
+            entity,
+            eventTime: this.game.currentTick,
+            eventData: {
+                fromTarget: target
+            }
+        })
 
         return entity
     }
@@ -117,6 +125,11 @@ export class EntityManager implements Manager {
         const entity = this.get(id)
 
         if (entity) {
+            this.game.processEvent<{}>('entityDeleted', {
+                entity,
+                eventTime: this.game.currentTick,
+                eventData: {}
+            })
             this.deleteFromGrid(entity)
             this.entites = this.entites.filter((entity) => !(entity.id === id))
 

@@ -5,10 +5,16 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc && tsc-alias",
     "start:dev": "npm run build && nodemon",
-    "test": "jest"
+    "test": "jest",
+    "prepublishOnly": "npm run build"
   },
   "keywords": ["typescript-game", "game", "game-engine", "ts-game", "ts-game-engine", "stemma", "stemma-ts", "js-game"],
   "author": "Argadron",

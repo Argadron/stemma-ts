@@ -20,6 +20,15 @@ export interface IEventInfo<T> {
     readonly entity?: Entity | GameObject;
 }
 
+export interface IEntityCreatedData {
+    readonly fromTarget: ITarget;
+}
+
+export interface IEntityTagsChangedData {
+    readonly tag: string;
+    readonly type: 'DELETE' | 'ADD';
+}
+
 export interface IAttackData {
     /**
      * Array of victims in attack

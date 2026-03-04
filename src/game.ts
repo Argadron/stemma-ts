@@ -1,12 +1,13 @@
-import { CommandType, FactoryKeys, type GameEvent } from "@enums";
+import { CommandType, FactoryKeys, GameEvent } from "@enums";
 import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData } from "@interfaces";
 import { EntityManager, UndoManager} from "@";
-import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn, OnEventDecoratorProperties, OnTickDecoratorProperties, OnCustomEventDecoratorProperties, InjectStoreValueDecoratorProperties } from "@types";
+import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn, OnEventDecoratorProperties, OnTickDecoratorProperties, OnCustomEventDecoratorProperties, InjectStoreValueDecoratorProperties, InjectLiveQueryDecoratorProperties } from "@types";
 import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
 import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
 import { extractMethodFromPlugin, extractPropertyFromPlugin } from "@utils";
+import type { Entity } from "@world";
 
 export class Game implements IGame {
     readonly options: IGameOptions;
@@ -265,6 +266,49 @@ export class Game implements IGame {
 
                 this.on<IGlobalStateChangedData>('globalStateChanged', (o, e, d) => (d.eventData.key === v.key) ? anyPlugin[property] = d.eventData.newValue : null)
             }
+        })
+
+        if (proto.__liveQueries) proto.__liveQueries.forEach((v: InjectLiveQueryDecoratorProperties) => {
+            const anyPlugin = (plugin as any)
+
+            let propertySet: Set<Entity>
+
+            if ((anyPlugin[v.propertyName] instanceof Set)) propertySet = anyPlugin[v.propertyName]
+            else propertySet = new Set<Entity>()
+
+            Object.defineProperty(anyPlugin, v.propertyName, {
+                get: function () { return propertySet },
+                set: function() {},
+                enumerable: true,
+                configurable: false
+            })
+
+            function entityManupalite(event: "entity_created" | "entity_deleted" | 'scanner', entity?: Entity) {
+                const eventEntity = entity!
+                const baseEventsCondition = (event === 'entity_created' || event === 'scanner')
+                
+                const result = v.where ? v.where(eventEntity, event) : true
+
+                if ((v.where && !result) || !baseEventsCondition) {
+                    propertySet.delete(eventEntity)
+
+                    return
+                }
+                if (
+                    (!eventEntity.isDead || v.includeDeaths) && 
+                    eventEntity.hasTag(v.all) && 
+                    (v.none ? !(eventEntity.hasTag(v.none)) : true)
+                ) {
+                    baseEventsCondition ? propertySet.add(eventEntity) : null
+                }
+                else propertySet.delete(eventEntity)
+            }
+
+            this.options.entites.targets.forEach((e) => entityManupalite('scanner', e))
+
+            this.on('entityCreated', (o, e, d) => entityManupalite('entity_created', d.entity as Entity))
+            this.on('entityDeleted', (o, e, d) => entityManupalite('entity_deleted', d.entity as Entity))
+            this.on('entityTagsChanged', (o, e, d) => entityManupalite('scanner', d.entity as Entity))
         })
 
         const installResult = plugin.install(this)

@@ -279,6 +279,11 @@ game.dispatch({
     }
 })
 game.registerPlugin(new RegenerationPlugin(20))
+map.createObject({
+    name: BLOCK,
+    type: GameObjectEnum.BLOCK,
+    position: [7, 10],
+})
 
 console.log(player.hasTag('stunned'), 'stunned')
 console.log(game.getPlugin('customLogger'))

@@ -1,12 +1,12 @@
-import { CommandType, FactoryKeys, GameObjectEnum } from "./enums/index.js";
-import createGame, { checkTwoPositions, useVisibility } from "./index.js";
-import type { IAttackData, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData, IUseValidationResult, IUseVisibilityContext } from "./interfaces/index.js";
-import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Position, Quad } from "./types/index.js";
-import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from './const/index.js'
+import { CommandType, FactoryKeys, GameObjectEnum } from "@enums";
+import createGame from "@";
+import type { IAttackData, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData, IUseValidationResult, IUseVisibilityContext } from "@interfaces";
+import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Position, Quad } from "@types";
+import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from '@const'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
 import { RegenerationPlugin } from "@plugins";
-import { useValidation } from "./utils/hooks/use-validation.hook.js";
+import { useVisibility, checkTwoPositions, useValidation } from "@utils";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,

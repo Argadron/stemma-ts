@@ -1,7 +1,7 @@
 {
-  "watch": ["src"],
+  "watch": ["src", "test/gametest.ts"],
   "ext": "ts",
-  "exec": "tsx ./src/gametest.ts",
+  "exec": "tsx ./test/gametest.ts",
   "events": {
     "restart": "clear"
   }

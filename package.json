@@ -7,13 +7,10 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc && tsc-alias",
-    "start": "node ./dist/gametest.js",
     "start:dev": "npm run build && nodemon",
-    "start:withBuild": "npm run build && node ./dist/gametest.js",
-    "test": "jest",
-    "release": "npm run start:withBuild && jest"
+    "test": "jest"
   },
-  "keywords": [],
+  "keywords": ["typescript-game", "game", "game-engine", "ts-game", "ts-game-engine", "stemma", "stemma-ts", "js-game"],
   "author": "Argadron",
   "license": "MIT",
   "exports": {

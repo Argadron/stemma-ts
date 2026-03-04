@@ -25,6 +25,9 @@
       "import": "./dist/index.js"
     }
   },
+  "dependencies": {
+    "stemma-ts": "github:argadron/stemma-ts"
+  },
   "devDependencies": {
     "@types/jest": "^30.0.0",
     "jest": "^30.2.0",

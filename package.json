@@ -14,8 +14,7 @@
     "build": "tsc && tsc-alias",
     "start:dev": "npm run build && nodemon",
     "test": "jest",
-    "prepublishOnly": "npm run build",
-    "prepare": "npm run build"
+    "prepare": "npx tsc && npx tsc-alias"
   },
   "keywords": ["typescript-game", "game", "game-engine", "ts-game", "ts-game-engine", "stemma", "stemma-ts", "js-game"],
   "author": "Argadron",
@@ -27,9 +26,11 @@
     }
   },
   "dependencies": {
-    "stemma-ts": "github:argadron/stemma-ts",
-    "typescript": "^5.9.3",
-    "tsc-alias": "^1.8.16"
+    "stemma-ts": "github:argadron/stemma-ts"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0",
+    "tsc-alias": ">=1.8.0"
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",

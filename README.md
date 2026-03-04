@@ -1,34 +1,34 @@
 # 🌿 stemma-ts
 > **High-Performance Headless Game Engine**  
-> *Реактивная топология и детерминированная логика игровых миров.*
+> *Reactive topology and deterministic logic for game worlds.*
 
-`stemma-ts` — это сверхлегкое ядро (Kernel) для создания сложных игровых систем. Движок фокусируется на **валидации намерений**, **реактивном доступе к данным** и **пространственной оптимизации**.
-
----
-
-## 🛠 Ключевые принципы
-
-- **📦 Zero Dependencies:** 0 внешних зависимостей. Чистый TypeScript. Работает везде: Node.js, Browser, Bun, Deno.
-- **⚡ Spatial Grid (O(1)):** Собственная реализация пространственной сетки для мгновенного поиска объектов.
-- **🔄 Reactive LiveQueries:** Индексация сущностей в реальном времени. Данные сами «притекают» в системы при смене тегов.
-- **🛡 Intent Validation:** Система предварительной проверки действий (Hooks), исключающая логические баги до их исполнения.
-- **💾 Deterministic Snapshots:** Полная сериализация состояния мира для сохранений, реплеев и сетевой синхронизации.
+`stemma-ts` is an ultra-lightweight Kernel designed for building complex game systems. The engine focuses on **intent validation**, **reactive data access**, and **spatial optimization**.
 
 ---
 
-## 📖 Уровни интеграции (Architecture Layers)
+## 🛠 Core Principles
 
-Движок адаптируется под уровень компетенций разработчика, предлагая разные инструменты для решения задач.
+- **📦 Zero Dependencies:** 0 external dependencies. Pure TypeScript. Works everywhere: Node.js, Browser, Bun, Deno.
+- **⚡ Spatial Grid ($O(1)$):** Custom spatial partitioning for instantaneous object lookups.
+- **🔄 Reactive LiveQueries:** Real-time entity indexing. Data "flows" into your systems as tags or states change.
+- **🛡 Intent Validation:** A pre-execution hook system (Intents) that eliminates logical bugs before they happen.
+- **💾 Deterministic Snapshots:** Full world state serialization for saves, replays, and network synchronization.
+
+---
+
+## 📖 Integration Layers
+
+The engine scales with the developer's expertise, offering different tools for different tasks.
 
 ### 🟢 Junior: Imperative Scripting
-Использование движка как библиотеки инструментов. Прямое управление объектами и ручная проверка условий.
+Using the engine as a utility library. Direct object manipulation and manual condition checks.
 
 ```typescript
-// Создаем сущность и отдаем приказы напрямую
+// Create an entity and issue orders directly
 const hero = manager.create({ name: 'Hero', position: [5, 5] });
 
 game.on('entityMoved', (o, e, d) => {
-    console.log('Герой сдвинулся!');
+    console.log('Hero moved!');
 });
 
 hero.move([6, 5]);
@@ -36,12 +36,12 @@ hero.pickUp();
 ```
 
 ### 🟡 Middle: Declarative Reactivity
-На этом уровне разработчик перестает писать ручные циклы фильтрации. Благодаря **LiveQueries**, движок сам поддерживает актуальные списки сущностей, реагируя на изменение их состояния или тегов.
+At this level, developers stop writing manual filter loops. Using **LiveQueries**, the engine automatically maintains up-to-date entity lists, reacting to tag changes or state updates in real-time.
 
 ```typescript
 class ZombieAISystem implements IPlugin {
-    // Движок автоматически наполняет этот Set и удаляет из него сущности,
-    // как только они получают тег 'dead' или 'frozen'.
+    // The engine automatically populates and clears this Set 
+    // as entities gain or lose 'dead' or 'frozen' tags.
     @InjectLiveQuery({ 
         all: ['zombie'], 
         none: ['dead', 'frozen'],
@@ -49,26 +49,26 @@ class ZombieAISystem implements IPlugin {
     })
     private activeZombies!: Set<Entity>;
 
-    @OnTick(20) // Оптимизированный цикл: выполняется раз в 20 тиков
+    @OnTick(20) // Optimized cycle: runs every 20 ticks
     update(game: Game) {
-        // Никаких .filter() или .find() — данные уже готовы и актуальны.
+        // No .filter() or .find() overhead — data is ready and reactive.
         this.activeZombies.forEach(zombie => zombie.think());
     }
 }
 ```
 
-### 🔴 Senior: Architectural Design (Мета-программирование)
-На этом уровне разработчик проектирует **протоколы взаимодействия**. Он не пишет «код для зомби», он создает **системные фильтры**, которые гарантируют соблюдение правил игры во всех плагинах сразу.
+### 🔴 Senior: Architectural Design (Meta-Programming)
+At this level, developers design **interaction protocols**. Instead of "zombie code," they create **systemic filters** that enforce world rules across all plugins, ensuring architectural integrity.
 
 ```typescript
 /**
- * Senior-разработчик внедряет глобальное правило: "Оглушенные не могут использовать предметы".
- * Это правило применится ко всем плагинам, написанным Junior и Middle разработчиками.
+ * A Senior developer implements a global rule: "Stunned units cannot use items."
+ * This rule automatically applies to all code written by Junior and Middle developers.
  */
 game.registerCustomEvent(`${USE_VALIDATION_EVENT_PREFIX}:${CommandType.USE_ITEM}`, (opts, event, data) => {
     const { entity } = data.eventData;
     
-    // Если на сущности висит тег 'stunned', мы блокируем любое "намерение" использовать предмет
+    // If the entity has the 'stunned' tag, we block any "intent" to use an item at the core level
     if (entity!.hasTag('stunned')) {
         data.eventData.isAllowed = false;
         data.eventData.errors.push('ACTION_BLOCKED_BY_STUN');
@@ -76,13 +76,13 @@ game.registerCustomEvent(`${USE_VALIDATION_EVENT_PREFIX}:${CommandType.USE_ITEM}
 });
 
 /**
- * Использование высокоуровневых системных хуков для сложных вычислений.
- * Пример: Проверка видимости с учетом тумана войны или кустов.
+ * Utilizing high-level system hooks for complex calculations.
+ * Example: Real-time Line-of-Sight (LoS) check considering fog of war or cover.
  */
 const { isVisible, factor } = useVisibility(game, zombie, player);
 
 if (isVisible && factor > 0.5) {
-    // Зомби видит игрока отчетливо — можно атаковать
+    // Zombie sees the player clearly — proceed with attack logic
     zombie.attack();
 }
 ```

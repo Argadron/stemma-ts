@@ -25,9 +25,6 @@
       "import": "./dist/index.js"
     }
   },
-  "dependencies": {
-    "stemma-ts": "github:argadron/stemma-ts"
-  },
   "peerDependencies": {
     "typescript": ">=5.0.0",
     "tsc-alias": ">=1.8.0"

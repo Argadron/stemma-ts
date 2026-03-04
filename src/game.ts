@@ -1,13 +1,13 @@
 import { CommandType, FactoryKeys, GameEvent } from "@enums";
-import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData } from "@interfaces";
+import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData, IObjectDeletedOrCreatedData } from "@interfaces";
 import { EntityManager, UndoManager} from "@";
-import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn, OnEventDecoratorProperties, OnTickDecoratorProperties, OnCustomEventDecoratorProperties, InjectStoreValueDecoratorProperties, InjectLiveQueryDecoratorProperties } from "@types";
+import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn, OnEventDecoratorProperties, OnTickDecoratorProperties, OnCustomEventDecoratorProperties, InjectStoreValueDecoratorProperties, InjectLiveQueryDecoratorProperties, InjectLiveQueryObjectDecoratorProperties } from "@types";
 import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
 import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
 import { extractMethodFromPlugin, extractPropertyFromPlugin } from "@utils";
-import type { Entity } from "@world";
+import type { Entity, GameObject } from "@world";
 
 export class Game implements IGame {
     readonly options: IGameOptions;
@@ -73,6 +73,12 @@ export class Game implements IGame {
                     break
                 case CommandType.CREATE_OBJECT:
                     this.options.map.createObject(command.data.object)
+                    break
+                case CommandType.DELETE_OBJECT:
+                    if (!command.objectId) return;
+
+                    this.options.map.deleteObject(command.objectId)
+
                     break
                 
                 default: 
@@ -309,6 +315,39 @@ export class Game implements IGame {
             this.on('entityCreated', (o, e, d) => entityManupalite('entity_created', d.entity as Entity))
             this.on('entityDeleted', (o, e, d) => entityManupalite('entity_deleted', d.entity as Entity))
             this.on('entityTagsChanged', (o, e, d) => entityManupalite('scanner', d.entity as Entity))
+        })
+
+        if (proto.__liveQueriesObjects) proto.__liveQueriesObjects.forEach((v: InjectLiveQueryObjectDecoratorProperties) => {
+            const anyPlugin = (plugin as any)
+
+            let propertySet: Set<GameObject>
+
+            if ((anyPlugin[v.propertyName] instanceof Set)) propertySet = anyPlugin[v.propertyName]
+            else propertySet = new Set<GameObject>()
+
+            Object.defineProperty(anyPlugin, v.propertyName, {
+                get: function () { return propertySet },
+                set: function() {},
+                enumerable: true,
+                configurable: false
+            })
+
+            function objectManipulate(event: "object_created" | "object_deleted" | 'scanner', object?: GameObject) {
+                const eventObject = object!
+                const baseEventsCondition = (event === 'object_created' || event === 'scanner')
+
+                if (!(v.where ? v.where(eventObject, event) : true) || !baseEventsCondition) {
+                    propertySet.delete(eventObject)
+
+                    return
+                }
+                else propertySet.add(eventObject)
+            }
+
+            this.options.map.objects.forEach((o) => objectManipulate('scanner', o))
+
+            this.on<IObjectDeletedOrCreatedData>('objectCreated', (o, e, d) => objectManipulate('object_created', d.eventData.object))
+            this.on<IObjectDeletedOrCreatedData>('objectDeleted', (o, e, d) => objectManipulate('object_deleted', d.eventData.object as GameObject))
         })
 
         const installResult = plugin.install(this)

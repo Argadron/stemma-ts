@@ -82,6 +82,16 @@ export enum GameEvent {
     objectCreatedCollision = 'object_created_collision',
 
     /**
+     * Executes, when any gameobject has been created
+     */
+    objectCreated = 'object_created',
+
+    /**
+     * Executes, when any game object has been deleted
+     */
+    objectDeleted = 'object_deleted',
+
+    /**
      * Executes, when item will not be created
      */
     itemCreatedError = 'item_created_error',
@@ -274,6 +284,11 @@ export enum CommandType {
      * Create game object cmd
      */
     CREATE_OBJECT = 'CREATE_OBJECT',
+
+    /**
+     * Delete game object cmd
+     */
+    DELETE_OBJECT = 'DELETE_OBJECT',
 
     /**
      * Set entity tag cmd

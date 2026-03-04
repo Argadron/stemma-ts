@@ -6,7 +6,8 @@ import type {
     IObjectCreatedErrorData,
     IGameMap as Map,
     ITriggerActivatedData,
-    IWorldObjectHearedNoiseData
+    IWorldObjectHearedNoiseData,
+    IObjectDeletedOrCreatedData
 } from "@interfaces";
 import type { EntityManager, IGameEffect } from "@";
 import type { 
@@ -279,6 +280,12 @@ export class GameMap implements Map {
         this.objects.push(object)
         this.addToGrid(object)
         this.validateObject(object, metadata ?? obj.metadata)
+        this.game.processEvent<IObjectDeletedOrCreatedData>('objectCreated', {
+            eventTime: this.game.currentTick,
+            eventData: {
+                object
+            }
+        })
 
         return object
     }
@@ -287,6 +294,12 @@ export class GameMap implements Map {
         const object = this.getObject(id)
 
         if (object) {
+            this.game.processEvent<IObjectDeletedOrCreatedData>('objectDeleted', {
+                eventTime: this.game.currentTick,
+                eventData: {
+                    object
+                }
+            })
             this.deleteFromGrid(object)
             this.objects = this.objects.filter((object) => !(object.id === id))
 

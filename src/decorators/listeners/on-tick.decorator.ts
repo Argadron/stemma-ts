@@ -1,4 +1,5 @@
 import type { OnTickDecoratorProperties } from "@types"
+import { registerAnyDecorator } from "@decorators"
 
 /**
  * Execute this method in provided interval
@@ -6,9 +7,5 @@ import type { OnTickDecoratorProperties } from "@types"
  * @param type - When execute method (after tick or before)
  */
 export function OnTick({ interval, type='before' }: Omit<OnTickDecoratorProperties, 'methodName'>) {
-    return (target: any, methodName: string) => {
-        if (!target.__ticks) target.__ticks = []
-
-        target.__ticks.push({ interval, methodName, type })
-    }
+    return (target: any, methodName: string) => registerAnyDecorator(target, methodName, 'ticks', { interval, type }, 'METHOD')
 }

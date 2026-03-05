@@ -248,21 +248,21 @@ export class Game implements IGame {
     }
 
     public registerPlugin(plugin: IPlugin) {
-        const proto = Object.getPrototypeOf(plugin)
+        const proto = Object.getPrototypeOf(plugin).__ ?? (plugin as any).__
 
-        if (proto.__events) proto.__events.forEach((e: OnEventDecoratorProperties) => this.on(e.event, (options, event, data) => {
+        if (proto.events) proto.events.forEach((e: OnEventDecoratorProperties) => this.on(e.event, (options, event, data) => {
             const method = extractMethodFromPlugin(plugin, e.methodName)
 
             if (method) method.call(plugin, { options, event, data })
         })) 
 
-        if (proto.__customEvents) proto.__customEvents.forEach((e: OnCustomEventDecoratorProperties) => this.registerCustomEvent(e.event, (options, event, data) => {
+        if (proto.customEvents) proto.customEvents.forEach((e: OnCustomEventDecoratorProperties) => this.registerCustomEvent(e.event, (options, event, data) => {
             const method = extractMethodFromPlugin(plugin, e.methodName)
 
             if (method) method.call(plugin, { options, event, data })
         }))
 
-        if (proto.__injectedValues) proto.__injectedValues.forEach((v: InjectStoreValueDecoratorProperties) => {
+        if (proto.injectedValues) proto.injectedValues.forEach((v: InjectStoreValueDecoratorProperties) => {
             const property = extractPropertyFromPlugin(plugin, v.propertyName)
 
             if (property) {
@@ -274,7 +274,7 @@ export class Game implements IGame {
             }
         })
 
-        if (proto.__liveQueries) proto.__liveQueries.forEach((v: InjectLiveQueryDecoratorProperties) => {
+        if (proto.liveQueries) proto.liveQueries.forEach((v: InjectLiveQueryDecoratorProperties) => {
             const anyPlugin = (plugin as any)
 
             let propertySet: Set<Entity>
@@ -317,7 +317,7 @@ export class Game implements IGame {
             this.on('entityTagsChanged', (o, e, d) => entityManupalite('scanner', d.entity as Entity))
         })
 
-        if (proto.__liveQueriesObjects) proto.__liveQueriesObjects.forEach((v: InjectLiveQueryObjectDecoratorProperties) => {
+        if (proto.liveQueriesObjects) proto.liveQueriesObjects.forEach((v: InjectLiveQueryObjectDecoratorProperties) => {
             const anyPlugin = (plugin as any)
 
             let propertySet: Set<GameObject>
@@ -439,9 +439,9 @@ export class Game implements IGame {
             try {
                 if (plugin.beforeTick) plugin.beforeTick(this)
 
-                const proto = Object.getPrototypeOf(plugin)
+                const proto = Object.getPrototypeOf(plugin).__ ?? (plugin as any).__
 
-                if (proto.__ticks) proto.__ticks.forEach((t: OnTickDecoratorProperties) => {
+                if (proto.ticks) proto.ticks.forEach((t: OnTickDecoratorProperties) => {
                     if (t.type === 'before' && (this._currentTick % t.interval === 0)) {
                         const method = extractMethodFromPlugin(plugin, t.methodName)
 

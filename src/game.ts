@@ -1,7 +1,7 @@
 import { CommandType, FactoryKeys, GameEvent } from "@enums";
 import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData, IObjectDeletedOrCreatedData } from "@interfaces";
 import { EntityManager, UndoManager} from "@";
-import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn, OnEventDecoratorProperties, OnTickDecoratorProperties, OnCustomEventDecoratorProperties, InjectStoreValueDecoratorProperties, InjectLiveQueryDecoratorProperties, InjectLiveQueryObjectDecoratorProperties } from "@types";
+import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn, OnEventDecoratorProperties, OnTickDecoratorProperties, OnCustomEventDecoratorProperties, InjectStoreValueDecoratorProperties, InjectLiveQueryDecoratorProperties, InjectLiveQueryObjectDecoratorProperties, BasePropertyDecorator, WhenDecoratorProperties } from "@types";
 import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
@@ -350,6 +350,12 @@ export class Game implements IGame {
             this.on<IObjectDeletedOrCreatedData>('objectDeleted', (o, e, d) => objectManipulate('object_deleted', d.eventData.object as GameObject))
         })
 
+        if (proto.coreInjectings) proto.coreInjectings.forEach((v: BasePropertyDecorator) => {
+            const anyPlugin = plugin as any
+
+            anyPlugin[v.propertyName] = this
+        })
+
         const installResult = plugin.install(this)
 
         if (installResult) {
@@ -444,6 +450,13 @@ export class Game implements IGame {
                 if (proto.ticks) proto.ticks.forEach((t: OnTickDecoratorProperties) => {
                     if (t.type === 'before' && (this._currentTick % t.interval === 0)) {
                         const method = extractMethodFromPlugin(plugin, t.methodName)
+
+                        if (method) method.call(plugin, this)
+                    }
+                })
+                if (proto.whens) proto.whens.forEach((v: WhenDecoratorProperties) => {
+                    if (v.when(this)) {
+                        const method = extractMethodFromPlugin(plugin, v.methodName)
 
                         if (method) method.call(plugin, this)
                     }

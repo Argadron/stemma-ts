@@ -9,8 +9,9 @@ export function registerAnyDecorator<T = any>(target: any, contextOrProperty: st
         ...data
     }
 
+    if (!target.__) target.__ = {}
+
     if (typeof contextOrProperty === 'string') {
-        
         if (!target.__[decoratorKey]) target.__[decoratorKey] = []
 
         type === 'PROPERTY' ? readyData.propertyName = contextOrProperty : readyData.methodName = contextOrProperty

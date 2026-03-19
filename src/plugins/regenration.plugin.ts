@@ -1,5 +1,5 @@
 import type { Game } from "@";
-import { InjectLiveQuery, InjectLiveQueryObject, InjectStoreValue, OnCustomEvent, OnEvent, OnTick } from "@decorators";
+import { InjectCore, InjectLiveQuery, InjectLiveQueryObject, InjectStoreValue, OnCustomEvent, OnEvent, OnTick, When } from "@decorators";
 import type { IPlugin, IEventInfo } from "@interfaces";
 import { anyWorldObjectIsGameObject } from "@utils";
 import type { Entity, GameObject } from "@world"
@@ -12,6 +12,9 @@ export class RegenerationPlugin implements IPlugin {
 
     @InjectStoreValue(`REGENERATION_PLUGIN:health_regen_value`)
     private HEALTH_REGEN_VALUE: number;
+
+    @InjectCore()
+    private readonly core!: Game;
 
     @InjectLiveQuery({
         all: ['stunned'],
@@ -31,8 +34,16 @@ export class RegenerationPlugin implements IPlugin {
         this.HEALTH_REGEN_VALUE = health ?? 1
     }
 
+    @When({
+        when: (game) => game.currentTick % 100 === 0
+    })
+    public when() {
+        console.log('WHEN')
+    }
+
     @OnTick({ interval: 100 })
     public tick(g: Game) {
+        console.log('GAME!', this.core)
         if (g.currentTick % 10 === 0) g.options.store.set(this.storePluginKey, this.HEALTH_REGEN_VALUE++)
     }
 

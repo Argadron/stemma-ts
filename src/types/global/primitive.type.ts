@@ -1,0 +1,1 @@
+export type Default<T = any> = string | number | boolean | object | Array<T>

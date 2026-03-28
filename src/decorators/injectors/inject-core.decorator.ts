@@ -1,4 +1,4 @@
-import { registerAnyDecorator } from "../utils";
+import { registerAnyDecorator } from "@decorators";
 
 /**
  * Decorator marks this property as target to inject Game

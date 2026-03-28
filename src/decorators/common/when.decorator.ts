@@ -1,5 +1,5 @@
 import type { WhenDecoratorProperties } from "@types";
-import { registerAnyDecorator } from "../utils";
+import { registerAnyDecorator } from "@decorators";
 
 /**
  * Decorator marks this method as When condition method, what equals, method will be executed,

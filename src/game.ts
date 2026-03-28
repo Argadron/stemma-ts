@@ -248,7 +248,7 @@ export class Game implements IGame {
     }
 
     public registerPlugin(plugin: IPlugin) {
-        const proto = Object.getPrototypeOf(plugin).__ ?? (plugin as any).__
+        const proto = (Object.getPrototypeOf(plugin).__ ?? (plugin as any).__) || {}
 
         if (proto.events) proto.events.forEach((e: OnEventDecoratorProperties) => this.on(e.event, (options, event, data) => {
             const method = extractMethodFromPlugin(plugin, e.methodName)
@@ -445,7 +445,7 @@ export class Game implements IGame {
             try {
                 if (plugin.beforeTick) plugin.beforeTick(this)
 
-                const proto = Object.getPrototypeOf(plugin).__ ?? (plugin as any).__
+                const proto = (Object.getPrototypeOf(plugin).__ ?? (plugin as any).__) || {}
 
                 if (proto.ticks) proto.ticks.forEach((t: OnTickDecoratorProperties) => {
                     if (t.type === 'before' && (this._currentTick % t.interval === 0)) {

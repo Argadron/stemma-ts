@@ -21,7 +21,6 @@ export function registerAnyDecorator<T = any>(target: any, contextOrProperty: st
         return;
     }
     else {
-        
         contextOrProperty.addInitializer(function (this: any) {
             if (!this.__) this.__ = {}
             

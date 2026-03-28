@@ -1,11 +1,11 @@
 import { CommandType, FactoryKeys, GameObjectEnum } from "@enums";
 import createGame from "@";
-import type { IAttackData, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData, IUseValidationResult, IUseVisibilityContext } from "@interfaces";
-import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Position, Quad } from "@types";
+import type { IAttackData, IClient, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData, IServer, IUseValidationResult, IUseVisibilityContext } from "@interfaces";
+import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, NetworkCallback, Position, Quad } from "@types";
 import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from '@const'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
-import { RegenerationPlugin } from "@plugins";
+import { RegenerationPlugin, NetworkPlguin } from "@plugins";
 import { useVisibility, checkTwoPositions, useValidation } from "@utils";
 
 const [game, manager, map] = createGame({
@@ -16,6 +16,17 @@ const [game, manager, map] = createGame({
 game.use([loggerMiddleware])
 
 game.options.store.set('isNight', true)
+
+const server: IServer = {
+    on: (ev, cb) => {
+        console.log(ev, 'COMMAND FROM SERVER')
+
+        cb(server as IClient, 'any data')
+    },
+    emit: (ev, data) => {
+        console.log(ev, 'SERVER EMITTING CMD')
+    }
+}
 
 const PLAYER = 'PLAYER'
 const PLAYER_SECOND = 'PLAYER_SECOND'
@@ -278,7 +289,16 @@ game.dispatch({
         tag: 'stunned'
     }
 })
+
+const events = new Map<CommandType, NetworkCallback>()
+
+events.set(CommandType.SET_STATE, (ev, data) => {
+    console.log('NETWORK DATA', data)
+})
+
 game.registerPlugin(new RegenerationPlugin(20))
+game.registerPlugin(new NetworkPlguin(server, events))
+
 map.createObject({
     name: BLOCK,
     type: GameObjectEnum.BLOCK,

@@ -1,7 +1,7 @@
 import { CommandType, FactoryKeys, GameEvent } from "@enums";
 import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData, IObjectDeletedOrCreatedData } from "@interfaces";
 import { EntityManager, UndoManager} from "@";
-import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn, OnEventDecoratorProperties, OnTickDecoratorProperties, OnCustomEventDecoratorProperties, InjectStoreValueDecoratorProperties, InjectLiveQueryDecoratorProperties, InjectLiveQueryObjectDecoratorProperties, BasePropertyDecorator, WhenDecoratorProperties } from "@types";
+import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn, OnEventDecoratorProperties, OnTickDecoratorProperties, OnCustomEventDecoratorProperties, InjectStoreValueDecoratorProperties, InjectLiveQueryDecoratorProperties, InjectLiveQueryObjectDecoratorProperties, BasePropertyDecorator, WhenDecoratorProperties, CommandContext } from "@types";
 import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
@@ -63,7 +63,7 @@ export class Game implements IGame {
      * @param ctx - Command context
      * @returns { void }
      */
-    private kernelExecute(command: ICommand, ctx: Record<string, any>): void {
+    private kernelExecute(command: ICommand, ctx: CommandContext): void {
             switch(command.type) {
                 case CommandType.SET_STATE:
                     this.options.store.set(command.data.key, command.data.value)
@@ -142,9 +142,11 @@ export class Game implements IGame {
      * @returns { void }
      */
     private proccessCmd(cmd: ICommand): void {
+        this.plugins.forEach(plugin => plugin.beforeCommandExecuted ? plugin.beforeCommandExecuted(this, cmd, {}) : null)
         this.options.undoManager.push(this.save())
 
         const ctx = {}
+        const triggerPlugin = (context: CommandContext) => this.plugins.forEach(plugin => plugin.afterCommandExecuted ? plugin.afterCommandExecuted(this, cmd, context) : null)
 
         if (!cmd.isSystem) {
             let index = 0;
@@ -153,12 +155,20 @@ export class Game implements IGame {
                 const middleware = this.middlewares[index++]
 
                 if (middleware) middleware(cmd, next, this, ctx)
-                else this.kernelExecute(cmd, ctx)
+                else {
+                    triggerPlugin(ctx)
+
+                    this.kernelExecute(cmd, ctx)
+                }
             }
 
             next()
         }
-        else this.kernelExecute(cmd, ctx)
+        else {
+            triggerPlugin(ctx)
+
+            this.kernelExecute(cmd, ctx)
+        }
     }
 
     public constructor(
@@ -406,6 +416,7 @@ export class Game implements IGame {
     public start(fps=BASE_FPS) {
         if (this.isStarted) return false
 
+        this.plugins.forEach(plugin => plugin.beforeGameLaunch ? plugin.beforeGameLaunch(this) : null)
         this.isStarted = true
         this.gameIntervalId = setInterval(() => {
             this._currentTick ++
@@ -418,6 +429,7 @@ export class Game implements IGame {
             eventTime: this._currentTick,
             eventData: null
         })
+        this.plugins.forEach(plugin => plugin.afterGameLaunch ? plugin.afterGameLaunch(this) : null)
 
         return true
     }

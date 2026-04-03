@@ -2,6 +2,7 @@ import type { Game } from "@";
 import type { Entity, GameObject } from "@world";
 import type { CommandType } from "@enums";
 import type { IUseValidationResult } from "@interfaces";
+import type { CommandContext } from "@types";
 import { USE_VALIDATION_EVENT_PREFIX } from "@const";
 import { anyWorldObjectIsGameObject } from "@utils";
 
@@ -13,7 +14,7 @@ import { anyWorldObjectIsGameObject } from "@utils";
  * @param ctx - Context in this hook
  * @returns { IUseValidationResult } - Hook result
  */
-export function useValidation<T = any>(game: Game, subject: Entity | GameObject, action: CommandType, ctx: Record<string, any>): IUseValidationResult {
+export function useValidation<T = any>(game: Game, subject: Entity | GameObject, action: CommandType, ctx: CommandContext): IUseValidationResult {
     const resultContext = {
         ...ctx,
         isAllowed: true,

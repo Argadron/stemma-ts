@@ -1,4 +1,5 @@
 import type { Game } from "@";
+import type { CommandContext } from "@types";
 
 export interface IGlobalStore {
     /**
@@ -21,7 +22,7 @@ export interface IGlobalStoreOptions {
     /**
      * Object with key=value init data
      */
-    readonly initialValue?: Record<string, any>;
+    readonly initialValue?: CommandContext;
 
     /**
      * Game reference

@@ -1,6 +1,7 @@
 import type { Game } from "@";
 import type { CommandType } from "@enums";
 import type { IGameObject, ITarget } from "@interfaces";
+import type { CommandContext, LifecycleCallback } from "@types";
 
 export interface ISnapshot {
     /**
@@ -16,7 +17,7 @@ export interface ISnapshot {
     /**
      * Global state 
      */
-    readonly state: Record<string, any>;
+    readonly state: CommandContext;
 }
 
 export interface ICommand<T = any> {
@@ -76,5 +77,37 @@ export interface IPlugin {
      * @param game - Game reference
      * @returns { void }
      */
-    readonly afterTick?: (game: Game) => void;
+    readonly afterTick?: (game: Game) => void; 
+
+    /**
+     * Lifecycle hook, executes before game launched. Must be sync
+     * @param game - Game reference
+     * @returns { void }
+     */
+    readonly beforeGameLaunch?: (game: Game) => void;
+
+    /**
+     * Lifecycle hook, executes after game launched. Must be sync
+     * @param game 
+     * @returns 
+     */
+    readonly afterGameLaunch?: (game: Game) => void;
+
+    /**
+     * Lifecycle hook, executes before command go to middlewares
+     * @param game - Game reference
+     * @param cmd - Executing cmd
+     * @param ctx - Cmd context
+     * @returns { void }
+     */
+    readonly beforeCommandExecuted?: LifecycleCallback;
+
+    /**
+     * Lifecycle hook, executes after command executed in kernel
+     * @param game - Game reference
+     * @param cmd - Executed cmd
+     * @param ctx - Cmd context
+     * @returns { void }
+     */
+    readonly afterCommandExecuted?: LifecycleCallback;
 }

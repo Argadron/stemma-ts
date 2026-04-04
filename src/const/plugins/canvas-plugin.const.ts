@@ -1,0 +1,4 @@
+export const CANVAS_BASE_WIDTH = 32
+export const CANVAS_BASE_HEIGHT = 32
+export const CANVAS_BASE_ELEMENT_WIDTH = 800
+export const CANVAS_BASE_ELEMENT_HEIGHT = 600

@@ -69,7 +69,7 @@ export class Game implements IGame {
                     this.options.store.set(command.data.key, command.data.value)
                     break
                 case CommandType.CREATE_ENTITY:
-                    this.options.entites.manager.create(command.data.target)
+                    this.options.manager.create(command.data.target)
                     break
                 case CommandType.CREATE_OBJECT:
                     this.options.map.createObject(command.data.object)
@@ -82,7 +82,7 @@ export class Game implements IGame {
                     break
                 
                 default: 
-                    const entity = this.options.entites.manager.get(command.entityId!)
+                    const entity = this.options.manager.get(command.entityId!)
 
                     if (command.type === CommandType.TOWER_SHOOT) {
                         this.options.map.getObject(command.objectId!)?.shoot()
@@ -177,10 +177,7 @@ export class Game implements IGame {
         const manager = new EntityManager([], this)
 
         this.options = {
-            entites: {
-                manager,
-                targets: manager.entites
-            },
+            manager,
             map: manager.gameMap,
             store: new GlobalStore({ game: this }),
             undoManager: new UndoManager({ game: this }),
@@ -320,7 +317,7 @@ export class Game implements IGame {
                 else propertySet.delete(eventEntity)
             }
 
-            this.options.entites.targets.forEach((e) => entityManupalite('scanner', e))
+            this.options.manager.entities.forEach((e) => entityManupalite('scanner', e))
 
             this.on('entityCreated', (o, e, d) => entityManupalite('entity_created', d.entity as Entity))
             this.on('entityDeleted', (o, e, d) => entityManupalite('entity_deleted', d.entity as Entity))
@@ -382,8 +379,8 @@ export class Game implements IGame {
 
     public save(cb?: SnapshotCallback): ISnapshot {
         const snapshot = {
-            entities: this.options.entites.targets.map((e) => e.toDTO()),
-            objects: this.options.map.objects.map((o) => o.toDTO()),
+            entities: Array.from(this.options.manager.entities.values()).map((e) => e.toDTO()),
+            objects: Array.from(this.options.map.objects.values()).map((o) => o.toDTO()),
             state: Object.fromEntries(this.options.store.state)
         }
         
@@ -394,7 +391,7 @@ export class Game implements IGame {
 
     public load(snapshot: ISnapshot, onLoad?: (game: Game) => void) {
         this.options.map.load(snapshot.objects)
-        this.options.entites.manager.load(snapshot.entities)
+        this.options.manager.load(snapshot.entities)
         
         for (const key of Object.keys(snapshot.state)) this.options.store.set(key, snapshot.state[key])
 
@@ -422,7 +419,7 @@ export class Game implements IGame {
             this._currentTick ++
 
             this.tick()
-            this.options.entites.targets.forEach((entity) => entity.tick())
+            this.options.manager.entities.forEach((entity) => entity.tick())
             this.options.map.objects.forEach((object) => object.tick())
         }, 1000/fps)
         this.processEvent<null>('gameStarted', {

@@ -118,14 +118,14 @@ export class Entity implements ITarget {
      * @returns { IAttackResult } - Result of attack
      */
     public attack(targets?: Entity[]): IAttackResult {
-        let entites: Entity[];
+        let entities: Entity[];
         let counter = 0;
 
-        if (targets) entites = targets
-        else entites = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES')
+        if (targets) entities = targets
+        else entities = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES')
         .filter((entity) => entity !== this) // возможно заменить на айди
 
-        for (const entity of entites) {
+        for (const entity of entities) {
             const totalDamage = this.fullDamage - entity.armorHealth
 
             const { isDead } = useAttack(this.manager.game, totalDamage, this, entity)
@@ -138,12 +138,12 @@ export class Entity implements ITarget {
             entity: this,
             eventData: {
                 attacker: this,
-                victims: entites
+                victims: entities
             }
         })
 
         return {
-            victims: entites,
+            victims: entities,
             attacker: this,
             deathsCount: counter
         }

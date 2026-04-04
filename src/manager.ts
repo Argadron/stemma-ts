@@ -11,16 +11,18 @@ import { checkCollisions, convertPositionToGridPosition, getInPosition } from "@
 import { FactoryKeys } from "@enums";
 
 export class EntityManager implements Manager {
-    /**
-     * Array of all entities
-     */
-    public entites: Entity[];
     public readonly game: Game;
     public readonly gameMap: GameMap;
     public readonly grid = new Map<GridPosition, Set<Entity>>()
+    
+    public entities = new Map<number, Entity>()
 
     public load(rawEntity: ITarget[]) {
-        this.entites = rawEntity.map((raw) => Entity.fromSnapshot(raw, this, this.gameMap, this.game.getFactory(FactoryKeys.EFFECTS)))
+        this.entities = new Map(rawEntity.map((raw) => {
+            const entity = Entity.fromSnapshot(raw, this, this.gameMap, this.game.getFactory(FactoryKeys.EFFECTS))
+
+            return [entity.id, entity]
+        }))
     }
 
     /**
@@ -75,21 +77,21 @@ export class EntityManager implements Manager {
         }
     }
 
-    public constructor(entites: ITarget[], game: Game) {
-        this.entites = entites as Entity[]
+    public constructor(entities: Entity[], game: Game) {
         this.gameMap = new GameMap(this, game)
         this.game = game
+        this.entities = new Map(entities.map(e => [e.id, e]))
     }
 
     public get(id: number) {
-        return this.entites.find((entity) => entity.id === id)
+        return this.entities.get(id)
     }
 
     public create(target: ITarget) {
         const entity = new Entity(target, this, this.gameMap)
 
         this.addToGrid(entity)
-        this.entites.push(entity)
+        this.entities.set(entity.id, entity)
         this.game.processEvent<IEntityCreatedData>('entityCreated', {
             entity,
             eventTime: this.game.currentTick,
@@ -131,7 +133,7 @@ export class EntityManager implements Manager {
                 eventData: {}
             })
             this.deleteFromGrid(entity)
-            this.entites = this.entites.filter((entity) => !(entity.id === id))
+            this.entities.delete(id)
 
             return true
         }
@@ -163,7 +165,7 @@ export class EntityManager implements Manager {
         const entity = this.get(id)
         
         if (!entity) return false
-        if (!getInPosition(entity.position, this.entites)) return false
+        if (!getInPosition(entity.position, Array.from(this.entities.values()))) return false
 
         return !checkCollisions(this.gameMap.getAllInPosition(entity.position), entity)
     }

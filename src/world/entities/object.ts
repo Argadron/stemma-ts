@@ -34,11 +34,11 @@ export class GameObject implements IGameObject {
      * @returns { { deathsCounter: number } } - Count of deaths
      */
     public shoot(): { deathsCounter: number; } {
-        const entites = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES').filter((victim) => canSee(this.position, victim.position, this.map))
+        const entities = this.map.getInQuad(createQuadFromPosition(this.position), 'ENTITES').filter((victim) => canSee(this.position, victim.position, this.map))
 
         let counter = 0;
 
-        for (const victim of entites) {
+        for (const victim of entities) {
             const { isDead } = useAttack(this.map.game, this.metadata.damage, this, victim)
 
             if (isDead) counter++
@@ -48,7 +48,7 @@ export class GameObject implements IGameObject {
             eventTime: this.map.game.currentTick,
             eventData: {
                 tower: this,
-                victims: entites,
+                victims: entities,
                 deathsCount: counter
             }
         })

@@ -31,7 +31,7 @@ export class QuestsFactory implements IQuestFactory {
 
         if (!bluepointQuest) return false
 
-        const entity = this.options.game.options.entites.manager.get(entityId)
+        const entity = this.options.game.options.manager.get(entityId)
 
         const quest = {
             ...bluepointQuest,

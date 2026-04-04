@@ -1,16 +1,12 @@
 import type { UndoManager } from "@";
 import type { IEntityManager, IGameMap } from "@interfaces";
 import type { GlobalStore } from "@store";
-import type { Entity } from "@world";
 
 export interface IGameOptions {
     /**
-     * Entites in game
+     * Entities in game
      */
-    readonly entites: {
-        readonly targets: Entity[];
-        readonly manager: IEntityManager;
-    }
+    readonly manager: IEntityManager;
 
     /**
      * Game Map

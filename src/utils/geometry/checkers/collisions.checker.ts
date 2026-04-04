@@ -6,12 +6,12 @@ import type { Entity, GameObject } from "@world"
 
 /**
  * Checks collision between entity and potential array
- * @param entitesAndObjects - Array of collisions (on new position)
+ * @param entitiesAndObjects - Array of collisions (on new position)
  * @param entity - World object
  * @returns { boolean } - True if collision, else false
  */
-export function checkCollisions(entitesAndObjects: (Entity | GameObject)[], entity: Entity | GameObject): boolean {
-    const totalWeight = entitesAndObjects.reduce((accum, objOrEntity) => {
+export function checkCollisions(entitiesAndObjects: (Entity | GameObject)[], entity: Entity | GameObject): boolean {
+    const totalWeight = entitiesAndObjects.reduce((accum, objOrEntity) => {
                 if (objOrEntity.id === entity.id) return accum
                 if (anyWorldObjectIsGameObject(objOrEntity)) {
                     if (gameObjectIsChest(objOrEntity)) return accum += objOrEntity.metadata?.items.reduce((accum: number, chestItem: GameObject) => accum += (chestItem.metadata?.weight ?? 1), 0)
@@ -22,9 +22,9 @@ export function checkCollisions(entitesAndObjects: (Entity | GameObject)[], enti
             }, 0)
             let isCollision = false
     
-            if (entitesAndObjects.length === 0) return false
+            if (entitiesAndObjects.length === 0) return false
             else {
-                for (const collision of entitesAndObjects) {
+                for (const collision of entitiesAndObjects) {
                     if (collision.id !== entity.id) {
                         const entityIsEntity = !anyWorldObjectIsGameObject(entity)
                         const collisionIsEntity = !anyWorldObjectIsGameObject(collision)

@@ -72,7 +72,7 @@ export class RegenerationPlugin implements IPlugin {
         const tick = game.currentTick
 
         if (tick % this.REGENERATION_INTERVAL !== 0) return;
-        else game.options.entites.targets.forEach((entity) => {
+        else game.options.manager.entities.forEach((entity) => {
             if (!entity.isDead && entity.health) game.processCustomEvent('regenerate', {
                 entity,
                 eventTime: tick,

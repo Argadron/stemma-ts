@@ -7,7 +7,7 @@ import type { MiddlewareFn } from "@types";
 export const baseChecksMiddleware: MiddlewareFn = (command, next, game, ctx) => {
     if (command.type !== CommandType.SET_STATE && command.type !== CommandType.CREATE_ENTITY && command.type !== CommandType.CREATE_OBJECT) {
         if (command.entityId) {
-            const entity = game.options.entites.manager.get(command.entityId)
+            const entity = game.options.manager.get(command.entityId)
 
             if (entity && !(entity?.isDead)) {
                 ctx.entity = entity

@@ -34,8 +34,7 @@ export class BluePrintsFactory implements IBluePrintsFactory {
     public create(blueprint: IBluePrint, position: Position): (Entity | GameObject)
     public create(blueprint: IBluePrint[], position: Position[]): (Entity | GameObject)[]
     public create(blueprint: IBluePrint | IBluePrint[], position: Position[] | Position)  {
-        const { manager } = this.options.game.options.entites
-        const { map } = this.options.game.options
+        const { manager, map } = this.options.game.options
 
         function spawn(b: IBluePrint, position: Position) {
             const data = {

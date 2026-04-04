@@ -7,10 +7,10 @@ import type { Entity } from "@world";
 export const CollisionGuard: MiddlewareFn = (cmd, next, game) => {
     if (cmd.type !== CommandType.MOVE && cmd.type !== CommandType.CREATE_ENTITY && cmd.type !== CommandType.CREATE_OBJECT) return next()
     else {
-        const entity = game.options.map.getObject(cmd.data.objectId) ?? game.options.entites.manager.get(cmd.entityId!)
-        const entitesAndObjects = game.options.map.getAllInPosition(cmd.data.position ?? cmd.data.target?.position ?? cmd.data.object?.position)
+        const entity = game.options.map.getObject(cmd.data.objectId) ?? game.options.manager.get(cmd.entityId!)
+        const entitiesAndObjects = game.options.map.getAllInPosition(cmd.data.position ?? cmd.data.target?.position ?? cmd.data.object?.position)
 
-        const isCollision = checkCollisions(entitesAndObjects, entity ?? cmd.data.target ?? cmd.data.object)
+        const isCollision = checkCollisions(entitiesAndObjects, entity ?? cmd.data.target ?? cmd.data.object)
 
         if (entity && isCollision && cmd.type === CommandType.MOVE) {
             game.processEvent<IMovedCollisionData>('entityMovedCollision', {

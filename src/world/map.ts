@@ -22,8 +22,7 @@ import type {
     GridPosition
 } from "@types";
 import { 
-    convertAnyPositionToPosition, 
-    checkTwoPositions, 
+    convertAnyPositionToPosition,
     gameObjectIsItem, 
     getInPosition, 
     createQuadFromPosition,
@@ -39,7 +38,7 @@ export class GameMap implements Map {
     public readonly manager: EntityManager;
     public readonly game: Game;
 
-    public objects: GameObject[] = []
+    public objects = new Map<number, GameObject>()
 
     /**
      * Validate and executing error events for new object
@@ -129,11 +128,15 @@ export class GameMap implements Map {
      */
     public pushObject(obj: GameObject): void {
         this.addToGrid(obj)
-        this.objects.push(obj)
+        this.objects.set(obj.id, obj)
     }
  
     public load(rawObjects: IGameObject[]) {
-        this.objects = rawObjects.map((object) => GameObject.fromSnapshot(object, this.manager, this))
+        this.objects = new Map(rawObjects.map((object) => {
+            const obj = GameObject.fromSnapshot(object, this.manager, this)
+
+            return [obj.id, obj]
+        }))
     }
 
     /**
@@ -224,9 +227,9 @@ export class GameMap implements Map {
         const triggers = this.getTriggersInPosition(position)
         
         const noiseRadius = Math.floor(entity.totalWeight / 10)
-        const entitesWhoHeard = this.getInQuad(createQuadFromPosition(entity.position, noiseRadius < BASE_HEARING_RADIUS ? BASE_HEARING_RADIUS : noiseRadius))
+        const entitiesWhoHeard = this.getInQuad(createQuadFromPosition(entity.position, noiseRadius < BASE_HEARING_RADIUS ? BASE_HEARING_RADIUS : noiseRadius))
 
-        entitesWhoHeard.forEach((worldObject) => {
+        entitiesWhoHeard.forEach((worldObject) => {
             if (worldObject.id === id) return;
 
             this.game.processEvent<IWorldObjectHearedNoiseData>('gameObjectHearedNoise', {
@@ -277,7 +280,7 @@ export class GameMap implements Map {
     public createObject<T = any>(obj: IGameObject, metadata?: T) {
         const object = new GameObject(obj, this.manager, this, metadata ?? obj.metadata)
 
-        this.objects.push(object)
+        this.objects.set(object.id, object)
         this.addToGrid(object)
         this.validateObject(object, metadata ?? obj.metadata)
         this.game.processEvent<IObjectDeletedOrCreatedData>('objectCreated', {
@@ -301,7 +304,7 @@ export class GameMap implements Map {
                 }
             })
             this.deleteFromGrid(object)
-            this.objects = this.objects.filter((object) => !(object.id === id))
+            this.objects.delete(id)
 
             return true
         }
@@ -309,18 +312,18 @@ export class GameMap implements Map {
     }
 
     public getObject(id: number) {
-        return this.objects.find((object) => object.id === id)
+        return this.objects.get(id)
     }
 
     public getAllItems() {
-        return this.objects.filter((obj) => gameObjectIsItem(obj))
+        return Array.from(this.objects.values()).filter(o => gameObjectIsItem(o))
     }
 
     public checkObjectOk(id: number): boolean {
         const object = this.getObject(id)
 
         if (!object) return false
-        if (!getInPosition(object.position, this.objects)) return false
+        if (!getInPosition(object.position, Array.from(this.objects.values()))) return false
 
         return !checkCollisions(this.getAllInPosition(object.position), object)
     }

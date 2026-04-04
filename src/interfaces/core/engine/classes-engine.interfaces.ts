@@ -143,6 +143,11 @@ export interface IEntityManager {
     readonly gameMap: IGameMap;
 
     /**
+     * Map of all game entities
+     */
+    readonly entities: Map<number, Entity>;
+
+    /**
      * Create Entity in world
      * @param target - Entity data
      * @returns { Entity } - Created entity. Entity can be not created, then executed entityCreatedCollision event
@@ -187,7 +192,7 @@ export interface IEntityManager {
 
     /**
      * Internal method for reload map (delete all entities and load)
-     * @param entites - Entities to load
+     * @param entities - Entities to load
      * @returns { void }
      */
     readonly load: (rawEntity: ITarget[]) => void;
@@ -204,7 +209,10 @@ export interface IGameMap {
      */
     readonly game: Game;
 
-    readonly objects: GameObject[];
+    /**
+     * Map of all game objects
+     */
+    readonly objects: Map<number, GameObject>;
 
     /**
      * Get world objects in quad
@@ -283,7 +291,7 @@ export interface IGameMap {
      * @param effect - Effect to apply
      * @param duration - Effect duration
      * @param excludeId - Optional ID of entity, effect will not be applied to her
-     * @returns { Entity[] } - Array of entites founded in quad on applying effect
+     * @returns { Entity[] } - Array of entities founded in quad on applying effect
      */
     readonly applyEffectToQuad: (quad: Quad, effect: IGameEffect, duration: number, excludeId?: number) => Entity[];
 }

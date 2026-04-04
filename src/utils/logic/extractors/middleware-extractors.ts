@@ -11,7 +11,7 @@ import type { CommandContext } from "@types";
  * @returns { Entity | undefined } - Entity if can extract or found, else undefined
  */
 export function extractEntityFromMiddlewareContext(command: ICommand, ctx: CommandContext, game: Game): Entity | undefined {
-    return ctx.entity ?? game.options.entites.manager.get(command.entityId!)
+    return ctx.entity ?? game.options.manager.get(command.entityId!)
 }
 
 /**

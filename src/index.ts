@@ -26,6 +26,6 @@ export * from "./decorators/index.js"
 export const createGame = (options?: IInitGameOptions): [game: Game, manager: IEntityManager, map: IGameMap] => {
     const game = new Game(options)
 
-    return [game, game.options.entites.manager, game.options.map] as const
+    return [game, game.options.manager, game.options.map] as const
 }
 export default createGame

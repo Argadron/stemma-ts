@@ -17,6 +17,7 @@ export * from "./world/index.js"
 export * from "./factories/index.js"
 export * from "./store/global-store.js"
 export * from "./decorators/index.js"
+export * from "./plugins/index.js"
 
 /**
  * Create new game function (fast create)

@@ -333,6 +333,7 @@ game.stop()
 
 game.load(snapshot, (game) => {
     console.log(game.options.store.get('isNight')) 
+    console.log(Array.from(game.options.manager.entities.values()).find(e => e.inventory.length !== 0)?.inventory, 'INVENTORY SNAPSHOT')
 })
 
 game.dispatch({

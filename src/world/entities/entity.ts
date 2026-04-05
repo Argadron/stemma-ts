@@ -431,7 +431,7 @@ export class Entity implements ITarget {
     public static fromSnapshot(data: any, manager: EntityManager, map: GameMap, effectFactory: EffectFactory): Entity {
         const entity = new Entity(data, manager, map)
 
-        if (data.inventory && Array.isArray(data.inventory)) entity.inventory = data.inventory.map((i: IGameObject) => GameObject.fromSnapshot(i, manager, map)) 
+        if (data.inventory && Array.isArray(data.inventory)) entity.inventory = data.inventory
         if (data.currentActiveItem) entity.currentActiveItem = entity.inventory.find((item) => item.id === data.currentActiveItemId)
         if (data.effects && Array.isArray(data.effects)) entity.effects = data.effects.map((effect: any) => ({
                 ...effectFactory.get(effect.id),

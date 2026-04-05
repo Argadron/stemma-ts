@@ -1,5 +1,5 @@
 import { CommandType, FactoryKeys, GameEvent } from "@enums";
-import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData, IObjectDeletedOrCreatedData, IEntityTagsChangedData } from "@interfaces";
+import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData, IObjectDeletedOrCreatedData, IEntityTagsChangedData, ICommandBlocked } from "@interfaces";
 import { EntityManager, UndoManager} from "@";
 import type { 
     EventCallback, 
@@ -166,11 +166,18 @@ export class Game implements IGame {
 
         if (!cmd.isSystem) {
             let index = 0;
+            let isNextCalled = false;
 
             const next = () => {
+                isNextCalled = true
+
                 const middleware = this.middlewares[index++]
 
-                if (middleware) middleware(cmd, next, this, ctx)
+                if (middleware) {
+                    isNextCalled = false
+
+                    middleware(cmd, next, this, ctx)
+                }
                 else {
                     triggerPlugin(ctx)
 
@@ -179,6 +186,11 @@ export class Game implements IGame {
             }
 
             next()
+
+            if (!isNextCalled && !cmd.isSystem) this.processEvent<ICommandBlocked>('commandCanceled', {
+                eventTime: this.currentTick,
+                eventData: { command: cmd }
+            })
         }
         else {
             triggerPlugin(ctx)

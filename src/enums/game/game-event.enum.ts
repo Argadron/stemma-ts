@@ -152,5 +152,10 @@ export enum GameEvent {
     /**
      * Executes, when code request play sound
      */
-    playSound = 'play_sound'
+    playSound = 'play_sound',
+
+    /**
+     * Executes, when command had blocked by middleware
+     */
+    commandCanceled = 'command_canceled',
 }

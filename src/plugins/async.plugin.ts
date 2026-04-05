@@ -1,5 +1,5 @@
 import type { Game } from "@";
-import type { IPlugin, ICommand } from "@interfaces";
+import type { IPlugin, ICommand, IAsyncMapValues, ICommandBlocked } from "@interfaces";
 import { createId } from "@utils";
 import { InjectCore } from "@decorators";
 import { CMD_MAX_WAITING_DEFAULT_DELAY } from "@const";
@@ -22,13 +22,10 @@ import { CMD_MAX_WAITING_DEFAULT_DELAY } from "@const";
 export class AsyncPlugin implements IPlugin {
     public readonly name = AsyncPlugin.name;
 
-    private currentAsync: ICommand<any> | undefined;
-    private currentCommandId: number | undefined;
-    private resolver: ((v: true) => void) | undefined;
-
     @InjectCore()
     private readonly core!: Game;
     private readonly cmdMaxWaitingDelay: number;
+    private readonly asyncMap = new Map<number, IAsyncMapValues>();
 
     /**
      * @param maxDelay - Max waiting time for cmd executing in ms
@@ -41,27 +38,50 @@ export class AsyncPlugin implements IPlugin {
         return true
     }
 
-    public async asyncExecute<T = any>(cmd: ICommand<T>): Promise<boolean> {
-        this.currentAsync = cmd;
-        this.currentCommandId = createId();
+    public async asyncExecute<T = any>(command: ICommand<T>): Promise<boolean> {
+        const commandId = createId();
 
-        (cmd.data as any).__ = { id: this.currentCommandId }
+        (command.data as any).__ = { id: commandId }
 
-        return new Promise((resolve, reject) => {
-            this.resolver = resolve
-            this.core.dispatch(cmd)
+        return new Promise((resolver) => {
+            const unSub = this.core.on<ICommandBlocked>('commandCanceled', (options, event, data) => {
+                if ((data.eventData.command.data as any).__?.id === commandId) {
+                    this.asyncMap.delete(commandId)
 
-            setTimeout(() => reject(false), this.cmdMaxWaitingDelay)
+                    resolver(false)
+                }
+            })
+
+            this.asyncMap.set(commandId, { resolver, unSub })
+            this.core.dispatch(command)
+
+            setTimeout(() => {
+                this.asyncMap.delete(commandId)
+
+                unSub()
+
+                resolver(false)
+            }, this.cmdMaxWaitingDelay)
         })
     }
 
-    public afterCommandExecuted<T = any>(game: Game, command: ICommand<T>) {
-        if (this.currentCommandId && this.currentAsync && command.type === this.currentAsync.type && (command.data as any).__?.id === this.currentCommandId && this.resolver) {
-            this.resolver(true)
+    /**
+     * Cancel all async commands
+     */
+    public cancelAll() {
+        this.asyncMap.forEach(v => v.unSub())
+        this.asyncMap.clear()
+    }
 
-            this.resolver = undefined
-            this.currentAsync = undefined
-            this.currentCommandId = undefined
+    public afterCommandExecuted<T = any>(game: Game, command: ICommand<T>) {
+        const id = (command.data as any).__?.id
+        const asyncInfo = this.asyncMap.get(id)
+
+        if (asyncInfo) {
+            asyncInfo.resolver(true)
+            asyncInfo.unSub()
+
+            this.asyncMap.delete(id)
         }
     }
 }

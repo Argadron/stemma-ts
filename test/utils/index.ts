@@ -1,1 +1,1 @@
-export * from "./wait-60-fps"
+export * from "./wait-60-fps.js"

@@ -5,7 +5,7 @@ import { Entity, GameObject } from "@world"
 import type { IEntityManager, IGameMap } from "@interfaces"
 import { EffectFactory } from "@factories"
 import { createQuadFromPosition } from "@utils"
-import { TIMES_60, wait60fps } from "./utils"
+import { TIMES_60, wait60fps } from "./utils/wait-60-fps.js"
 
 describe('Map Tests', () => {
     let game!: Game;

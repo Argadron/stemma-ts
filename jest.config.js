@@ -3,6 +3,7 @@ export default {
         "<rootDir>/tests/**/*.ts", 
         "**/?(*.)+(spec|test).ts"
     ],
+    preset: 'ts-jest',
     testPathIgnorePatterns: ["/node_modules/", "/dist/"],
     moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
@@ -20,12 +21,19 @@ export default {
     '^@decorators$': '<rootDir>/src/decorators/index.ts',
     },
     transform: {
-    '^.+\\.tsx?$': [
+    '^.+\\.(t|j)s$': [
       'ts-jest',
       {
         useESM: true,
-        isloatedModules: true
-      },
-    ],
+        tsconfig: {
+          module: 'CommonJS',
+          moduleResolution: 'node',
+          experimentalDecorators: true,
+          emitDecoratorMetadata: true,
+          esModuleInterop: true,
+          allowJs: true
+        }
+      }
+    ]
   },
 }

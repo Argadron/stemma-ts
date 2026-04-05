@@ -13,7 +13,7 @@ import { checkTwoPositions, positionIsPosition } from "@utils"
 import type { Position } from "@types"
 import type { Entity, GameObject } from "@world"
 import { CollisionGuard, MovementGuard } from "@middlewares"
-import { TIMES_60, wait60fps } from "./utils"
+import { TIMES_60, wait60fps } from "./utils/wait-60-fps.js"
 
 describe('Collisions Tests', () => {
     let game!: Game

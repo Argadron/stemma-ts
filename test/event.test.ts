@@ -2,7 +2,7 @@ import { createGame, type Game } from "@"
 import type { IEntityManager, IGameMap } from "@interfaces"
 import type { Entity } from "@world"
 import { CommandType } from "@enums"
-import { TIMES_60, wait60fps } from "./utils"
+import { TIMES_60, wait60fps } from "./utils/wait-60-fps.js"
 
 describe('Event Tests', () => {
     let game!: Game

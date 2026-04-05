@@ -553,7 +553,6 @@ export class Game implements IGame {
                 const proto = createPluginProto(plugin)
 
                 if (proto.ticks) proto.ticks.forEach((t: OnTickDecoratorProperties) => {
-                    if (plugin.name === "ConsolePlugin") console.log(proto.__)
                     if (t.type === 'after' && (this._currentTick % t.interval === 0)) {
                         const method = extractMethodFromPlugin(plugin, t.methodName)
 

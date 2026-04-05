@@ -1,7 +1,7 @@
 import type { Game } from "@";
 import { CONSOLE_BASE_HEIGHT, CONSOLE_BASE_WIDTH } from "@const";
 import { InjectCore, OnTick } from "@decorators";
-import type { IPlugin, ICanvasPluginOptions, IConsoleAssetOptions } from "@interfaces";
+import type { IPlugin, ICanvasPluginOptions } from "@interfaces";
 
 export class ConsolePlugin implements IPlugin {
     public readonly name = ConsolePlugin.name;

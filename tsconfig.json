@@ -4,7 +4,7 @@
     "outDir": "./dist",
     "module": "nodenext",
     "target": "esnext",
-    "types": ["jest"],
+    "types": ["jest", "node"],
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,

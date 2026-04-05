@@ -5,7 +5,7 @@ import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Netw
 import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from '@const'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
-import { RegenerationPlugin, NetworkPlguin, AsyncPlugin } from "@plugins";
+import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, ConsolePlugin } from "@plugins";
 import { useVisibility, checkTwoPositions, useValidation } from "@utils";
 
 const [game, manager, map] = createGame({
@@ -364,6 +364,16 @@ game.load(snapshot, (game) => {
     console.log(game.options.store.get('isNight')) 
     console.log(Array.from(game.options.manager.entities.values()).find(e => e.inventory.length !== 0)?.inventory, 'INVENTORY SNAPSHOT')
 })
+game.registerPlugin(new ConsolePlugin({
+    width: 100,
+    height: 10,
+    assets: {
+        ZOMBIE: "👾",
+        SUPER_ZOMBIE: "👾",
+        PLAYER: "@",
+        PLAYER_SECOND: "👾"
+    }
+}))
 
 game.dispatch({
     type: CommandType.SET_STATE,
@@ -377,3 +387,19 @@ game.dispatch({
 game.options.undoManager.undo()
 
 console.log(game.options.store.get('isNight'))
+
+game.start(1)
+
+await new Promise(resolve => setTimeout(resolve, 1000))
+
+const test = manager.create({
+    damage: 1,
+    health: 10,
+    name: PLAYER,
+    isDead: false,
+    position: [1, 1]
+})
+
+test.position = [10, 2]
+
+game.stop()

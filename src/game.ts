@@ -36,7 +36,7 @@ export class Game implements IGame {
     /**
      * ID of game interval loop
      */
-    private gameIntervalId: number | undefined;
+    private gameIntervalId: number | undefined | NodeJS.Timeout;
 
     /**
      * Current game tick
@@ -550,9 +550,10 @@ export class Game implements IGame {
             try {
                 if (plugin.afterTick) plugin.afterTick(this)
 
-                const proto = Object.getPrototypeOf(plugin)
+                const proto = createPluginProto(plugin)
 
-                if (proto.__ticks) proto.__ticks.forEach((t: OnTickDecoratorProperties) => {
+                if (proto.ticks) proto.ticks.forEach((t: OnTickDecoratorProperties) => {
+                    if (plugin.name === "ConsolePlugin") console.log(proto.__)
                     if (t.type === 'after' && (this._currentTick % t.interval === 0)) {
                         const method = extractMethodFromPlugin(plugin, t.methodName)
 

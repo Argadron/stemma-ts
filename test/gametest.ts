@@ -5,7 +5,7 @@ import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Netw
 import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from '@const'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
-import { RegenerationPlugin, NetworkPlguin } from "@plugins";
+import { RegenerationPlugin, NetworkPlguin, AsyncPlugin } from "@plugins";
 import { useVisibility, checkTwoPositions, useValidation } from "@utils";
 
 const [game, manager, map] = createGame({
@@ -14,6 +14,10 @@ const [game, manager, map] = createGame({
 })
 
 game.registerPlugin(new RegenerationPlugin(20))
+
+const asyncPlugin = new AsyncPlugin(500)
+
+game.registerPlugin(asyncPlugin)
 
 game.use([loggerMiddleware])
 
@@ -334,6 +338,21 @@ console.log(useVisibility(game, player, player_second))
 console.log(useValidation(game, player, CommandType.USE_ITEM, {
     forTest: true
 }))
+
+async function checkAsyncPlugin() {
+    await asyncPlugin.asyncExecute({
+        type: CommandType.SET_STATE,
+        tick: game.currentTick,
+        data: {
+            key: 'async',
+            value: true
+        }
+    })
+
+    console.log(game.options.store.get('async'), 'ASYNC RESULT')
+}
+
+checkAsyncPlugin()
 
 game.start(60)
 

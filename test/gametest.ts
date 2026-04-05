@@ -13,6 +13,8 @@ const [game, manager, map] = createGame({
     usingObjectMiddlewares: true
 })
 
+game.registerPlugin(new RegenerationPlugin(20))
+
 game.use([loggerMiddleware])
 
 game.options.store.set('isNight', true)
@@ -289,6 +291,15 @@ game.dispatch({
         tag: 'stunned'
     }
 })
+game.dispatch({
+    type: CommandType.DELETE_ENTITY_TAG,
+    isSystem: true,
+    entityId: player.id,
+    tick: game.currentTick,
+    data: {
+        tag: 'stunned'
+    }
+})
 
 const events = new Map<CommandType, NetworkCallback>()
 
@@ -296,7 +307,6 @@ events.set(CommandType.SET_STATE, (ev, data) => {
     console.log('NETWORK DATA', data)
 })
 
-game.registerPlugin(new RegenerationPlugin(20))
 game.registerPlugin(new NetworkPlguin(server, events))
 
 map.createObject({

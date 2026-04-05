@@ -1,12 +1,28 @@
 import { CommandType, FactoryKeys, GameEvent } from "@enums";
-import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData, IObjectDeletedOrCreatedData } from "@interfaces";
+import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData, IObjectDeletedOrCreatedData, IEntityTagsChangedData } from "@interfaces";
 import { EntityManager, UndoManager} from "@";
-import type { EventCallback, CustomEventCallback, SnapshotCallback, MiddlewareFn, OnEventDecoratorProperties, OnTickDecoratorProperties, OnCustomEventDecoratorProperties, InjectStoreValueDecoratorProperties, InjectLiveQueryDecoratorProperties, InjectLiveQueryObjectDecoratorProperties, BasePropertyDecorator, WhenDecoratorProperties, CommandContext } from "@types";
+import type { 
+    EventCallback, 
+    CustomEventCallback, 
+    SnapshotCallback, 
+    MiddlewareFn, 
+    OnEventDecoratorProperties, 
+    OnTickDecoratorProperties, 
+    OnCustomEventDecoratorProperties, 
+    InjectStoreValueDecoratorProperties, 
+    InjectLiveQueryDecoratorProperties, 
+    InjectLiveQueryObjectDecoratorProperties, 
+    BasePropertyDecorator, 
+    WhenDecoratorProperties, 
+    CommandContext, 
+    OnTagsChangesDecoratorsProperties, 
+    OnUIEventDecoratorProperties
+} from "@types";
 import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
 import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
-import { extractMethodFromPlugin, extractPropertyFromPlugin } from "@utils";
+import { createPluginProto, extractMethodFromPlugin, extractPropertyFromPlugin } from "@utils";
 import type { Entity, GameObject } from "@world";
 
 export class Game implements IGame {
@@ -255,7 +271,7 @@ export class Game implements IGame {
     }
 
     public registerPlugin(plugin: IPlugin) {
-        const proto = (Object.getPrototypeOf(plugin).__ ?? (plugin as any).__) || {}
+        const proto = createPluginProto(plugin)
 
         if (proto.events) proto.events.forEach((e: OnEventDecoratorProperties) => this.on(e.event, (options, event, data) => {
             const method = extractMethodFromPlugin(plugin, e.methodName)
@@ -363,6 +379,36 @@ export class Game implements IGame {
             anyPlugin[v.propertyName] = this
         })
 
+        if (proto.tagAdds) proto.tagAdds.forEach((v: OnTagsChangesDecoratorsProperties) => this.on<IEntityTagsChangedData>("entityTagsChanged", (options, event, data) => {
+                if (data.eventData.type === "ADD" && data.eventData.tag === v.tag) {
+                    const method = extractMethodFromPlugin(plugin, v.methodName)
+
+                    if (method) method.call(plugin, { options, event, data })
+                }
+            })
+        )
+
+        if (proto.tagRemovs) proto.tagRemovs.forEach((v: OnTagsChangesDecoratorsProperties) => this.on<IEntityTagsChangedData>("entityTagsChanged", (options, event, data) => {
+                if (data.eventData.type === "DELETE" && data.eventData.tag === v.tag) {
+                    const method = extractMethodFromPlugin(plugin, v.methodName)
+
+                    if (method) method.call(plugin, { options, event, data })
+                }
+            })
+        )
+
+        if (proto.uiListeners) proto.uiListeners.forEach((v: OnUIEventDecoratorProperties) => {
+            if (typeof document !== 'undefined') {
+                const method = extractMethodFromPlugin(plugin, v.methodName)
+
+                if (method) {
+                    const element = document.getElementById(v.id)
+
+                    if (element) element.addEventListener(v.event, (e: Event) => method.call(plugin, e))
+                }
+            }
+        })
+
         const installResult = plugin.install(this)
 
         if (installResult) {
@@ -454,7 +500,7 @@ export class Game implements IGame {
             try {
                 if (plugin.beforeTick) plugin.beforeTick(this)
 
-                const proto = (Object.getPrototypeOf(plugin).__ ?? (plugin as any).__) || {}
+                const proto = createPluginProto(plugin)
 
                 if (proto.ticks) proto.ticks.forEach((t: OnTickDecoratorProperties) => {
                     if (t.type === 'before' && (this._currentTick % t.interval === 0)) {

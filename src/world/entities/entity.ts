@@ -12,7 +12,6 @@ import type {
     IItemDroppedData,
     IEntityTagsChangedData,
     IGameEffect,
-    IGameObject
 } from "@interfaces";
 import type { EntityManager } from "@";
 import type { CreateUsableItemMetadata, Position } from "@types";

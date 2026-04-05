@@ -1,5 +1,5 @@
 import type { Game } from "@";
-import { InjectCore, InjectLiveQuery, InjectLiveQueryObject, InjectStoreValue, OnCustomEvent, OnEvent, OnTick, When } from "@decorators";
+import { InjectCore, InjectLiveQuery, InjectLiveQueryObject, InjectStoreValue, OnCustomEvent, OnEvent, OnTick, When, OnTagAdded, OnTagDeleted, Chance, OnUIEvent } from "@decorators";
 import type { IPlugin, IEventInfo } from "@interfaces";
 import { anyWorldObjectIsGameObject } from "@utils";
 import type { Entity, GameObject } from "@world"
@@ -52,9 +52,25 @@ export class RegenerationPlugin implements IPlugin {
 
     }
 
+    @OnUIEvent({ event: "click", id: "button" })
+    public onUI(e: Event) {
+        console.log(e.target, 'TARGET')
+    }
+
+    @Chance(50)
     @OnCustomEvent('decorator')
     public decorator() {
         console.log('DECORATOR EVENT')
+    }
+
+    @OnTagAdded({ tag: "stunned" })
+    public listen() {
+        console.log('LISTEN TAG')
+    }
+
+    @OnTagDeleted({ tag: "stunned" })
+    public listenDelete() {
+        console.log('LISTEN TAG DELETED')
     }
 
     public install(game: Game) {

@@ -4,7 +4,7 @@ import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Crea
 import type { IEntityManager, IGameMap, IDeadData, ITowerShootedData } from "@interfaces";
 import type { Entity, GameObject } from "@world";
 import { EffectFactory } from "@factories";
-import { TIMES_60, wait60fps } from "./utils";
+import { TIMES_60, wait60fps } from "./utils/wait-60-fps.js";
 
 describe('Interaction Tests', () => {
     let game!: Game;

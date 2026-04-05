@@ -1,7 +1,7 @@
 import createGame from "@"
 import { Entity } from "@world"
 import { CommandType } from "@enums"
-import { TIMES_60, wait60fps } from "./utils"
+import { TIMES_60, wait60fps } from "./utils/wait-60-fps.js"
 
 describe('Manager Tests', () => {
     const [game, manager, map] = createGame()

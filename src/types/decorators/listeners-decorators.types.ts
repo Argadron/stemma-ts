@@ -25,3 +25,8 @@ export type OnTagsChangesDecoratorsProperties = BaseMethodDecorator &  { readonl
  * Properties for UIEvent decorator
  */
 export type OnUIEventDecoratorProperties = BaseMethodDecorator & OnCustomEventDecoratorProperties & { readonly id: string }
+
+/**
+ * Properties for ConsoleKeyboardEvent decorator
+ */
+export type OnConsoleKeyboardEventDecoratorProperites = BaseMethodDecorator & { readonly key: string | RegExp }

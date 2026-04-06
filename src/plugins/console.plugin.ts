@@ -40,6 +40,25 @@ export class ConsolePlugin implements IPlugin {
         else {
             process.stdout.write("\x1b[?25l\x1bc")
 
+            const { stdin } = process
+
+            stdin.setRawMode(true)
+            stdin.resume()
+            stdin.setEncoding('utf-8')
+            stdin.on("data", (k) => {
+                if (k === "\u0003") {
+                    this.core.stop()
+
+                    if (stdin.isTTY) {
+                        stdin.setRawMode(false)
+                        stdin.pause()
+                        stdin.removeAllListeners("data")
+                    }
+
+                    process.kill(0, 'SIGINT')
+                }
+            }) 
+
             return true
         }
     }

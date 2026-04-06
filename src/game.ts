@@ -16,7 +16,8 @@ import type {
     WhenDecoratorProperties, 
     CommandContext, 
     OnTagsChangesDecoratorsProperties, 
-    OnUIEventDecoratorProperties
+    OnUIEventDecoratorProperties,
+    OnConsoleKeyboardEventDecoratorProperites
 } from "@types";
 import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
@@ -179,9 +180,9 @@ export class Game implements IGame {
                     middleware(cmd, next, this, ctx)
                 }
                 else {
-                    triggerPlugin(ctx)
-
                     this.kernelExecute(cmd, ctx)
+
+                    triggerPlugin(ctx)
                 }
             }
 
@@ -193,9 +194,9 @@ export class Game implements IGame {
             })
         }
         else {
-            triggerPlugin(ctx)
-
             this.kernelExecute(cmd, ctx)
+
+            triggerPlugin(ctx)
         }
     }
 
@@ -419,6 +420,12 @@ export class Game implements IGame {
                     if (element) element.addEventListener(v.event, (e: Event) => method.call(plugin, e))
                 }
             }
+        })
+
+        if (proto.consoleListeners && typeof process !== 'undefined') proto.consoleListeners.forEach((v: OnConsoleKeyboardEventDecoratorProperites) => {
+            const method = extractMethodFromPlugin(plugin, v.methodName)
+
+            if (method && process.stdin.isTTY) process.stdin.on("data", (key: string) => typeof v.key === 'string' ? v.key === key ? method.call(plugin, key) : null : v.key.test(key) ? method.call(plugin, key) : null)
         })
 
         const installResult = plugin.install(this)

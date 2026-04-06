@@ -5,7 +5,7 @@ import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Netw
 import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from '@const'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
-import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, ConsolePlugin } from "@plugins";
+import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, ConsolePlugin, GraphicPlugin } from "@plugins";
 import { useVisibility, checkTwoPositions, useValidation } from "@utils";
 
 const [game, manager, map] = createGame({
@@ -14,6 +14,14 @@ const [game, manager, map] = createGame({
 })
 
 game.registerPlugin(new RegenerationPlugin(20))
+game.registerPlugin(new GraphicPlugin({
+    appName: "Моя первая игра на stemma",
+    assets: {
+        PLAYER: "🤖",
+        PLAYER_SECOND: "🧙",
+        ZOMBIE: "😎"
+    }
+}))
 
 const asyncPlugin = new AsyncPlugin(500)
 
@@ -354,7 +362,7 @@ async function checkAsyncPlugin() {
 
 checkAsyncPlugin()
 
-game.start(60)
+game.start(10)
 
 await new Promise((resolve, reject) => setTimeout(resolve, 5000))
 
@@ -364,16 +372,6 @@ game.load(snapshot, (game) => {
     console.log(game.options.store.get('isNight')) 
     console.log(Array.from(game.options.manager.entities.values()).find(e => e.inventory.length !== 0)?.inventory, 'INVENTORY SNAPSHOT')
 })
-game.registerPlugin(new ConsolePlugin({
-    width: 100,
-    height: 10,
-    assets: {
-        ZOMBIE: "👾",
-        SUPER_ZOMBIE: "👾",
-        PLAYER: "@",
-        PLAYER_SECOND: "👾"
-    }
-}))
 
 game.dispatch({
     type: CommandType.SET_STATE,

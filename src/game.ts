@@ -25,6 +25,7 @@ import { GlobalStore } from "@store";
 import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
 import { createPluginProto, extractMethodFromPlugin, extractPropertyFromPlugin } from "@utils";
 import type { Entity, GameObject } from "@world";
+import { ConflictResolverPlugin } from "@plugins";
 
 export class Game implements IGame {
     readonly options: IGameOptions;
@@ -200,90 +201,7 @@ export class Game implements IGame {
         }
     }
 
-    public constructor(
-        options?: IInitGameOptions
-    ) {
-        const manager = new EntityManager([], this)
-
-        this.options = {
-            manager,
-            map: manager.gameMap,
-            store: new GlobalStore({ game: this }),
-            undoManager: new UndoManager({ game: this }),
-            ...options
-        }
-        this.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())
-        this.connectFactory(FactoryKeys.BLUEPRINTS, new BluePrintsFactory({ game: this }))
-        this.connectFactory(FactoryKeys.QUESTS, new QuestsFactory({ game: this }))
-        this.connectFactory(FactoryKeys.ITERACTIONS, new IteractionsFactory({ game: this }))
-        this.connectFactory(FactoryKeys.SOUNDS, new SoundsFactory({ game: this }))
-
-        if (!(options?.disableBaseMiddleware)) this.use(baseChecksMiddleware)
-        if (options?.usingEntityMiddlewares) this.use([DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, UseItemGuard])
-        if (options?.usingObjectMiddlewares) this.use([ShootGuard])
-    }
-
-    public on<T>(event: keyof typeof GameEvent, cb: EventCallback<T>) {
-        const events = this.eventListenersMap.get(event) ?? []
-
-        events.push(cb)
-
-        this.eventListenersMap.set(event, events)
-
-        return () => {
-            const events = this.eventListenersMap.get(event)
-
-            if (events) {
-                const filtrated = events.filter((subscriber) => subscriber !== cb)
-
-                if (filtrated.length !== 0) this.eventListenersMap.set(event, filtrated)
-                else this.eventListenersMap.delete(event)
-            }
-        }
-    }
-
-    public processEvent<T>(event: keyof typeof GameEvent, eventData: IEventInfo<T>) {
-        const subscribers = this.eventListenersMap.get(event)
-
-        if (subscribers) subscribers.forEach((cb) => cb(this.options, event, eventData))
-    }
-
-    public processCustomEvent<T>(event: string, eventData: IEventInfo<T>) {
-        const subscribers = this.customEventListenersMap.get(event)
-
-        if (subscribers) subscribers.forEach((cb) => cb(this.options, event, eventData))
-    }
-
-    public registerCustomEvent<T>(event: string, cb: CustomEventCallback<T>) {
-        const events = this.customEventListenersMap.get(event) ?? []
-
-        events.push(cb)
-
-        this.customEventListenersMap.set(event, events)
-
-        return () => {
-            const events = this.customEventListenersMap.get(event)
-
-            if (events) {
-                const filtrated = events.filter((subscriber) => subscriber !== cb)
-
-                if (filtrated.length !== 0) this.customEventListenersMap.set(event, filtrated)
-                else this.customEventListenersMap.delete(event)
-            }
-        }
-    }
-
-    public connectFactory<T = any>(name: string, factory: T) {
-        this.factories.set(name, factory)
-
-        return factory
-    }
-
-    public getFactory<T>(name: string) {
-        return this.factories.get(name) as T
-    }
-
-    public registerPlugin(plugin: IPlugin) {
+    private processPluginRegister(plugin: IPlugin) {
         const proto = createPluginProto(plugin)
 
         if (proto.events) proto.events.forEach((e: OnEventDecoratorProperties) => this.on(e.event, (options, event, data) => {
@@ -436,6 +354,95 @@ export class Game implements IGame {
             return true
         }
         else return false
+    }
+
+    public constructor(
+        options?: IInitGameOptions
+    ) {
+        const manager = new EntityManager([], this)
+
+        this.options = {
+            manager,
+            map: manager.gameMap,
+            store: new GlobalStore({ game: this }),
+            undoManager: new UndoManager({ game: this }),
+            ...options
+        }
+        this.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())
+        this.connectFactory(FactoryKeys.BLUEPRINTS, new BluePrintsFactory({ game: this }))
+        this.connectFactory(FactoryKeys.QUESTS, new QuestsFactory({ game: this }))
+        this.connectFactory(FactoryKeys.ITERACTIONS, new IteractionsFactory({ game: this }))
+        this.connectFactory(FactoryKeys.SOUNDS, new SoundsFactory({ game: this }))
+
+        if (!(options?.disableBaseMiddleware)) this.use(baseChecksMiddleware)
+        if (options?.usingEntityMiddlewares) this.use([DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, UseItemGuard])
+        if (options?.usingObjectMiddlewares) this.use([ShootGuard])
+        if (!(options?.disableConflictResolver)) this.registerPlugin(new ConflictResolverPlugin())
+    }
+
+    public on<T>(event: keyof typeof GameEvent, cb: EventCallback<T>) {
+        const events = this.eventListenersMap.get(event) ?? []
+
+        events.push(cb)
+
+        this.eventListenersMap.set(event, events)
+
+        return () => {
+            const events = this.eventListenersMap.get(event)
+
+            if (events) {
+                const filtrated = events.filter((subscriber) => subscriber !== cb)
+
+                if (filtrated.length !== 0) this.eventListenersMap.set(event, filtrated)
+                else this.eventListenersMap.delete(event)
+            }
+        }
+    }
+
+    public processEvent<T>(event: keyof typeof GameEvent, eventData: IEventInfo<T>) {
+        const subscribers = this.eventListenersMap.get(event)
+
+        if (subscribers) subscribers.forEach((cb) => cb(this.options, event, eventData))
+    }
+
+    public processCustomEvent<T>(event: string, eventData: IEventInfo<T>) {
+        const subscribers = this.customEventListenersMap.get(event)
+
+        if (subscribers) subscribers.forEach((cb) => cb(this.options, event, eventData))
+    }
+
+    public registerCustomEvent<T>(event: string, cb: CustomEventCallback<T>) {
+        const events = this.customEventListenersMap.get(event) ?? []
+
+        events.push(cb)
+
+        this.customEventListenersMap.set(event, events)
+
+        return () => {
+            const events = this.customEventListenersMap.get(event)
+
+            if (events) {
+                const filtrated = events.filter((subscriber) => subscriber !== cb)
+
+                if (filtrated.length !== 0) this.customEventListenersMap.set(event, filtrated)
+                else this.customEventListenersMap.delete(event)
+            }
+        }
+    }
+
+    public connectFactory<T = any>(name: string, factory: T) {
+        this.factories.set(name, factory)
+
+        return factory
+    }
+
+    public getFactory<T>(name: string) {
+        return this.factories.get(name) as T
+    }
+
+    public registerPlugin(plugin: IPlugin | IPlugin[]): boolean {
+        if (Array.isArray(plugin)) return plugin.map((p: IPlugin) => this.registerPlugin(p)).every((v) => v === true)
+        else return this.processPluginRegister(plugin)
     }
 
     public getPlugin(name: string) {

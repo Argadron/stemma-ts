@@ -80,7 +80,7 @@ export interface IGame {
      * @param plugin - Plugin to install
      * @returns { boolean } - True if success install, else false
      */
-    readonly registerPlugin: (plugin: IPlugin) => boolean; 
+    readonly registerPlugin: (plugin: IPlugin | IPlugin[]) => boolean; 
 
     /**
      * Get plugin by name

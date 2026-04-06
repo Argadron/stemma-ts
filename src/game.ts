@@ -19,7 +19,7 @@ import type {
     OnUIEventDecoratorProperties,
     OnConsoleKeyboardEventDecoratorProperites
 } from "@types";
-import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT } from "@const";
+import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT, isServer } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
 import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
@@ -411,7 +411,7 @@ export class Game implements IGame {
         )
 
         if (proto.uiListeners) proto.uiListeners.forEach((v: OnUIEventDecoratorProperties) => {
-            if (typeof document !== 'undefined') {
+            if (!isServer) {
                 const method = extractMethodFromPlugin(plugin, v.methodName)
 
                 if (method) {
@@ -422,7 +422,7 @@ export class Game implements IGame {
             }
         })
 
-        if (proto.consoleListeners && typeof process !== 'undefined') proto.consoleListeners.forEach((v: OnConsoleKeyboardEventDecoratorProperites) => {
+        if (proto.consoleListeners && isServer) proto.consoleListeners.forEach((v: OnConsoleKeyboardEventDecoratorProperites) => {
             const method = extractMethodFromPlugin(plugin, v.methodName)
 
             if (method && process.stdin.isTTY) process.stdin.on("data", (key: string) => typeof v.key === 'string' ? v.key === key ? method.call(plugin, key) : null : v.key.test(key) ? method.call(plugin, key) : null)
@@ -440,6 +440,10 @@ export class Game implements IGame {
 
     public getPlugin(name: string) {
         return this.plugins.get(name)
+    }
+
+    public getAllPlugins() {
+        return Array.from(this.plugins.values())
     }
 
     public save(cb?: SnapshotCallback): ISnapshot {

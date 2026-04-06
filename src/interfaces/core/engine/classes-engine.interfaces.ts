@@ -90,6 +90,12 @@ export interface IGame {
     readonly getPlugin: (name: string) => IPlugin | undefined;
 
     /**
+     * Get all plugins in game
+     * @returns { IPlugin[] } - Array of plugins
+     */
+    readonly getAllPlugins: () => IPlugin[];
+
+    /**
      * Save a game snapshot
      * @returns { ISnapshot }
      */

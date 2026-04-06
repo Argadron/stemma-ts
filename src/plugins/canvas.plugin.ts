@@ -4,6 +4,9 @@ import type { Entity, GameObject } from "@world";
 import type { Position } from "@types";
 import { CANVAS_BASE_ELEMENT_HEIGHT, CANVAS_BASE_ELEMENT_WIDTH, CANVAS_BASE_HEIGHT, CANVAS_BASE_WIDTH } from "@const";
 
+/**
+ * Plugin enable render on canvas HTML element (browser render)
+ */
 export class CanvasPlugin implements IPlugin {
     public readonly name = CanvasPlugin.name
 

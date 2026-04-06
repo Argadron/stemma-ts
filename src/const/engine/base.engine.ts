@@ -7,3 +7,8 @@ export const BASE_FPS = 10
  * Base command limit will be executed in current tick
  */
 export const BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT = 10
+
+/**
+ * Constant indicates are we in server
+ */
+export const isServer = typeof process !== 'undefined'

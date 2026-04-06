@@ -39,6 +39,11 @@ export interface IGameOptions {
     readonly usingObjectMiddlewares?: boolean;
 
     /**
+     * Flag to disable built-in ConflictResolverPlugin
+     */
+    readonly disableConflictResolver?: boolean;
+
+    /**
      * Optional command bus options
      */
     readonly commandBusOptions?: ICommandBusOptions;

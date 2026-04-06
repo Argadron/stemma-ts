@@ -5,15 +5,16 @@ import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, Netw
 import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from '@const'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
-import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, ConsolePlugin, GraphicPlugin } from "@plugins";
+import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, GraphicPlugin } from "@plugins";
 import { useVisibility, checkTwoPositions, useValidation } from "@utils";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
-    usingObjectMiddlewares: true
+    usingObjectMiddlewares: true,
+    disableConflictResolver: true
 })
 
-game.registerPlugin(new RegenerationPlugin(20))
+game.registerPlugin([new RegenerationPlugin(20)])
 game.registerPlugin(new GraphicPlugin({
     appName: "Моя первая игра на stemma",
     assets: {

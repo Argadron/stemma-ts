@@ -1,6 +1,6 @@
 import { CommandType, FactoryKeys, GameEvent } from "@enums";
 import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData, IObjectDeletedOrCreatedData, IEntityTagsChangedData, ICommandBlocked } from "@interfaces";
-import { EntityManager, UndoManager} from "@";
+import { EntityManager, UndoManager } from "@core";
 import type { 
     EventCallback, 
     CustomEventCallback, 

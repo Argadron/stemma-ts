@@ -19,6 +19,7 @@ export default {
     '^@middlewares$': '<rootDir>/src/middlewares/index.ts',
     '^@plugins$': '<rootDir>/src/plugins/index.ts',
     '^@decorators$': '<rootDir>/src/decorators/index.ts',
+    '^@core$': '<rootDir>/src/core/index.ts',
     },
     transform: {
     '^.+\\.(t|j)s$': [

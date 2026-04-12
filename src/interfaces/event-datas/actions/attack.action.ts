@@ -1,5 +1,5 @@
 import type { Entity, GameObject } from "@world";
-import type { EntityManager } from "@"
+import type { EntityManager } from "@core"
 
 export interface IAttackResult {
     /**

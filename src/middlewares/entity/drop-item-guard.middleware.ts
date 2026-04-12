@@ -1,4 +1,4 @@
-import type { IItemDroppedErrorData } from "@";
+import type { IItemDroppedErrorData } from "@interfaces";
 import { ITERACTION_ERRORS } from "@const";
 import { CommandType } from "@enums";
 import type { MiddlewareFn } from "@types";

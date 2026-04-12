@@ -1,4 +1,5 @@
-import { createGame, type Game } from "@"
+import { createGame } from "@";
+import type { Game } from "@core"
 import type { IEntityManager, IGameMap } from "@interfaces"
 import type { Entity } from "@world"
 import { CommandType } from "@enums"

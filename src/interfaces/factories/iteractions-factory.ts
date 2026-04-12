@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import type { IBaseFactoriesOptions } from "@interfaces";
 import type { Entity, GameObject } from "@world";
 

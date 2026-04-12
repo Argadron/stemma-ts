@@ -1,4 +1,5 @@
-import createGame, { Game } from "@";
+import { Game } from "@core";
+import { createGame } from "@";
 import { CommandType, GameObjectEnum } from "@enums";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, CreateTriggerMetadata, CreateUsableItemMetadata } from "@types";
 import type { IEntityManager, IGameMap, IDeadData, ITowerShootedData } from "@interfaces";

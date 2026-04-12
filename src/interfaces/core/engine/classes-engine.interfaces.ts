@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import type { GameEvent } from "@enums";
 import type { 
     IEventInfo, 

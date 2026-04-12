@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import type { Entity, GameObject } from "@world";
 import { canSee } from "@utils";
 import type { IUseVisibiltyResult, IUseVisibilityContext } from "@interfaces";

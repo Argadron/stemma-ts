@@ -1,4 +1,4 @@
-import type { IClient, ICommand } from "@interfaces";
+import type { IClient } from "@interfaces";
 import type { Default } from "@types";
 
 export type NetworkCallback = <T = any>(event: string, data: Default<T>) => void

@@ -1,4 +1,4 @@
-import { Game } from "@";
+import { Game } from "@core";
 import type { IPlugin } from "@interfaces";
 import { CanvasPlugin, ConsolePlugin, GraphicPlugin } from "@plugins";
 

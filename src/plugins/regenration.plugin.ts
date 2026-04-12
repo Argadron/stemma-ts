@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import { InjectCore, InjectLiveQuery, InjectLiveQueryObject, InjectStoreValue, OnCustomEvent, OnEvent, OnTick, When, OnTagAdded, OnTagDeleted, Chance, OnUIEvent } from "@decorators";
 import type { IPlugin, IEventInfo } from "@interfaces";
 import { anyWorldObjectIsGameObject } from "@utils";

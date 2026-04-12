@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 
 /**
  * Util func for wait game in 60 fps

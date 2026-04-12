@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import type { IPlugin, IServer } from "@interfaces";
 import type { NetworkCallback } from "@types";
 import type { CommandType } from "@enums";

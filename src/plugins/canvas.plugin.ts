@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import type { IPlugin, ICanvasPluginOptions } from "@interfaces";
 import type { Entity, GameObject } from "@world";
 import type { Position } from "@types";

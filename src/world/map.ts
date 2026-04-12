@@ -1,4 +1,4 @@
-import { Game } from "@";
+import { Game, EntityManager } from "@core";
 import { GameObjectEnum } from "@enums";
 import type {
     IMovedData, 
@@ -7,9 +7,9 @@ import type {
     IGameMap as Map,
     ITriggerActivatedData,
     IWorldObjectHearedNoiseData,
-    IObjectDeletedOrCreatedData
+    IObjectDeletedOrCreatedData,
+    IGameEffect
 } from "@interfaces";
-import type { EntityManager, IGameEffect } from "@";
 import type { 
     Position, 
     Quad, 

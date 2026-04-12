@@ -1,4 +1,4 @@
-import type { UndoManager } from "@";
+import type { UndoManager } from "@core";
 import type { IEntityManager, IGameMap } from "@interfaces";
 import type { GlobalStore } from "@store";
 

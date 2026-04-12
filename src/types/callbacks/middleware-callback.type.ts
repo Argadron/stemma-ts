@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import type { ICommand } from "@interfaces";
 import type { CommandContext } from "@types";
 

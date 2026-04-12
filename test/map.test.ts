@@ -1,4 +1,5 @@
-import createGame, { Game } from "@"
+import { Game } from "@core"
+import createGame from "@"
 import type { CreateItemMetadata, Quad } from "@types"
 import { CommandType, FactoryKeys, GameObjectEnum } from "@enums"
 import { Entity, GameObject } from "@world"

@@ -1,7 +1,7 @@
 import type { Entity, GameMap } from "@world";
 import { FactoryKeys, GameObjectEnum } from "@enums";
 import type { IGameObject, ITriggerActivatedData, ITowerShootedData } from "@interfaces";
-import type { EntityManager } from "@";
+import type { EntityManager } from "@core";
 import type { Position } from "@types";
 import { canSee, createId, createQuadFromPosition, useAttack } from "@utils";
 import { IteractionsFactory } from "@factories"

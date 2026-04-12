@@ -1,4 +1,4 @@
-import { Game } from "@";
+import { Game } from "@core";
 import type { 
     ITarget,
     IEntityManager as Manager,

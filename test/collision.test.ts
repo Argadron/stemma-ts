@@ -1,4 +1,4 @@
-import type { Game } from "@"
+import type { Game } from "@core"
 import { createGame } from "@"
 import { CommandType, GameObjectEnum } from "@enums"
 import type { 

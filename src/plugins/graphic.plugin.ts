@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import { GRAPHIC_GRID_X, GRAPHIC_GRID_Y, GRAPHIC_HEIGHT, GRAPHIC_WIDTH, isServer } from "@const";
 import type { IGraphicPluginOptions, IPlugin } from "@interfaces";
 import { InjectCore, OnTick } from "@decorators";

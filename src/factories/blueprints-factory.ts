@@ -1,8 +1,7 @@
 import type { 
     IBluePrint, 
     IBluePrintsFactory, 
-    IBluePrintsFactoryOptions,
-    ITarget,
+    IBluePrintsFactoryOptions
 } from "@interfaces";
 import type { BlueprintContent, Position } from "@types";
 import { blueprintIsTarget, createId } from "@utils";

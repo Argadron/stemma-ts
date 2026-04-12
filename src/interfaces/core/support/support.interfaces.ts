@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import type { CommandType } from "@enums";
 import type { IGameObject, ITarget } from "@interfaces";
 import type { CommandContext, LifecycleCallback } from "@types";

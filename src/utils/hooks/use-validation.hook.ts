@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import type { Entity, GameObject } from "@world";
 import type { CommandType } from "@enums";
 import type { IUseValidationResult } from "@interfaces";

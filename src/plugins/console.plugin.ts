@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import { CONSOLE_BASE_HEIGHT, CONSOLE_BASE_WIDTH } from "@const";
 import { InjectCore, OnTick } from "@decorators";
 import type { IPlugin, ICanvasPluginOptions } from "@interfaces";

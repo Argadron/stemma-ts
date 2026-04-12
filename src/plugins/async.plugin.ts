@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import type { IPlugin, ICommand, IAsyncMapValues, ICommandBlocked } from "@interfaces";
 import { createId } from "@utils";
 import { InjectCore } from "@decorators";

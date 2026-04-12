@@ -1,14 +1,12 @@
-import { Game } from "@";
+import { Game } from "@core";
 import type { 
     IEntityManager,
     IGameMap,
     IInitGameOptions, 
 } from "@interfaces";
 
-export * from "./game.js"
-export * from "./manager.js"
-export * from "./undo-manager.js"
 export * from "./const/index.js"
+export * from "./core/index.js"
 export * from "./enums/index.js"
 export * from "./interfaces/index.js"
 export * from "./types/index.js"

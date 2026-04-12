@@ -1,4 +1,4 @@
-import type { Game } from "@";
+import type { Game } from "@core";
 import type { BaseMethodDecorator } from "@types";
 
 /**

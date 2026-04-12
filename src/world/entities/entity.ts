@@ -13,7 +13,7 @@ import type {
     IEntityTagsChangedData,
     IGameEffect,
 } from "@interfaces";
-import type { EntityManager } from "@";
+import type { EntityManager } from "@core";
 import type { CreateUsableItemMetadata, Position } from "@types";
 import {
     convertGameObjectToInventoryItem, 

@@ -1,4 +1,4 @@
-import type { EntityManager } from "@";
+import type { EntityManager } from "@core";
 import type { IGameSound } from "@interfaces";
 import type { AnyPosition, Position } from "@types";
 import type { Entity, GameObject } from "@world";

@@ -24,6 +24,7 @@
     "paths": {
       "@enums": ["./src/enums/index.ts"],
       "@const": ["./src/const/index.ts"],
+      "@core": ["./src/core/index.ts"],
       "@factories": ["./src/factories/index.ts"],
       "@store": ["./src/store/index.ts"],
       "@middlewares": ["./src/middlewares/index.ts"],

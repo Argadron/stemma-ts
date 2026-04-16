@@ -40,7 +40,46 @@ export class Entity implements ITarget {
     private readonly map: GameMap;
 
     private effects: (IGameEffect & { remaining: number })[] = [];
-    private tags = new Set<string>();
+    private tags = new Uint32Array(4);
+    private nextTagId = 0;
+    private tagsIdsMap = new Map<string, number>();
+
+    /**
+     * Get byte tag id
+     * @param tag - String tag
+     * @returns { number } - byte id
+     */
+    private getTagId(tag: string): number {
+        const id = this.tagsIdsMap.get(tag)
+
+        if (!id) {
+            this.nextTagId++
+
+            if (this.nextTagId >= 128) throw new Error(`[Game]: 128 tags per entity limit occured`)
+            else {
+                const nextId = this.nextTagId++
+
+                this.tagsIdsMap.set(tag, nextId)
+
+                return nextId
+            }
+        } 
+        else return id
+    }
+
+    /**
+     * Return index, id and bit of string tag
+     * @param tag - String tag
+     */
+    private getIndexAndBit(tag: string) {
+        const id = this.getTagId(tag)
+        const index = (id / 32) | 0
+        const bit = 1 << (id % 32)
+
+        return {
+            id, index, bit
+        }
+    }
 
     /**
      * Drop all items in current entity position (for Internal use, dont activate if entity alive)
@@ -353,7 +392,24 @@ export class Entity implements ITarget {
      * @returns { boolean } - True if has, else false
      */
     public hasTag(tag: string | string[]): boolean {
-        return Array.isArray(tag) ? tag.every((tag) => this.tags.has(tag)) : this.tags.has(tag)
+        if (Array.isArray(tag)) {
+            for (let i = 0; i < tag.length; i++) {
+                const nextTag = tag[i]
+
+                if (nextTag) {
+                    const { index, bit } = this.getIndexAndBit(nextTag)
+
+                    if ((this.tags[index]! & bit) === 0) return false
+                }
+            }
+
+            return true
+        }
+        else {
+            const { index, bit } = this.getIndexAndBit(tag)
+
+            return (this.tags[index]! & bit) !== 0
+        }
     }
 
     /**
@@ -370,7 +426,11 @@ export class Entity implements ITarget {
                 type: 'ADD'
             }
         })
-        this.tags.add(tag)
+        
+
+        const { index, bit } = this.getIndexAndBit(tag)
+
+        this.tags[index]! |= bit
     }
 
     /**
@@ -388,7 +448,12 @@ export class Entity implements ITarget {
             }
         })
 
-        return this.tags.delete(tag)
+        const { index, bit } = this.getIndexAndBit(tag)
+        const old = this.tags[index]!
+
+        this.tags[index]! &= ~bit
+
+        return old !== this.tags[index]
     }
 
     /**
@@ -436,7 +501,7 @@ export class Entity implements ITarget {
                 ...effectFactory.get(effect.id),
                 remaining: effect.remaining
             })).filter(Boolean)
-        if (data.tags && Array.isArray(data.tags)) entity.tags = new Set(data.tags)
+        if (data.tags && Array.isArray(data.tags)) entity.tags = new Uint32Array(data.tags)
 
         manager.addToGrid(entity)
 

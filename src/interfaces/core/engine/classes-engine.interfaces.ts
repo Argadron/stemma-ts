@@ -15,7 +15,6 @@ import type {
     AnyPosition,
     CustomEventCallback, 
     EventCallback, 
-    GridPosition, 
     MiddlewareFn, 
     Position, 
     Quad, 

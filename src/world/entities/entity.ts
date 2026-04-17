@@ -193,7 +193,7 @@ export class Entity implements ITarget {
      * @returns { IWorldItem  } - IWorldItem 
      */
     public pickUp(position: Position): IWorldItem {
-        const item = getItemInPosition(position, this.map.getAllItems())!
+        const item = getItemInPosition(this.map.getAllInPosition(position, 'OBJECTS'))!
 
         this.inventory.push(item)
         this.map.deleteObject(item.id)

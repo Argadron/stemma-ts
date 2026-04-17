@@ -23,11 +23,10 @@ import type {
 } from "@types";
 import { 
     convertAnyPositionToPosition,
-    gameObjectIsItem, 
-    getInPosition, 
+    gameObjectIsItem,
     createQuadFromPosition,
     checkCollisions,
-    convertPositionToGridPosition
+    convertPositionToGridPosition,
 } from "@utils";
 import { Entity, GameObject } from "@world";
 import { BASE_HEARING_RADIUS } from "@const";
@@ -323,7 +322,7 @@ export class GameMap implements Map {
         const object = this.getObject(id)
 
         if (!object) return false
-        if (!getInPosition(object.position, Array.from(this.objects.values()))) return false
+        if (!(this.grid.get(convertPositionToGridPosition(object.position))?.has(object))) return false
 
         return !checkCollisions(this.getAllInPosition(object.position), object)
     }

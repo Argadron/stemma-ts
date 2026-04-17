@@ -27,7 +27,7 @@ export class NetworkPlguin implements IPlugin {
 
     public install(game: Game) {
         game.use((cmd, next) => {
-            this.server.emit(cmd.type, cmd.data)
+            if (!cmd.isNetwork) this.server.emit(cmd.type, cmd.data)
 
             next()
         })
@@ -38,7 +38,8 @@ export class NetworkPlguin implements IPlugin {
                     tick: game.currentTick,
                     type: event,
                     entityId: +client.id,
-                    data
+                    data,
+                    isNetwork: true
                 })
 
                 cb(event, data)

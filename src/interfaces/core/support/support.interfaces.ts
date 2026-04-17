@@ -47,6 +47,11 @@ export interface ICommand<T = any> {
     readonly isSystem?: boolean;
 
     /**
+     * Indicates this command provided from server
+     */
+    readonly isNetwork?: boolean;
+
+    /**
      * Cmd data
      */
     readonly data: T

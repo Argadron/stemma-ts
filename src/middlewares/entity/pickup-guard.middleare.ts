@@ -19,7 +19,7 @@ export const PickUpGuard: MiddlewareFn = (cmd, next, game, ctx) => {
                 position
             }
 
-            const item = getItemInPosition(position, game.options.map.getAllItems())
+            const item = getItemInPosition(game.options.map.getAllInPosition(position, 'OBJECTS'))
 
             if (!item) anyErrorData = {
                 reason: ITERACTION_ERRORS.NOT_FOUND,

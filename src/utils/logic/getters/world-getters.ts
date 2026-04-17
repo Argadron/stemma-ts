@@ -5,12 +5,11 @@ import type { GameObject } from "@world"
 
 /**
  * Return a Item in provided Position, else undefined if not found
- * @param position - Position to search
  * @param objects - GameObject to searching in
  * @returns {IWorldItem | undefined} - Item if found, else undefined
  */
-export function getItemInPosition(position: Position, objects: (IWorldItem & IGameObject)[]): IWorldItem | undefined {
-    const obj = objects.find((obj) => (checkTwoPositions(position, obj.position) && gameObjectIsItem(obj)))
+export function getItemInPosition(objects: (IWorldItem & IGameObject)[]): IWorldItem | undefined {
+    const obj = objects.find((obj) => gameObjectIsItem(obj))
 
     return obj ? convertGameObjectToInventoryItem(obj)  : undefined
 }

@@ -7,7 +7,7 @@ import type {
  } from "@interfaces";
 import type { GridPosition, Position } from "@types";
 import { Entity, GameMap } from "@world";
-import { checkCollisions, convertPositionToGridPosition, getInPosition } from "@utils";
+import { checkCollisions, convertPositionToGridPosition } from "@utils";
 import { FactoryKeys } from "@enums";
 
 export class EntityManager implements Manager {
@@ -165,7 +165,7 @@ export class EntityManager implements Manager {
         const entity = this.get(id)
         
         if (!entity) return false
-        if (!getInPosition(entity.position, Array.from(this.entities.values()))) return false
+        if (!(this.gameMap.getAllInPosition(entity.position, 'ENTITES').find(e => e.id === entity.id))) return false
 
         return !checkCollisions(this.gameMap.getAllInPosition(entity.position), entity)
     }

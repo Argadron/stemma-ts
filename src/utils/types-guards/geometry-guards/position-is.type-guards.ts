@@ -1,4 +1,4 @@
-import type { AnyPosition, Position, Quad } from "@types"
+import type { AnyPosition, GridPosition, Position, Quad } from "@types"
 
 /**
  * Check AnyPosition is Quad
@@ -26,4 +26,13 @@ export function positionIsPosition(position: AnyPosition): position is Position 
 
     if (x === undefined || y === undefined) return false
     else return (!isNaN(x) && !isNaN(y) && position.length === 2) ? true : false
+}
+
+/**
+ * Checks given position is GridPosition
+ * @param position - Position to check
+ * @returns { boolean } - True if provided position is GridPosition, else false
+ */
+export function positionIsGridPosition(position: Position | GridPosition): position is GridPosition {
+    return typeof position === "string" && position.split(":").length > 0
 }

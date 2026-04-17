@@ -267,7 +267,7 @@ export interface IGameMap {
     /**
      * Get one object by id
      * @param id - ID of object
-     * @returns { GameObject | undefined } - GameObject if founded, else false
+     * @returns { GameObject | undefined } - GameObject if founded, else undefined
      */
     readonly getObject: (id: number) => GameObject | undefined;
 

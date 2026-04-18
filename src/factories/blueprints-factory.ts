@@ -9,25 +9,25 @@ import { Entity, type GameObject } from "@world";
 
 export class BluePrintsFactory implements IBluePrintsFactory {
     private readonly options: IBluePrintsFactoryOptions;
-    private readonly blueprints: IBluePrint[] = []
+    private readonly blueprints = new Map<number, IBluePrint>();
 
     public constructor(options: IBluePrintsFactoryOptions) {
         this.options = options
     }
 
-    public register(blueprint: BlueprintContent) {
+    public register(blueprint: BlueprintContent): IBluePrint {
         const createdBlueprint = {
             id: createId(),
             blueprint
         }
 
-        this.blueprints.push(createdBlueprint)
+        this.blueprints.set(createdBlueprint.id, createdBlueprint)
 
         return createdBlueprint
     }
 
     public get(id: number) {
-        return this.blueprints.find((bluprint) => bluprint.id === id)
+        return this.blueprints.get(id)
     }
 
     public create(blueprint: IBluePrint, position: Position): (Entity | GameObject)

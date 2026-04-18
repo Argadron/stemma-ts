@@ -3,9 +3,9 @@ import { createId } from "@utils";
 
 export class EffectFactory implements IEffectFactory {
     /**
-     * Array of all effects
+     * Map of all effects
      */
-    private readonly effects: IGameEffect[]= [];
+    private readonly effects = new Map<number, IGameEffect>();
 
     public create(effect: IEffect): IGameEffect {
         const createdEffect: IGameEffect = {
@@ -13,12 +13,12 @@ export class EffectFactory implements IEffectFactory {
             ...effect
         }
 
-        this.effects.push(createdEffect)
+        this.effects.set(createdEffect.id, createdEffect)
 
         return createdEffect
     }
 
     public get(id: number): IGameEffect | undefined {
-        return this.effects.find((effect) => effect.id === id)
+        return this.effects.get(id)
     }
 }

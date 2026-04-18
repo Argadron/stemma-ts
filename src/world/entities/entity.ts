@@ -38,11 +38,11 @@ export class Entity implements ITarget {
     
     private readonly manager: EntityManager;
     private readonly map: GameMap;
+    private readonly tagsIdsMap = new Map<string, number>();
 
     private effects: (IGameEffect & { remaining: number })[] = [];
     private tags = new Uint32Array(4);
     private nextTagId = 0;
-    private tagsIdsMap = new Map<string, number>();
 
     /**
      * Get byte tag id

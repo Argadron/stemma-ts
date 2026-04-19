@@ -8,13 +8,15 @@ import { anyWorldObjectIsGameObject } from "@utils";
 
 /**
  * Throw validation event, all plugins can listen and block/unblock it
- * @param game - Game reference
  * @param subject - Subject, who make action
  * @param action - Command to execute
  * @param ctx - Context in this hook
+ * @param core - Game reference (if hydration disabled)
  * @returns { IUseValidationResult } - Hook result
  */
-export function useValidation<T = any>(game: Game, subject: Entity | GameObject, action: CommandType, ctx: CommandContext): IUseValidationResult {
+export function useValidation<T = any>(subject: Entity | GameObject, action: CommandType, ctx: CommandContext, core?: Game): IUseValidationResult {
+    const game = useValidation.prototype.game as Game || core
+
     const resultContext = {
         ...ctx,
         isAllowed: true,

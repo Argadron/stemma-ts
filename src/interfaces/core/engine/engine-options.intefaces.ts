@@ -44,6 +44,13 @@ export interface IGameOptions {
     readonly disableConflictResolver?: boolean;
 
     /**
+     * Disable inject game into hooks for them functionallity.
+     * If true, you need inject game into hooks options manually,
+     * but this can be multiply perfomance
+     */
+    readonly disableHooksHydration?: boolean;
+
+    /**
      * Optional command bus options
      */
     readonly commandBusOptions?: ICommandBusOptions;

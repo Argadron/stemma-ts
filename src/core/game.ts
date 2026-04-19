@@ -23,7 +23,7 @@ import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT, isServer } from "@c
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
 import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
-import { createPluginProto, extractMethodFromPlugin, extractPropertyFromPlugin } from "@utils";
+import { createPluginProto, extractMethodFromPlugin, extractPropertyFromPlugin, useLink, useValidation, useVisibility, useAttack } from "@utils";
 import type { Entity, GameObject } from "@world";
 import { ConflictResolverPlugin } from "@plugins";
 
@@ -378,6 +378,13 @@ export class Game implements IGame {
         if (options?.usingEntityMiddlewares) this.use([DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, UseItemGuard])
         if (options?.usingObjectMiddlewares) this.use([ShootGuard])
         if (!(options?.disableConflictResolver)) this.registerPlugin(new ConflictResolverPlugin())
+
+        if (!(options?.disableHooksHydration)) {
+            useLink.prototype.game = this
+            useValidation.prototype.game = this
+            useVisibility.prototype.game = this
+            useAttack.prototype.game = this
+        }
     }
 
     public on<T>(event: keyof typeof GameEvent, cb: EventCallback<T>) {

@@ -166,7 +166,7 @@ export class Entity implements ITarget {
         for (const entity of entities) {
             const totalDamage = this.fullDamage - entity.armorHealth
 
-            const { isDead } = useAttack(this.manager.game, totalDamage, this, entity)
+            const { isDead } = useAttack(totalDamage, this, entity, this.manager.game)
 
             if (isDead) counter++
         }

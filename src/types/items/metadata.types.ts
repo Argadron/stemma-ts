@@ -13,7 +13,7 @@ export type CreateItemMetadata = Pick<IItem, 'damageBuff' | 'healthBuff' | 'walk
 export type CreateUsableItemMetadata = CreateItemMetadata & { 
     /**
      * Callback with actions with entity, etc... 
-     * Item WILL BE DELETED AUTOMATIC after executing callback
+     * Item WILL BE DELETED AUTOMATIC after executing callback (if isConsumable flag === true)
      * @param e - Entity context
      * @returns { void } - Any actions on item using...
      * @example

@@ -39,7 +39,7 @@ export class GameObject implements IGameObject {
         let counter = 0;
 
         for (const victim of entities) {
-            const { isDead } = useAttack(this.map.game, this.metadata.damage, this, victim)
+            const { isDead } = useAttack(this.metadata.damage, this, victim, this.map.game)
 
             if (isDead) counter++
         }

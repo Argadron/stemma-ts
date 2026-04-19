@@ -6,7 +6,7 @@ import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT }
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
 import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, GraphicPlugin } from "@plugins";
-import { useVisibility, checkTwoPositions, useValidation } from "@utils";
+import { useVisibility, checkTwoPositions, useValidation, useLink } from "@utils";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
@@ -314,6 +314,12 @@ game.dispatch({
     }
 })
 
+useLink(player, player_second, { maxDistance: 1, autoUnlinkOn: ["childOutOfRange", "parentDeleted", "parentKilled"], killChild: false, deleteChild: false })
+
+console.log(useValidation(player_second, CommandType.MOVE, {
+    newPosition: [7, 7]
+}), 'VALIDATION RES (BLOCKED!)')
+
 const events = new Map<CommandType, NetworkCallback>()
 
 events.set(CommandType.SET_STATE, (ev, data) => {
@@ -343,8 +349,8 @@ game.registerCustomEvent<IUseValidationResult>(`${USE_VALIDATION_EVENT_PREFIX}:$
     d.eventData.errors.push('OUT OF REACH')
 })
 
-console.log(useVisibility(game, player, player_second))
-console.log(useValidation(game, player, CommandType.USE_ITEM, {
+console.log(useVisibility(player, player_second))
+console.log(useValidation(player, CommandType.USE_ITEM, {
     forTest: true
 }))
 

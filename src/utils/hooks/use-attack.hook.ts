@@ -4,13 +4,15 @@ import type { IDeadData } from "@interfaces";
 
 /**
  * Calc attack, emit DeadEvent, return victim dead state
- * @param game - Game reference to emit event
  * @param dmg - Total damage (full calculated)
  * @param attacker - Attacker reference (another Entity, tower, etc.)
  * @param victim - Victim reference
+ * @param core - Game reference to emit event (if hydration disabled)
  * @returns { { isDead: boolean } } - GameObject with dead info
  */
-export function useAttack(game: Game, dmg: number, attacker: Entity | GameObject, victim: Entity): { isDead: boolean; } {
+export function useAttack(dmg: number, attacker: Entity | GameObject, victim: Entity, core?: Game): { isDead: boolean; } {
+    const game = useAttack.prototype.game as Game || core
+
     victim.health = victim.health - (dmg >= 0 ? dmg : 0)
     
     if (victim.health <= 0) {

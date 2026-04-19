@@ -6,12 +6,14 @@ import { USE_VISIBILITY_EVENT } from "@const";
 
 /**
  * Util calculate how well observer can see target. Throwing useVisibility:calcVisibility custom event
- * @param game - Game reference
  * @param observer - Who see
  * @param target - Target
+ * @param core - Game reference (if hydration disabled)
  * @returns { IUseVisibiltyResult } - Result of check
  */
-export function useVisibility(game: Game, observer: Entity | GameObject, target: Entity | GameObject): IUseVisibiltyResult {
+export function useVisibility(observer: Entity | GameObject, target: Entity | GameObject, core?: Game): IUseVisibiltyResult {
+    const game = useVisibility.prototype.game as Game || core
+
     if (canSee(observer.position, target.position, game.options.map)) {
         const context = {
             isVisible: true,

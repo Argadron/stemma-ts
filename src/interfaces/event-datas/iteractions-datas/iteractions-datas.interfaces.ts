@@ -41,7 +41,7 @@ export interface IMovedData {
     /**
      * Entity position after move
      */
-    readonly newPosition: AnyPosition;
+    readonly position: AnyPosition;
 }
 
 export interface IPlaySoundData {

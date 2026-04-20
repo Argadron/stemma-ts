@@ -70,10 +70,10 @@ describe('Collisions Tests', () => {
             else if (name === 'sword3') collisionByChestWeightTest = true
         })
         game.on<IMovedData>('entityMoved', (o, e, d) => {
-           const { newPosition } = d.eventData
+           const { position } = d.eventData
 
-           if (positionIsPosition(newPosition)) {
-             if (checkTwoPositions(newPosition, [2, 0])) moveToDoesntCollisionObjectTest = true
+           if (positionIsPosition(position)) {
+             if (checkTwoPositions(position, [2, 0])) moveToDoesntCollisionObjectTest = true
            }
         })
 

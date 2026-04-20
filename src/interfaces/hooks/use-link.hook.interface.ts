@@ -55,4 +55,9 @@ export interface ILinkOptions {
      * Auto delete link when
      */
     readonly autoUnlinkOn?: UnlinkWhen[];
+
+    /**
+     * If true, register useLink as middleware
+     */
+    readonly enableMiddleware?: boolean;
 }

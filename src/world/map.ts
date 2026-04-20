@@ -213,7 +213,7 @@ export class GameMap implements Map {
             eventData: {
                 entity,
                 startPosition: entity.position,
-                newPosition: to
+                position: to
             }
         })
 

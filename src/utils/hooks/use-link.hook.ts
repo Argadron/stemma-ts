@@ -1,5 +1,5 @@
 import { anyWorldObjectIsGameObject, convertAnyPositionToPosition } from "@utils";
-import type { Linkable, MiddlewareFn, Position } from "@types";
+import type { Linkable, Position } from "@types";
 import type { IDeadData, ILink, ILinkOptions, IMovedData, IUseValidationContext } from "@interfaces";
 import { USE_VALIDATION_EVENT_PREFIX } from "@const";
 import { CommandType } from "@enums";

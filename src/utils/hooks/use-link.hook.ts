@@ -12,7 +12,7 @@ import type { Game } from "@core";
  * @returns { ILink }
  */
 export function useLink(from: Linkable, to: Linkable, options?: ILinkOptions): ILink {
-    const game = useLink.prototype.game as Game
+    const game = useLink.prototype.game as Game || options?.game
 
     const parentIsEntity = !anyWorldObjectIsGameObject(from)
     const childIsEntity = !anyWorldObjectIsGameObject(to)

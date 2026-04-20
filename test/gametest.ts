@@ -79,7 +79,7 @@ const SUPER_ZOMBIE = blueprintsFactory.register({
 const killQuest = questsFactory.create({
     name: "Move to 5,6",
     injectEvents: ['entityMoved'],
-    onEvent: (options, event, data, self) => checkTwoPositions([5, 6], (data.eventData as IMovedData).newPosition as Position),
+    onEvent: (options, event, data, self) => checkTwoPositions([5, 6], (data.eventData as IMovedData).position as Position),
     onComplete: (e) => {
         console.log('QUEST COMPLETED FOR', e.name)
     }
@@ -314,7 +314,7 @@ game.dispatch({
     }
 })
 
-useLink(player, player_second, { maxDistance: 1, autoUnlinkOn: ["childOutOfRange", "parentDeleted", "parentKilled"], killChild: false, deleteChild: false })
+useLink(player, player_second, { maxDistance: 1, autoUnlinkOn: ["childOutOfRange", "parentDeleted", "parentKilled"], killChild: false, deleteChild: false, enableMiddleware: true })
 
 console.log(useValidation(player_second, CommandType.MOVE, {
     newPosition: [7, 7]

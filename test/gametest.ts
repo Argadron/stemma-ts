@@ -1,5 +1,5 @@
 import { CommandType, FactoryKeys, GameObjectEnum } from "@enums";
-import createGame from "@";
+import createGame, { Deligator } from "@";
 import type { IAttackData, IClient, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData, IServer, IUseValidationResult, IUseVisibilityContext } from "@interfaces";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, NetworkCallback, Position, Quad } from "@types";
 import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from '@const'
@@ -23,6 +23,12 @@ game.registerPlugin(new GraphicPlugin({
         ZOMBIE: "😎"
     }
 }))
+
+const deligator = new Deligator({
+    observe: game,
+    source: game,
+    triggerOn: 5
+})
 
 const asyncPlugin = new AsyncPlugin(500)
 
@@ -311,6 +317,15 @@ game.dispatch({
     tick: game.currentTick,
     data: {
         tag: 'stunned'
+    }
+})
+
+deligator.deligate({
+    tick: game.currentTick,
+    type: CommandType.USE_ITEM,
+    entityId: player.id,
+    data: {
+
     }
 })
 

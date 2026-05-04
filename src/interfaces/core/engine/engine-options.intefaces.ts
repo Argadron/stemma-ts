@@ -1,4 +1,4 @@
-import type { UndoManager } from "@core";
+import type { Game, UndoManager } from "@core";
 import type { IEntityManager, IGameMap } from "@interfaces";
 import type { GlobalStore } from "@store";
 
@@ -69,3 +69,20 @@ export interface ICommandBusOptions {
 }
 
 export interface IInitGameOptions extends Partial<IGameOptions> {}
+
+export interface IDeligatorOptions {
+    /**
+     * Delegator, who will execute this command
+     */
+    readonly source: URL | Game;
+
+    /**
+     * Deligator will be executed auto, when this command in observe engine has been saved
+     */
+    readonly triggerOn: number;
+
+    /**
+     * Engine to observe commands
+     */
+    readonly observe: Game; 
+}

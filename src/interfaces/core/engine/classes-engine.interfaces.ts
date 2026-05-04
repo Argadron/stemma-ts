@@ -301,3 +301,7 @@ export interface IGameMap {
      */
     readonly applyEffectToQuad: (quad: Quad, effect: IGameEffect, duration: number, excludeId?: number) => Entity[];
 }
+
+export interface IDeligator {
+    readonly deligate: (cmd: ICommand) => void;
+}

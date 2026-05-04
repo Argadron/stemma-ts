@@ -596,4 +596,25 @@ export class Game implements IGame {
     public get currentTick() {
         return this._currentTick
     }
+
+    /**
+     * Returns a actually command queue length, undefined if queue not enabled
+     * @returns { number } - Actual queue length
+     */
+    public get commandQueueLength(): number {
+        return this.commandQueue.length;
+    }
+
+    /**
+     * Load game as static method from snapshot
+     * @param snapshot - Snapshot to load
+     * @returns { Game } - Game from snapshot with live entities 
+     */
+    public static fromSnapshot(snapshot: ISnapshot, onLoad?: (game: Game) => void): Game {
+        const engine = new Game()
+
+        engine.load(snapshot, onLoad)
+
+        return engine;
+    }
 }

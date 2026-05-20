@@ -6,7 +6,7 @@ import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT }
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
 import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, GraphicPlugin } from "@plugins";
-import { useVisibility, checkTwoPositions, useValidation, useLink } from "@utils";
+import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState } from "@utils";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
@@ -383,6 +383,16 @@ async function checkAsyncPlugin() {
 }
 
 checkAsyncPlugin()
+
+game.options.store.set('isNight', false)
+
+setTimeout(() => {
+    game.options.store.set('isNight', true)
+}, 3000)
+
+const dynamicState = await useAsyncState('isNight', true);
+
+console.log(dynamicState, 'DYNAMIC STATE')
 
 game.start(10)
 

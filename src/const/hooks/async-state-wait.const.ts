@@ -1,0 +1,1 @@
+export const ASYNC_STATE_DEFAULT_WAIT = 1000

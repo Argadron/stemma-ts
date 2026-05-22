@@ -23,7 +23,7 @@ import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT, isServer } from "@c
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
 import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
-import { createPluginProto, extractMethodFromPlugin, extractPropertyFromPlugin, useLink, useValidation, useVisibility, useAttack, useAsyncState } from "@utils";
+import { createPluginProto, extractMethodFromPlugin, extractPropertyFromPlugin, useLink, useValidation, useVisibility, useAttack, useAsyncState, useServer } from "@utils";
 import type { Entity, GameObject } from "@world";
 import { ConflictResolverPlugin } from "@plugins";
 
@@ -385,6 +385,7 @@ export class Game implements IGame {
             useVisibility.prototype.game = this
             useAttack.prototype.game = this
             useAsyncState.prototype.game = this
+            useServer.prototype.game = this
         }
     }
 

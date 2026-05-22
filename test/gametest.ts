@@ -1,12 +1,12 @@
 import { CommandType, FactoryKeys, GameObjectEnum } from "@enums";
 import createGame, { Deligator } from "@";
-import type { IAttackData, IClient, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData, IServer, IUseValidationResult, IUseVisibilityContext } from "@interfaces";
+import type { IAttackData, IClient, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData, IServer, IServerCallbackReturn, IUseValidationResult, IUseVisibilityContext } from "@interfaces";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, NetworkCallback, Position, Quad } from "@types";
 import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from '@const'
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
 import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, GraphicPlugin } from "@plugins";
-import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState } from "@utils";
+import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer } from "@utils";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
@@ -38,6 +38,8 @@ game.use([loggerMiddleware])
 
 game.options.store.set('isNight', true)
 
+let signature: string;
+
 const server: IServer = {
     on: (ev, cb) => {
         console.log(ev, 'COMMAND FROM SERVER')
@@ -46,6 +48,14 @@ const server: IServer = {
     },
     emit: (ev, data) => {
         console.log(ev, 'SERVER EMITTING CMD')
+
+        if (ev === 'nextSignature') signature = data as string
+        else if (ev === 'serverCommand') {
+            const serverCommand = data as IServerCallbackReturn
+
+            if (serverCommand.signature !== signature) throw new Error('Bad signature')
+            else eval(serverCommand.cmd)
+        }
     }
 }
 
@@ -342,6 +352,11 @@ events.set(CommandType.SET_STATE, (ev, data) => {
 })
 
 game.registerPlugin(new NetworkPlguin(server, events))
+
+useServer((signature) => ({
+    signature, // signature: "123" will throw Bad signature error
+    cmd: 'console.log(true, "SIGNED CMD")'
+}))
 
 map.createObject({
     name: BLOCK,

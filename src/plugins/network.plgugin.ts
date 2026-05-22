@@ -48,4 +48,8 @@ export class NetworkPlguin implements IPlugin {
 
         return true
     }
+
+    public get networkServer() {
+        return this.server
+    }
 }

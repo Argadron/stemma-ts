@@ -80,7 +80,7 @@ game.dispatch({
 // Listen moving, to start logic
 game.on('entityMoved', (o, e, d) => {
     const movedData = d.eventData as IMovedData;
-    console.log(`[WORLD] ${movedData.entity.id} go to ${movedData.newPosition}`)
+    console.log(`[WORLD] ${movedData.entity.id} go to ${movedData.position}`)
 })
 
 // 7. Simple interact check (In Junior style)

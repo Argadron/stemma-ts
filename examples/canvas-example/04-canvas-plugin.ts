@@ -3,7 +3,7 @@ import { CanvasPlugin, CollisionGuard, CommandType, createGame } from 'stemma-ts
 const [game, manager, map] = createGame()
 
 game.registerPlugin(new CanvasPlugin({
-    canvas: document.getElementById('canvas'),
+    canvas: document.getElementById('canvas') as HTMLCanvasElement,
     assets: {
         "hero": {
             src: "./hero.png",
@@ -36,7 +36,7 @@ const player2 = manager.create({
 })
 
 game.on('entityMovedCollision', (o, e, d) => {
-    manager.delete(d.entity.id)
+    manager.delete(d.entity!.id)
 })
 
 game.use(CollisionGuard)

@@ -45,7 +45,7 @@ class RegenerationPlugin implements IPlugin {
 
         // Register custom event for heal
         game.registerCustomEvent<any>('apply_regeneration', (o, e, d) => {
-            const entity = d.eventData.entity as Entity
+            const entity = d.eventData.entity
             const regenAmount = game.options.store.get<number>(this.storeKey) ?? 1
 
             if (entity && !anyWorldObjectIsGameObject(entity)) {

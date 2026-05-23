@@ -28,7 +28,7 @@ export class CoreRulesPlugin implements IPlugin {
         const attackValidationKey = `${USE_VALIDATION_EVENT_PREFIX}:${CommandType.ATTACK}`
         
         game.registerCustomEvent<any>(attackValidationKey, (opts, event, data) => {
-            const attacker = data.entity! as Entity
+            const attacker = data.entity! as unknown as Entity
             const target = data.eventData.entities[0]
 
             // Rule: You cant attack friends (Friendly Fire Check)

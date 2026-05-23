@@ -1,5 +1,5 @@
 import type { IServer, IServerCallbackReturn } from "stemma-ts";
-import createGame, { NetworkPlguin, useServer } from "stemma-s";
+import createGame, { NetworkPlguin, useServer } from "stemma-ts";
 
 const [game] = createGame()
 
@@ -24,7 +24,7 @@ const server: IServer = {
 
 game.registerPlugin(new NetworkPlguin(server))
 
-useServer(signature => ({
+useServer((signature: string) => ({
     signature,
     cmd: 'console.log(true)'
 }))

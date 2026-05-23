@@ -6,7 +6,7 @@ import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT }
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
 import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, GraphicPlugin } from "@plugins";
-import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer } from "@utils";
+import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer, useState } from "@utils";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
@@ -405,6 +405,13 @@ setTimeout(() => {
 const dynamicState = await useAsyncState('isNight', true);
 
 console.log(dynamicState, 'DYNAMIC STATE')
+
+const [isNight, setIsNight] = useState<boolean>('isNight')
+
+console.log(isNight.value, 'BEFORE IS NIGTH')
+setIsNight((current) => !current)
+
+console.log(isNight.value, 'IS NIGHT FROM USE STATE')
 
 game.start(10)
 

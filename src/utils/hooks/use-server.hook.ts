@@ -1,4 +1,5 @@
 import type { Game } from "@core";
+import type { IServerCallbackReturn } from "@interfaces";
 import { NetworkPlguin } from "@plugins";
 import type { ServerCallback } from "@types";
 
@@ -20,6 +21,9 @@ export function useServer(cb: ServerCallback, core?: Game): void {
         const signature = `${Math.random() * 1000}_${Date.now()}_${game.currentTick}`
 
         server.emit('nextSignature', signature)
-        server.emit('serverCommand', cb(signature))
+        server.emit('serverCommand', {
+            cmd: cb(),
+            signature
+        } as IServerCallbackReturn)
     }
 }

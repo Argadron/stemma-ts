@@ -353,10 +353,7 @@ events.set(CommandType.SET_STATE, (ev, data) => {
 
 game.registerPlugin(new NetworkPlguin(server, events))
 
-useServer((signature) => ({
-    signature, // signature: "123" will throw Bad signature error
-    cmd: 'console.log(true, "SIGNED CMD")'
-}))
+useServer(() => 'console.log(true)')
 
 map.createObject({
     name: BLOCK,

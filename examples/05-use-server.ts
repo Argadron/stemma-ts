@@ -24,7 +24,4 @@ const server: IServer = {
 
 game.registerPlugin(new NetworkPlguin(server))
 
-useServer((signature: string) => ({
-    signature,
-    cmd: 'console.log(true)'
-}))
+useServer(() => 'console.log(true)')

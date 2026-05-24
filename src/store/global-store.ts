@@ -1,8 +1,7 @@
 import type { IGlobalStateChangedData, IGlobalStore, IGlobalStoreOptions } from "@interfaces";
 
 export class GlobalStore implements IGlobalStore {
-    public state = new Map<string, any>()
-    
+    private readonly state = new Map<string, any>()
     private readonly options: IGlobalStoreOptions;
 
     public constructor(options: IGlobalStoreOptions) {
@@ -35,5 +34,9 @@ export class GlobalStore implements IGlobalStore {
 
     public get<T = any>(key: string) {
         return this.state.get(key) as T
+    }
+
+    public getAll() {
+        return Object.fromEntries(this.state.entries())
     }
 }

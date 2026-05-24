@@ -1,5 +1,17 @@
 import { CommandType, FactoryKeys, GameEvent } from "@enums";
-import type { IGame, IGameOptions, IEventInfo, ISnapshot, ICommand, IInitGameOptions, IPlugin, IGlobalStateChangedData, IObjectDeletedOrCreatedData, IEntityTagsChangedData, ICommandBlocked } from "@interfaces";
+import type { 
+    IGame, 
+    IGameOptions, 
+    IEventInfo, 
+    ISnapshot, 
+    ICommand, 
+    IInitGameOptions, 
+    IPlugin, 
+    IGlobalStateChangedData, 
+    IObjectDeletedOrCreatedData, 
+    IEntityTagsChangedData, 
+    ICommandBlocked 
+} from "@interfaces";
 import { EntityManager, UndoManager } from "@core";
 import type { 
     EventCallback, 
@@ -22,8 +34,29 @@ import type {
 import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT, isServer } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { GlobalStore } from "@store";
-import { baseChecksMiddleware, DropItemGuard, EntityInteractGuard, EquipItemGuard, MovementGuard, OpenChestGuard, PickUpGuard, ShootGuard, UseItemGuard } from "@middlewares";
-import { createPluginProto, extractMethodFromPlugin, extractPropertyFromPlugin, useLink, useValidation, useVisibility, useAttack, useAsyncState, useServer, useState } from "@utils";
+import { 
+    baseChecksMiddleware, 
+    DropItemGuard, 
+    EntityInteractGuard, 
+    EquipItemGuard, 
+    MovementGuard, 
+    OpenChestGuard, 
+    PickUpGuard, 
+    ShootGuard, 
+    UseItemGuard 
+} from "@middlewares";
+import { 
+    createPluginProto, 
+    extractMethodFromPlugin, 
+    extractPropertyFromPlugin, 
+    useLink, 
+    useValidation, 
+    useVisibility, 
+    useAttack, 
+    useAsyncState, 
+    useServer, 
+    useState 
+} from "@utils";
 import type { Entity, GameObject } from "@world";
 import { ConflictResolverPlugin } from "@plugins";
 
@@ -467,7 +500,7 @@ export class Game implements IGame {
         const snapshot = {
             entities: Array.from(this.options.manager.entities.values()).map((e) => e.toDTO()),
             objects: Array.from(this.options.map.objects.values()).map((o) => o.toDTO()),
-            state: Object.fromEntries(this.options.store.state)
+            state: this.options.store.getAll()
         }
         
         if (cb) cb(snapshot)

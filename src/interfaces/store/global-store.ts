@@ -16,6 +16,12 @@ export interface IGlobalStore {
      * @returns { T | undefined } - Data if founded, else undefined
      */
     readonly get: <T>(key: string) => T | undefined;
+
+    /**
+     * Get all global state key-value
+     * @returns { CommandContext } - Key-value state
+     */
+    readonly getAll: () => CommandContext;
 }
 
 export interface IGlobalStoreOptions {

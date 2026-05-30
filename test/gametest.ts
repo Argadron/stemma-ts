@@ -1,5 +1,5 @@
 import { CommandType, FactoryKeys, GameObjectEnum } from "@enums";
-import createGame, { Deligator } from "@";
+import createGame, { Deligator, Scener } from "@";
 import type { IAttackData, IClient, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData, IServer, IServerCallbackReturn, IUseValidationResult, IUseVisibilityContext } from "@interfaces";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, NetworkCallback, Position, Quad } from "@types";
 import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from '@const'
@@ -33,6 +33,23 @@ const deligator = new Deligator({
 const asyncPlugin = new AsyncPlugin(500)
 
 game.registerPlugin(asyncPlugin)
+
+const scener = new Scener(game)
+
+const myScene = scener.createScene([
+    {
+        type: CommandType.SET_STATE,
+        data: {
+            key: 'scene key',
+            value: true
+        },
+        tick: game.currentTick
+    }
+])
+
+void scener.playScene(myScene)
+
+await useAsyncState('scene key', true)
 
 game.use([loggerMiddleware])
 

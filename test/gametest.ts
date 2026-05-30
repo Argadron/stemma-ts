@@ -6,7 +6,7 @@ import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT }
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
 import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, GraphicPlugin } from "@plugins";
-import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer, useState } from "@utils";
+import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer, useState, useWO } from "@utils";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
@@ -344,6 +344,10 @@ useLink(player, player_second, { maxDistance: 1, autoUnlinkOn: ["childOutOfRange
 console.log(useValidation(player_second, CommandType.MOVE, {
     newPosition: [7, 7]
 }), 'VALIDATION RES (BLOCKED!)')
+
+const entityWO = useWO(player.id)
+
+console.log(entityWO, 'WO')
 
 const events = new Map<CommandType, NetworkCallback>()
 

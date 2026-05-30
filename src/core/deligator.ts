@@ -21,6 +21,7 @@ export class Deligator implements IDeligator {
 
             this.game = Game.fromSnapshot(snapshot)
             this.onFullLoad()
+            this.isSourceInited = true
         } catch {
             throw new Error('[Deligator]: Cant fetch source')
         }

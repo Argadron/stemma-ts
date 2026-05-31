@@ -1,3 +1,4 @@
+import { FactoryKeys } from "@enums";
 import type { IGameIteraction, IIteraction, IIteractionsFactory, IIteractionsFactoryOptions } from "@interfaces";
 import { createId } from "@utils";
 
@@ -7,6 +8,8 @@ export class IteractionsFactory implements IIteractionsFactory {
 
     public constructor(options: IIteractionsFactoryOptions) {
         this.options = options
+
+        if (options.useAutoConnect) options.game.connectFactory(FactoryKeys.ITERACTIONS, this)
     }
 
     public create(iteraction: IIteraction) {

@@ -1,3 +1,4 @@
+import { FactoryKeys } from "@enums";
 import type { IGameQuest, IQuest, IQuestFactory, IQuestFactoryOptions } from "@interfaces";
 import { createId } from "@utils";
 
@@ -7,6 +8,8 @@ export class QuestsFactory implements IQuestFactory {
 
     public constructor(options: IQuestFactoryOptions) {
         this.options = options
+
+        if (options.useAutoConnect) options.game.connectFactory(FactoryKeys.QUESTS, this)
     }
 
     public create(quest: IQuest) {

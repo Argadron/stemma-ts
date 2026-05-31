@@ -1,3 +1,4 @@
+import { FactoryKeys } from "@enums";
 import type { 
     IBluePrint, 
     IBluePrintsFactory, 
@@ -13,6 +14,8 @@ export class BluePrintsFactory implements IBluePrintsFactory {
 
     public constructor(options: IBluePrintsFactoryOptions) {
         this.options = options
+
+        if (options.useAutoConnect) options.game.connectFactory(FactoryKeys.BLUEPRINTS, this)
     }
 
     public register(blueprint: BlueprintContent): IBluePrint {

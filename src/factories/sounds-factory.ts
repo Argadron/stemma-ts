@@ -1,3 +1,4 @@
+import { FactoryKeys } from "@enums";
 import type { IGameSound, IPlaySoundData, ISound, ISoundsFactory, ISoundsFactoryOptions } from "@interfaces";
 import type { Position } from "@types";
 import { createId } from "@utils";
@@ -8,6 +9,8 @@ export class SoundsFactory implements ISoundsFactory {
 
     public constructor(options: ISoundsFactoryOptions) {
         this.options = options
+
+        if (options.useAutoConnect) options.game.connectFactory(FactoryKeys.SOUNDS, this)
     }
 
     /**

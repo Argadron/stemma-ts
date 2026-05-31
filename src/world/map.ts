@@ -276,7 +276,7 @@ export class GameMap implements Map {
         }
     }
 
-    public createObject<T = any>(obj: IGameObject, metadata?: T) {
+    public createObject<T = any>(obj: IGameObject<T>, metadata?: T) {
         const object = new GameObject(obj, this.manager, this, metadata ?? obj.metadata)
 
         this.objects.set(object.id, object)

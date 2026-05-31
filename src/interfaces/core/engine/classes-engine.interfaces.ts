@@ -255,7 +255,7 @@ export interface IGameMap {
      * @param metadata - Object metadata
      * @returns { GameObject } - GameObject, also generates object error events, if need
      */
-    readonly createObject: <T = any>(obj: IGameObject, metadata?: T) => GameObject;
+    readonly createObject: <T = any>(obj: IGameObject<T>, metadata?: T) => GameObject;
     
     /**
      * Delete one object by id

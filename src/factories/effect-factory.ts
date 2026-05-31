@@ -8,8 +8,8 @@ export class EffectFactory implements IEffectFactory {
      */
     private readonly effects = new Map<number, IGameEffect>();
 
-    public constructor(options: Partial<IBaseFactoriesOptions>) {
-        if (options.useAutoConnect && options.game) options.game.connectFactory(FactoryKeys.EFFECTS, this)
+    public constructor(options?: Partial<IBaseFactoriesOptions>) {
+        if (options?.useAutoConnect && options?.game) options?.game.connectFactory(FactoryKeys.EFFECTS, this)
     }
 
     public create(effect: IEffect): IGameEffect {

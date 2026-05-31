@@ -74,7 +74,7 @@ describe('Map Tests', () => {
         expect(map.deleteObject(sword.id)).toBe(true)
     })
     it('Apply effect to quad', async () => {
-        const factory = game.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())
+        const factory = game.connectFactory(FactoryKeys.EFFECTS, new EffectFactory({ game }))
         const poisonEffect = factory.create({
             name: "POISON",
             onTick: (e) => e.health --,

@@ -36,7 +36,7 @@ export interface IChest {
     readonly items: IItem[]
 }
 
-export interface IGameObject extends Pick<ITarget, 'position' | 'name'> {
+export interface IGameObject<T = any> extends Pick<ITarget, 'position' | 'name'> {
     /**
      * Type of GameObject
      */
@@ -45,7 +45,7 @@ export interface IGameObject extends Pick<ITarget, 'position' | 'name'> {
     /**
      * Any object metadata for create. See CreateItemMetadata, CreateTowerMetadata, etc.
      */
-    readonly metadata?: any;
+    readonly metadata?: T;
 
     /**
      * Internal object id. Will be generated automatic

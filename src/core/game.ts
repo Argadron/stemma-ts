@@ -402,7 +402,7 @@ export class Game implements IGame {
             undoManager: new UndoManager({ game: this }),
             ...options
         }
-        this.connectFactory(FactoryKeys.EFFECTS, new EffectFactory())
+        this.connectFactory(FactoryKeys.EFFECTS, new EffectFactory({ game: this }))
         this.connectFactory(FactoryKeys.BLUEPRINTS, new BluePrintsFactory({ game: this }))
         this.connectFactory(FactoryKeys.QUESTS, new QuestsFactory({ game: this }))
         this.connectFactory(FactoryKeys.ITERACTIONS, new IteractionsFactory({ game: this }))

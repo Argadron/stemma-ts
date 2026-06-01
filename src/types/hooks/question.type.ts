@@ -20,7 +20,9 @@ export type QuestionEndOperator = '~'
 /**
  * One block of question
  */
-export type QuestionBlock = `${'E'|'O'}:${number}:${QuestionOperator}`
+export type QuestionBlock = 
+    `E:${number}:${QuestionOperator}` |
+    `O:${number}:O`
 
 type BuildChainArray<
     Length extends number, 

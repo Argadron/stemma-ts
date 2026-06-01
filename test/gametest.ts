@@ -6,7 +6,7 @@ import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT }
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
 import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, GraphicPlugin } from "@plugins";
-import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer, useState, useWO } from "@utils";
+import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer, useState, useWO, useQuestion } from "@utils";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
@@ -185,6 +185,8 @@ const zombie = manager.create({
     isDead: false,
     position: [4, 5]
 })
+
+console.log(useQuestion<4>(`E:${zombie.id}:L:+:E:${player.id}:D:*:E:${player_second.id}:L:*:O:${tower.id}:O:~`), 'ANSWER') // true
 
 questsFactory.activate(killQuest.id, player.id)
 

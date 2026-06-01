@@ -56,7 +56,8 @@ import {
     useAsyncState, 
     useServer, 
     useState, 
-    useWO
+    useWO,
+    useQuestion
 } from "@utils";
 import type { Entity, GameObject } from "@world";
 import { ConflictResolverPlugin } from "@plugins";
@@ -422,6 +423,7 @@ export class Game implements IGame {
             useServer.prototype.game = this
             useState.prototype.game = this
             useWO.prototype.game = this
+            useQuestion.prototype.game = this
         }
     }
 

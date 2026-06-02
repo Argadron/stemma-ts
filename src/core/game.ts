@@ -57,7 +57,8 @@ import {
     useServer, 
     useState, 
     useWO,
-    useQuestion
+    useQuestion,
+    useAlternative
 } from "@utils";
 import type { Entity, GameObject } from "@world";
 import { ConflictResolverPlugin } from "@plugins";
@@ -424,6 +425,9 @@ export class Game implements IGame {
             useState.prototype.game = this
             useWO.prototype.game = this
             useQuestion.prototype.game = this
+            
+            if (!useAlternative.prototype) useAlternative.prototype = { game: this }
+            else useAlternative.prototype.game = this
         }
     }
 

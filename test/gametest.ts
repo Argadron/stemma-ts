@@ -6,7 +6,7 @@ import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT }
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
 import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, GraphicPlugin } from "@plugins";
-import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer, useState, useWO, useQuestion } from "@utils";
+import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer, useState, useWO, useQuestion, useAlternative } from "@utils";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
@@ -416,6 +416,16 @@ async function checkAsyncPlugin() {
 
     console.log(game.options.store.get('async'), 'ASYNC RESULT')
 }
+
+console.log((await useAlternative({
+    type: CommandType.SET_STATE,
+    tick: game.currentTick,
+    data: {
+        key: 'alternative',
+        value: true
+    }
+})).options.store.get('alternative'), 'ALTERNATIVE')
+console.log(game.options.store.get('alternative'))
 
 checkAsyncPlugin()
 

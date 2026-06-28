@@ -1,4 +1,5 @@
 import type { IGlobalStateChangedData, IGlobalStore, IGlobalStoreOptions } from "@interfaces";
+import type { CommandContext } from "@types";
 
 export class GlobalStore implements IGlobalStore {
     private readonly state = new Map<string, any>()
@@ -36,7 +37,7 @@ export class GlobalStore implements IGlobalStore {
         return this.state.get(key) as T
     }
 
-    public getAll() {
-        return Object.fromEntries(this.state.entries())
+    public getAll<T extends CommandContext = CommandContext>(): T {
+        return Object.fromEntries(this.state.entries()) as T
     }
 }

@@ -6,7 +6,7 @@ import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT }
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
 import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, GraphicPlugin } from "@plugins";
-import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer, useState, useWO, useQuestion, useAlternative } from "@utils";
+import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer, useState, useWO, useQuestion, useAlternative, createLinksFromAttack, usePause } from "@utils";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
@@ -392,6 +392,13 @@ game.processCustomEvent('decorator', {
     eventTime: game.currentTick
 })
 
+console.log('BEFORE PAUSE')
+
+usePause(5000)
+await new Promise((resolve, reject) => setTimeout(resolve, 5000))
+
+console.log('AFTER PAUSE')
+
 game.registerCustomEvent<IUseVisibilityContext>(USE_VISIBILITY_EVENT, (o, e, d) => {
     d.eventData.factor = 0
 })
@@ -436,6 +443,10 @@ setTimeout(() => {
 }, 3000)
 
 const dynamicState = await useAsyncState('isNight', true);
+
+const links = createLinksFromAttack(player)
+
+console.log('links', links)
 
 console.log(dynamicState, 'DYNAMIC STATE')
 

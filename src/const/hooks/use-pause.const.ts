@@ -1,0 +1,1 @@
+export const USE_PAUSE_STATE_KEY = 'USE_PAUSE'

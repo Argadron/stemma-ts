@@ -1,5 +1,5 @@
 import type { ITarget } from "@interfaces";
-import type { AnyPosition, Position } from "@types";
+import type { AnyPosition, Position, Position3D } from "@types";
 import type { Entity, GameObject } from "@world";
 
 export interface IMovedCollisionData {
@@ -11,7 +11,7 @@ export interface IMovedCollisionData {
     /**
      * Start entity position
      */
-    readonly startPosition: Position;
+    readonly startPosition: Position | Position3D;
 
     /**
      * Collision position (entity cant moved to her)

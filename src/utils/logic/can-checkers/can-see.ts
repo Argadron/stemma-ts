@@ -1,15 +1,15 @@
 import { GameObjectEnum } from "@enums"
 import type { IGameMap } from "@interfaces"
-import type { Position } from "@types"
+import type { GeometryTypes, Position, Position3D } from "@types"
 
 /**
- * Checks a given world object can see position
+ * Checks a given world object can see position (Works in 2D games)
  * @param startPosition - Start position to check
  * @param newPosition - Position to check
  * @param map - GameMap reference
  * @returns { boolean } - True if can, else false
  */
-export function canSee(startPosition: Position, endPosition: Position, map: IGameMap): boolean {
+export function canSee<G extends GeometryTypes='2D'|'3D', P extends Position | Position3D=Position | Position3D>(startPosition: Position | Position3D, endPosition: Position | Position3D, map: IGameMap<G, P>): boolean {
     let x0 = Math.round(startPosition[0])
     let y0 = Math.round(startPosition[1])
     

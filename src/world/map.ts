@@ -8,7 +8,8 @@ import type {
     ITriggerActivatedData,
     IWorldObjectHearedNoiseData,
     IObjectDeletedOrCreatedData,
-    IGameEffect
+    IGameEffect,
+    IWorldItem
 } from "@interfaces";
 import type { 
     Position, 
@@ -19,7 +20,11 @@ import type {
     CreateUsableItemMetadata, 
     CreateChestMetadata, 
     CreateTriggerMetadata,
-    GridPosition
+    GridPosition,
+    GridPosition3D,
+    Position3D,
+    GeometryTypes,
+    GeometryToPosition
 } from "@types";
 import { 
     convertAnyPositionToPosition,
@@ -31,20 +36,20 @@ import {
 import { Entity, GameObject } from "@world";
 import { BASE_HEARING_RADIUS } from "@const";
 
-export class GameMap implements Map {
-    private readonly grid = new Map<GridPosition, Set<GameObject>>()
+export class GameMap<G extends GeometryTypes, T extends Position | Position3D = GeometryToPosition<G>> implements Map<G, T> {
+    private readonly grid = new Map<GridPosition | GridPosition3D, Set<GameObject<T>>>()
 
-    public readonly manager: EntityManager;
-    public readonly game: Game;
+    public readonly manager: EntityManager<G, T>;
+    public readonly game: Game<G>;
 
-    public objects = new Map<number, GameObject>()
+    public objects = new Map<number, GameObject<T, G>>()
 
     /**
      * Validate and executing error events for new object
      * @param object - Object to create
      * @param metadata - Object metadata
      */
-    private validateObject<T = any>(object: GameObject, metadata?: T) {
+    private validateObject<M = any>(object: GameObject<T>, metadata?: M) {
         if (object.type === GameObjectEnum.ITEM) {
             const itemMetadata = metadata as Partial<CreateItemMetadata & CreateUsableItemMetadata>
 
@@ -114,7 +119,7 @@ export class GameMap implements Map {
      * @param position - Position to get triggers
      * @returns { GameObject[] } - All triggers in position
      */
-    public getTriggersInPosition(position: Position): GameObject[] {
+    public getTriggersInPosition(position: (Position | Position3D)): GameObject[] {
         const grid = this.grid.get(convertPositionToGridPosition(position))
 
         return grid ? Array.from(grid).filter((o) => o.type === GameObjectEnum.TRIGGER) : []
@@ -125,14 +130,14 @@ export class GameMap implements Map {
      * @param obj - Game object to push
      * @returns { void }
      */
-    public pushObject(obj: GameObject): void {
+    public pushObject(obj: GameObject<T, G>): void {
         this.addToGrid(obj)
         this.objects.set(obj.id, obj)
     }
  
-    public load(rawObjects: IGameObject[]) {
+    public load(rawObjects: IGameObject<any, T>[]) {
         this.objects = new Map(rawObjects.map((object) => {
-            const obj = GameObject.fromSnapshot(object, this.manager, this)
+            const obj = GameObject.fromSnapshot<T, G>(object, this.manager, this)
 
             return [obj.id, obj]
         }))
@@ -143,7 +148,7 @@ export class GameMap implements Map {
      * @param object - Object to add
      * @returns { void }
      */
-    public addToGrid(object: GameObject): void {
+    public addToGrid(object: GameObject<T>): void {
         const gridPosition = convertPositionToGridPosition(object.position)
 
         if (!this.grid.has(gridPosition)) this.grid.set(gridPosition, new Set([object]))
@@ -155,7 +160,7 @@ export class GameMap implements Map {
      * @param entity - Object to delete
      * @returns { void }
      */
-    public deleteFromGrid(object: GameObject): void {
+    public deleteFromGrid(object: GameObject<T>): void {
         const gridPosition = convertPositionToGridPosition(object.position)
         const cell = this.grid.get(gridPosition)
 
@@ -166,15 +171,15 @@ export class GameMap implements Map {
         }
     }
 
-    public constructor(manager: EntityManager, game: Game) {
+    public constructor(manager: EntityManager<G, T>, game: Game<G>) {
         this.manager = manager
         this.game = game
     }
 
-    public getInQuad(quad: Quad, returnType?: 'ALL'): (Entity | GameObject)[];
-    public getInQuad(quad: Quad, returnType: 'ENTITES'): Entity[];
-    public getInQuad(quad: Quad, returnType: 'OBJECTS'): GameObject[];
-    public getInQuad(quad: Quad, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
+    public getInQuad(quad: Quad, returnType?: 'ALL'): (Entity<G, T> | GameObject<T>)[];
+    public getInQuad(quad: Quad, returnType: 'ENTITES'): Entity<G, T>[];
+    public getInQuad(quad: Quad, returnType: 'OBJECTS'): GameObject<T>[];
+    public getInQuad(quad: Quad, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity<G, T>[] | GameObject<T>[] | (Entity<G, T> | GameObject<T>)[];
     public getInQuad(quad: Quad, returnType:'ALL' | 'ENTITES' | 'OBJECTS' = 'ALL') {
         const [minX, minY, maxX, maxY] = quad; 
         
@@ -219,7 +224,7 @@ export class GameMap implements Map {
 
         const oldPosition = [...entity.position] as Position
 
-        entity.position = position
+        entity.position = position as T
 
         this.manager.updateGrid(entity, oldPosition)
         
@@ -256,11 +261,11 @@ export class GameMap implements Map {
         return entity
     }
 
-    public getAllInPosition(position: Position, returnType?: 'ALL'): (Entity | GameObject)[];
-    public getAllInPosition(position: Position, returnType: 'ENTITES'): Entity[];
-    public getAllInPosition(position: Position, returnType: 'OBJECTS'): GameObject[];
-    public getAllInPosition(position: Position, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
-    public getAllInPosition(position: Position, returnType:'ALL' | 'ENTITES' | 'OBJECTS'='ALL') {
+    public getAllInPosition(position: Position | Position3D, returnType?: 'ALL'): (Entity<G, T> | GameObject<T>)[];
+    public getAllInPosition(position: Position | Position3D, returnType: 'ENTITES'): Entity<G, T>[];
+    public getAllInPosition(position: Position | Position3D, returnType: 'OBJECTS'): GameObject<T>[];
+    public getAllInPosition(position: Position | Position3D,returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity<G, T>[] | GameObject<T>[] | (Entity<G, T> | GameObject<T>)[];
+    public getAllInPosition(position: Position | Position3D, returnType:'ALL' | 'ENTITES' | 'OBJECTS'='ALL') {
         const gridPosition = convertPositionToGridPosition(position)
 
         const objects = Array.from(this.grid.get(gridPosition) ?? [])
@@ -276,7 +281,7 @@ export class GameMap implements Map {
         }
     }
 
-    public createObject<T = any>(obj: IGameObject<T>, metadata?: T) {
+    public createObject<M = any>(obj: IGameObject<M, T>, metadata?: M) {
         const object = new GameObject(obj, this.manager, this, metadata ?? obj.metadata)
 
         this.objects.set(object.id, object)
@@ -315,7 +320,7 @@ export class GameMap implements Map {
     }
 
     public getAllItems() {
-        return Array.from(this.objects.values()).filter(o => gameObjectIsItem(o))
+        return Array.from(this.objects.values()).filter(o => gameObjectIsItem<T>(o))
     }
 
     public checkObjectOk(id: number): boolean {

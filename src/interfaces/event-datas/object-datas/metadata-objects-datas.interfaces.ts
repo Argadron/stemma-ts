@@ -1,5 +1,5 @@
 import type { IChest, IItem, IWorldItem } from "@interfaces";
-import type { Position } from "@types";
+import type { Position, Position3D } from "@types";
 import type { Entity, GameObject } from "@world";
 
 export interface ITowerShootedData {
@@ -77,7 +77,7 @@ export interface IItemDroppedData {
     /**
      * Position to drop item
      */
-    readonly position: Position;
+    readonly position: Position | Position3D;
 }
 
 export interface ITriggerActivatedData {

@@ -4,6 +4,7 @@ import type {
     IGameMap,
     IInitGameOptions, 
 } from "@interfaces";
+import type { GeometryTypes } from "@types";
 
 export * from "./const/index.js"
 export * from "./core/index.js"
@@ -23,8 +24,8 @@ export * from "./plugins/index.js"
  * @param options - Init game options
  * @returns { [game: Game, manager: IEntityManager, map: IGameMap] } - Array with main game iteract objects
  */
-export const createGame = (options?: IInitGameOptions): [game: Game, manager: IEntityManager, map: IGameMap] => {
-    const game = new Game(options)
+export const createGame = <G extends GeometryTypes = '2D'>(options?: IInitGameOptions<G>): [game: Game, manager: IEntityManager<G>, map: IGameMap<G>] => {
+    const game = new Game<G>(options)
 
     return [game, game.options.manager, game.options.map] as const
 }

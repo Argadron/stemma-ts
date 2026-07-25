@@ -10,7 +10,8 @@ import type {
     IGlobalStateChangedData, 
     IObjectDeletedOrCreatedData, 
     IEntityTagsChangedData, 
-    ICommandBlocked 
+    ICommandBlocked, 
+    IGameMap
 } from "@interfaces";
 import { EntityManager, UndoManager } from "@core";
 import type { 
@@ -29,7 +30,9 @@ import type {
     CommandContext, 
     OnTagsChangesDecoratorsProperties, 
     OnUIEventDecoratorProperties,
-    OnConsoleKeyboardEventDecoratorProperites
+    OnConsoleKeyboardEventDecoratorProperites,
+    GeometryTypes,
+    GeometryToPosition
 } from "@types";
 import { BASE_FPS, BASE_MAX_COMMAND_EXECUTING_ON_TICK_LIMIT, isServer } from "@const";
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
@@ -64,8 +67,8 @@ import {
 import type { Entity, GameObject } from "@world";
 import { ConflictResolverPlugin } from "@plugins";
 
-export class Game implements IGame {
-    readonly options: IGameOptions;
+export class Game<G extends GeometryTypes='2D'|'3D'> implements IGame<G> {
+    readonly options: IGameOptions<G>;
 
     /**
      * Flag indicates game start status
@@ -394,9 +397,9 @@ export class Game implements IGame {
     }
 
     public constructor(
-        options?: IInitGameOptions
+        options?: IInitGameOptions<G>
     ) {
-        const manager = new EntityManager([], this)
+        const manager = new EntityManager<G, GeometryToPosition<G>>([], this)
 
         this.options = {
             manager,
@@ -518,7 +521,7 @@ export class Game implements IGame {
         return snapshot
     }
 
-    public load(snapshot: ISnapshot, onLoad?: (game: Game) => void) {
+    public load(snapshot: ISnapshot<GeometryToPosition<G>>, onLoad?: (game: Game) => void) {
         this.options.map.load(snapshot.objects)
         this.options.manager.load(snapshot.entities)
         

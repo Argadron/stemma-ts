@@ -1,17 +1,18 @@
 import type { Game, UndoManager } from "@core";
 import type { IEntityManager, IGameMap } from "@interfaces";
 import type { GlobalStore } from "@store";
+import type { GeometryToPosition, GeometryTypes } from "@types";
 
-export interface IGameOptions {
+export interface IGameOptions<G extends GeometryTypes='2D'|'3D'> {
     /**
      * Entities in game
      */
-    readonly manager: IEntityManager;
+    readonly manager: IEntityManager<G, GeometryToPosition<G>>;
 
     /**
      * Game Map
      */
-    readonly map: IGameMap;
+    readonly map: IGameMap<G, GeometryToPosition<G>>;
 
     /**
      * Global game state store
@@ -54,6 +55,11 @@ export interface IGameOptions {
      * Optional command bus options
      */
     readonly commandBusOptions?: ICommandBusOptions;
+
+    /**
+     * Type of game geometry. By default, 2D
+     */
+    readonly gameGeometry?: G;
 }
 
 export interface ICommandBusOptions {
@@ -68,7 +74,7 @@ export interface ICommandBusOptions {
     readonly maxCommandsPerTick?: number;
 }
 
-export interface IInitGameOptions extends Partial<IGameOptions> {}
+export interface IInitGameOptions<G extends GeometryTypes> extends Partial<IGameOptions<G>> {}
 
 export interface IDeligatorOptions {
     /**

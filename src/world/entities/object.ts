@@ -63,7 +63,7 @@ export class GameObject<T extends Position | Position3D = Position | Position3D,
      * @param e - Entity, who make iteraction
      * @returns { void } 
      */
-    public interact(entity: Entity): void {
+    public interact(entity: Entity<G, T>): void {
         const iteraction = this.manager.game.getFactory<IteractionsFactory>(FactoryKeys.ITERACTIONS).get(this.iteractionId!)!
 
         iteraction.use(entity, this, this.manager.game)
@@ -73,7 +73,7 @@ export class GameObject<T extends Position | Position3D = Position | Position3D,
      * Convert GameObject for snapshot DTO
      * @returns { IGameObject }
      */
-    public toDTO(): IGameObject {
+    public toDTO(): IGameObject<any, T> {
         const dtoMetadata = { ...this.metadata }
 
         if (this.type === GameObjectEnum.CHEST && dtoMetadata?.items) dtoMetadata.items = dtoMetadata.items.map((i: GameObject) => i.toDTO())

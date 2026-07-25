@@ -192,7 +192,7 @@ export class Entity<G extends GeometryTypes='2D'|'3D', T extends Position | Posi
      * @param position - Position of item 
      * @returns { IWorldItem  } - IWorldItem 
      */
-    public pickUp(position: Position | Position3D): IWorldItem {
+    public pickUp(position: T): IWorldItem {
         const item = getItemInPosition(this.map.getAllInPosition(position, 'OBJECTS'))!
 
         this.inventory.push(item)
@@ -292,7 +292,7 @@ export class Entity<G extends GeometryTypes='2D'|'3D', T extends Position | Posi
      * @param preComputedObjects - GameObjects from context, if exists
      * @returns { boolean } - True if success interact, else false
      */
-    public interactPosition(position: Position, preComputedObjects?: GameObject[]): boolean {
+    public interactPosition(position: T, preComputedObjects?: GameObject[]): boolean {
         const objects = preComputedObjects ?? this.map.getAllInPosition(position, 'OBJECTS')
 
         return objects.some((object) => object.interact(this))
@@ -303,7 +303,7 @@ export class Entity<G extends GeometryTypes='2D'|'3D', T extends Position | Posi
      * @param position - Position to move
      * @returns { boolean | Entity } - Entity reference if correct move, else false
      */
-    public move(position: Position): boolean | Entity {
+    public move(position: T): boolean | Entity {
         return this.map.teleport(this.id, position)
     }
 
@@ -312,7 +312,7 @@ export class Entity<G extends GeometryTypes='2D'|'3D', T extends Position | Posi
      * @param position - Position to open chest
      * @returns { void } 
      */
-    public openChest(position: Position | Position3D): void {    
+    public openChest(position: T): void {    
         const chest = getChestInPosition(position, this.map.getAllInPosition(position, 'OBJECTS'))!
 
         chest.metadata?.items.forEach((item: GameObject) => {
@@ -371,7 +371,7 @@ export class Entity<G extends GeometryTypes='2D'|'3D', T extends Position | Posi
      * Convert this entity to DTO
      * @returns { Entity }
      */
-    public toDTO(): Entity {
+    public toDTO(): Entity<G, T> {
         return {
             id: this.id,
             health: this.health,

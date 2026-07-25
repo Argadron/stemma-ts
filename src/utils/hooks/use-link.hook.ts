@@ -1,5 +1,5 @@
-import { anyWorldObjectIsGameObject, convertAnyPositionToPosition } from "@utils";
-import type { Linkable, Position } from "@types";
+import { anyWorldObjectIsGameObject, convertAnyPositionToPosition, positionIsPosition } from "@utils";
+import type { GeometryToPosition, Linkable, Position, Position3D } from "@types";
 import type { IDeadData, ILink, ILinkOptions, IMovedData, IUseValidationContext } from "@interfaces";
 import { USE_VALIDATION_EVENT_PREFIX } from "@const";
 import { CommandType } from "@enums";
@@ -35,11 +35,11 @@ export function useLink(from: Linkable, to: Linkable, options?: ILinkOptions): I
         link: (options?: ILinkOptions) => link.isActive ? false : useLink(from, to, options)
     } as ILink
 
-    function checkMaximum(before: Position, after: Position): boolean {
-        const [x1, y1] = before
-        const [x2, y2] = after
+    function checkMaximum(before: Position | Position3D, after: Position | Position3D): boolean {
+        const [x1, y1, z1] = before
+        const [x2, y2, z2] = after
 
-        return (x2-x1 > options?.maxDistance! || y2-y1 > options?.maxDistance!)
+        return positionIsPosition(before, '2D') ? (x2-x1 > options?.maxDistance! || y2-y1 > options?.maxDistance!) : (x2-x1 > options?.maxDistance! || y2-y1 > options?.maxDistance! || z2!-z1! > options?.maxDistance!)
     }
 
     if (options?.enableMiddleware) game.use((cmd, next) => {

@@ -1,10 +1,10 @@
-import type { Position } from "@types";
+import type { Position, Position3D } from "@types";
 
-export interface IWorldItem extends IItem {
+export interface IWorldItem<T extends Position | Position3D = Position | Position3D> extends IItem {
     /**
      * Item position on world
      */
-    readonly position: Position;
+    readonly position: T;
 }
 
 export interface IItem<T = any> {

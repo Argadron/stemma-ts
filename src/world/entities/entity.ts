@@ -14,7 +14,7 @@ import type {
     IGameEffect,
 } from "@interfaces";
 import type { EntityManager } from "@core";
-import type { CreateUsableItemMetadata, Position } from "@types";
+import type { CreateUsableItemMetadata, GeometryToPosition, GeometryTypes, Position, Position3D } from "@types";
 import {
     convertGameObjectToInventoryItem, 
     createId, 
@@ -26,8 +26,8 @@ import {
 import { GameObjectEnum } from "@enums";
 import type { EffectFactory } from "@factories";
 
-export class Entity implements ITarget {
-    public position: Position;
+export class Entity<G extends GeometryTypes='2D'|'3D', T extends Position | Position3D = Position | Position3D> implements ITarget {
+    public position: T;
     public health: number;
     public damage: number;
     public isDead: boolean;
@@ -36,8 +36,8 @@ export class Entity implements ITarget {
     public readonly id = createId();
     public currentActiveItem: IItem | undefined;
     
-    private readonly manager: EntityManager;
-    private readonly map: GameMap;
+    private readonly manager: EntityManager<G, T>;
+    private readonly map: GameMap<G, T>;
     private readonly tagsIdsMap = new Map<string, number>();
 
     private effects: (IGameEffect & { remaining: number })[] = [];
@@ -91,7 +91,7 @@ export class Entity implements ITarget {
         dropItems.forEach((item) => this.dropItem(item as GameObject, this.position))
     }
 
-    public constructor(target: ITarget, manager: EntityManager, map: GameMap) {
+    public constructor(target: ITarget & { readonly position: T }, manager: EntityManager<G, T>, map: GameMap<G, T>) {
         this.damage = target.damage
         this.position = target.position
         this.health = target.health
@@ -140,10 +140,10 @@ export class Entity implements ITarget {
      * @param searchRadius - Radius to serach entities
      * @param returnType - Type of return array
      */
-    public getNearEntitiesAndObjects(searchRadius: number, returnType?: 'ALL'): (Entity | GameObject)[];
-    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'ENTITES'): Entity[];
-    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'OBJECTS'): GameObject[];
-    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
+    public getNearEntitiesAndObjects(searchRadius: number, returnType?: 'ALL'): (Entity<G, T> | GameObject<T>)[];
+    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'ENTITES'): Entity<G, T>[];
+    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'OBJECTS'): GameObject<T>[];
+    public getNearEntitiesAndObjects(searchRadius: number, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity<G, T>[] | GameObject<T>[] | (Entity<G, T> | GameObject<T>)[];
     public getNearEntitiesAndObjects(searchRadius=BASE_SEARCH_RADIUS, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'='ALL') {
         const entityQuad = createQuadFromPosition(this.position, searchRadius)
 
@@ -155,7 +155,7 @@ export class Entity implements ITarget {
      * @param targets - Hard set targets to attack
      * @returns { IAttackResult } - Result of attack
      */
-    public attack(targets?: Entity[]): IAttackResult {
+    public attack(targets?: Entity<G, T>[]): IAttackResult {
         let entities: Entity[];
         let counter = 0;
 
@@ -171,7 +171,7 @@ export class Entity implements ITarget {
             if (isDead) counter++
         }
 
-        this.manager.game.processEvent<IAttackData>('attack', {
+        this.manager.game.processEvent<IAttackData<G, T>>('attack', {
             eventTime: this.map.game.currentTick,
             entity: this,
             eventData: {
@@ -192,7 +192,7 @@ export class Entity implements ITarget {
      * @param position - Position of item 
      * @returns { IWorldItem  } - IWorldItem 
      */
-    public pickUp(position: Position): IWorldItem {
+    public pickUp(position: Position | Position3D): IWorldItem {
         const item = getItemInPosition(this.map.getAllInPosition(position, 'OBJECTS'))!
 
         this.inventory.push(item)
@@ -213,15 +213,15 @@ export class Entity implements ITarget {
      * @param item - Item in inventory
      * @param position - Position to drop
      */
-    public dropItem(item: GameObject, position: Position): void
+    public dropItem(item: GameObject, position: T): void
 
     /**
      * Drop item to provided position
      * @param id - ID of item in inventory
      * @param position - Position to drop
      */
-    public dropItem(id: number, position: Position): void
-    public dropItem(itemOrId: GameObject | number, position: Position): void {
+    public dropItem(id: number, position: T): void
+    public dropItem(itemOrId: GameObject | number, position: T): void {
         const item = this.getItemFromInventoryByItemOrId(typeof itemOrId === 'number' ? itemOrId : itemOrId.id)!
 
         this.map.createObject({
@@ -312,7 +312,7 @@ export class Entity implements ITarget {
      * @param position - Position to open chest
      * @returns { void } 
      */
-    public openChest(position: Position): void {    
+    public openChest(position: Position | Position3D): void {    
         const chest = getChestInPosition(position, this.map.getAllInPosition(position, 'OBJECTS'))!
 
         chest.metadata?.items.forEach((item: GameObject) => {
@@ -492,8 +492,8 @@ export class Entity implements ITarget {
      * @param map - Game map reference
      * @returns { Entity }
      */
-    public static fromSnapshot(data: any, manager: EntityManager, map: GameMap, effectFactory: EffectFactory): Entity {
-        const entity = new Entity(data, manager, map)
+    public static fromSnapshot<P extends Position | Position3D, G extends GeometryTypes='2D'|'3D'>(data: any, manager: EntityManager<G, P>, map: GameMap<G, P>, effectFactory: EffectFactory): Entity<G, P> {
+        const entity = new Entity<G, P>(data, manager, map)
 
         if (data.inventory && Array.isArray(data.inventory)) entity.inventory = data.inventory
         if (data.currentActiveItem) entity.currentActiveItem = entity.inventory.find((item) => item.id === data.currentActiveItemId)

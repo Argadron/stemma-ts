@@ -2,23 +2,23 @@ import type { Entity, GameMap } from "@world";
 import { FactoryKeys, GameObjectEnum } from "@enums";
 import type { IGameObject, ITriggerActivatedData, ITowerShootedData } from "@interfaces";
 import type { EntityManager } from "@core";
-import type { Position } from "@types";
+import type { GeometryTypes, Position, Position3D } from "@types";
 import { canSee, createId, createQuadFromPosition, useAttack } from "@utils";
 import { IteractionsFactory } from "@factories"
 
-export class GameObject implements IGameObject {
+export class GameObject<T extends Position | Position3D = Position | Position3D, G extends GeometryTypes='2D'|'3D'> implements IGameObject<T> {
     readonly id: number;
 
     type: GameObjectEnum;
-    position: Position;
+    position: T;
     name: string;
     iteractionId?: number | undefined;
     metadata?: any;
 
-    private readonly map: GameMap;
-    private readonly manager: EntityManager;
+    private readonly map: GameMap<G, T>;
+    private readonly manager: EntityManager<G, T>;
     
-    public constructor(obj: IGameObject, manager: EntityManager, map: GameMap, metadata?: any) {
+    public constructor(obj: IGameObject<any, T>, manager: EntityManager<G, T>, map: GameMap<G, T>, metadata?: any) {
        this.name = obj.name
        this.position = obj.position
        this.type = obj.type
@@ -116,12 +116,12 @@ export class GameObject implements IGameObject {
      * @param map - Game map reference
      * @returns { GameObject }
      */
-    public static fromSnapshot(data: IGameObject, manager: EntityManager, map: GameMap): GameObject {
+    public static fromSnapshot<P extends Position | Position3D, G extends GeometryTypes='2D'|'3D'>(data: IGameObject<any, P>, manager: EntityManager<G, P>, map: GameMap<G, P>): GameObject<P, G> {
         const metadata = data.metadata ?? {}
 
         if (data.type === GameObjectEnum.CHEST && data.metadata?.items) metadata.items = data.metadata.items.map((i: IGameObject) => GameObject.fromSnapshot(i, manager, map))
 
-        const object = new GameObject(data, manager, map, metadata)
+        const object = new GameObject<P, G>(data, manager, map, metadata)
 
         map.addToGrid(object)
 

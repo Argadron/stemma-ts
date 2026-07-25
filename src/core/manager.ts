@@ -5,21 +5,21 @@ import type {
     IDeadData,
     IEntityCreatedData
  } from "@interfaces";
-import type { GridPosition, Position } from "@types";
+import type { GeometryToPosition, GeometryTypes, GridPosition, GridPosition3D, Position, Position3D } from "@types";
 import { Entity, GameMap } from "@world";
 import { checkCollisions, convertPositionToGridPosition } from "@utils";
 import { FactoryKeys } from "@enums";
 
-export class EntityManager implements Manager {
-    public readonly game: Game;
-    public readonly gameMap: GameMap;
-    public readonly grid = new Map<GridPosition, Set<Entity>>()
+export class EntityManager<G extends GeometryTypes, T extends Position | Position3D = GeometryToPosition<G>> implements Manager<G, T> {
+    public readonly game: Game<G>;
+    public readonly gameMap: GameMap<G, T>;
+    public readonly grid = new Map<GridPosition | GridPosition3D, Set<Entity<G, T>>>()
     
-    public entities = new Map<number, Entity>()
+    public entities = new Map<number, Entity<G, T>>()
 
-    public load(rawEntity: ITarget[]) {
+    public load(rawEntity: ITarget<T>[]) {
         this.entities = new Map(rawEntity.map((raw) => {
-            const entity = Entity.fromSnapshot(raw, this, this.gameMap, this.game.getFactory(FactoryKeys.EFFECTS))
+            const entity = Entity.fromSnapshot<T, G>(raw, this, this.gameMap, this.game.getFactory(FactoryKeys.EFFECTS))
 
             return [entity.id, entity]
         }))
@@ -30,7 +30,7 @@ export class EntityManager implements Manager {
      * @param entity - Entity to add
      * @returns { void }
      */
-    public addToGrid(entity: Entity): void {
+    public addToGrid(entity: Entity<G, T>): void {
         const gridPosition = convertPositionToGridPosition(entity.position)
 
         if (!this.grid.has(gridPosition)) this.grid.set(gridPosition, new Set([entity]))
@@ -42,7 +42,7 @@ export class EntityManager implements Manager {
      * @param entity - Entity to delete
      * @returns { void }
      */
-    public deleteFromGrid(entity: Entity): void {
+    public deleteFromGrid(entity: Entity<G, T>): void {
         const gridPosition = convertPositionToGridPosition(entity.position)
         const cell = this.grid.get(gridPosition)
 
@@ -59,7 +59,7 @@ export class EntityManager implements Manager {
      * @param oldPosition - Entity old position
      * @returns { void }
      */
-    public updateGrid(entity: Entity, oldPosition: Position): void {
+    public updateGrid(entity: Entity<G, T>, oldPosition: Position | Position3D): void {
         const oldGrid = convertPositionToGridPosition(oldPosition)
         const newGrid = convertPositionToGridPosition(entity.position)
 
@@ -77,8 +77,8 @@ export class EntityManager implements Manager {
         }
     }
 
-    public constructor(entities: Entity[], game: Game) {
-        this.gameMap = new GameMap(this, game)
+    public constructor(entities: Entity<G, T>[], game: Game<G>) {
+        this.gameMap = new GameMap<G, T>(this, game)
         this.game = game
         this.entities = new Map(entities.map(e => [e.id, e]))
     }
@@ -87,7 +87,7 @@ export class EntityManager implements Manager {
         return this.entities.get(id)
     }
 
-    public create(target: ITarget) {
+    public create(target: ITarget<T>): Entity<G, T> {
         const entity = new Entity(target, this, this.gameMap)
 
         this.addToGrid(entity)
@@ -103,7 +103,7 @@ export class EntityManager implements Manager {
         return entity
     }
 
-    public update(id: number, target: Partial<ITarget>) {
+    public update(id: number, target: Partial<ITarget<T>>) {
         const entity = this.get(id)
 
         if (!entity) return undefined
@@ -114,7 +114,7 @@ export class EntityManager implements Manager {
             entity.name = target.name ?? entity.name
 
             if (target.position) {
-                this.updateGrid(target as Entity, entity.position)
+                this.updateGrid(target as Entity<G, T>, entity.position)
 
                 entity.position = target.position
             }
@@ -148,7 +148,7 @@ export class EntityManager implements Manager {
             entity.isDead = true
             entity.dropInventory()
 
-            this.game.processEvent<IDeadData>('entityDead', {
+            this.game.processEvent<IDeadData<G, T>>('entityDead', {
                 entity,
                 eventTime: this.game.currentTick,
                 eventData: {

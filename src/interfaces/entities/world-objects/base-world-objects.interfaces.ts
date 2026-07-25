@@ -1,12 +1,12 @@
 import type { GameObjectEnum } from "@enums";
 import type { IItem } from "@interfaces";
-import type { Position } from "@types";
+import type { Position, Position3D } from "@types";
 
-export interface ITarget {
+export interface ITarget<T extends Position | Position3D = Position | Position3D> {
     /**
      * Target position in world
      */
-    position: Position;
+    position: T;
 
     /**
      * Target health
@@ -36,7 +36,7 @@ export interface IChest {
     readonly items: IItem[]
 }
 
-export interface IGameObject<T = any> extends Pick<ITarget, 'position' | 'name'> {
+export interface IGameObject<T = any, P extends Position | Position3D = Position | Position3D> extends Pick<ITarget<P>, 'position' | 'name'> {
     /**
      * Type of GameObject
      */

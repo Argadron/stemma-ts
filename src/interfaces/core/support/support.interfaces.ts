@@ -1,18 +1,18 @@
 import type { Game } from "@core";
 import type { CommandType } from "@enums";
 import type { IGameObject, ITarget } from "@interfaces";
-import type { CommandContext, LifecycleCallback } from "@types";
+import type { CommandContext, LifecycleCallback, Position, Position3D } from "@types";
 
-export interface ISnapshot {
+export interface ISnapshot<P extends Position | Position3D=Position | Position3D> {
     /**
      * Array of game objects
      */
-    readonly objects: IGameObject[];
+    readonly objects: IGameObject<any, P>[];
 
     /**
      * Array of entities
      */
-    readonly entities: ITarget[];
+    readonly entities: ITarget<P>[];
 
     /**
      * Global state 

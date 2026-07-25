@@ -1,9 +1,9 @@
 import type { EntityManager } from "@core";
 import type { IGameSound } from "@interfaces";
-import type { AnyPosition, Position } from "@types";
+import type { AnyPosition, GeometryTypes, Position, Position3D } from "@types";
 import type { Entity, GameObject } from "@world";
 
-export interface IAttackData {
+export interface IAttackData<G extends GeometryTypes='2D'|'3D', P extends Position | Position3D=Position | Position3D> {
     /**
      * Array of victims in attack
      */
@@ -12,10 +12,10 @@ export interface IAttackData {
     /**
      * Attacker in event
      */
-    readonly attacker: Entity | GameObject | EntityManager;
+    readonly attacker: Entity | GameObject | EntityManager<G, P>;
 }
 
-export interface IDeadData {
+export interface IDeadData<G extends GeometryTypes='2D'|'3D', P extends Position | Position3D=Position | Position3D> {
     /**
      * Entity, who dead
      */
@@ -24,7 +24,7 @@ export interface IDeadData {
     /**
      * Killer, who kill entity
      */
-    readonly killer: Entity | GameObject | EntityManager;
+    readonly killer: Entity | GameObject | EntityManager<G, P>;
 }
 
 export interface IMovedData {
@@ -36,7 +36,7 @@ export interface IMovedData {
     /**
      * Entity start position
      */
-    readonly startPosition: Position;
+    readonly startPosition: Position | Position3D;
 
     /**
      * Entity position after move

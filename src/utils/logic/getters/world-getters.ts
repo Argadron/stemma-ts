@@ -1,5 +1,5 @@
 import type { IChest, IGameObject, IWorldItem } from "@interfaces"
-import type { Position } from "@types"
+import type { Position, Position3D } from "@types"
 import { checkTwoPositions, convertGameObjectToInventoryItem, gameObjectIsChest, gameObjectIsItem } from "@utils"
 import type { GameObject } from "@world"
 
@@ -20,7 +20,7 @@ export function getItemInPosition(objects: (IWorldItem & IGameObject)[]): IWorld
  * @param objects - GameObject to searching in
  * @returns { IChest | undefined } - Chest if found, else undefined
  */
-export function getChestInPosition(position: Position, objects: (GameObject)[]): (GameObject & IChest) | undefined {
+export function getChestInPosition(position: Position | Position3D, objects: (GameObject)[]): (GameObject & IChest) | undefined {
     const obj =  objects.find((obj) => checkTwoPositions(obj.position, position))
 
     if (!obj) return undefined

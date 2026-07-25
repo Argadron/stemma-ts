@@ -11,7 +11,8 @@ import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
     usingObjectMiddlewares: true,
-    disableConflictResolver: true
+    disableConflictResolver: true,
+    gameGeometry: "2D"
 })
 
 game.registerPlugin([new RegenerationPlugin(20)])

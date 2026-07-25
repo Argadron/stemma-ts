@@ -1,7 +1,7 @@
 import type { Game } from "@core";
 import type { IPlugin, ICanvasPluginOptions } from "@interfaces";
 import type { Entity, GameObject } from "@world";
-import type { Position } from "@types";
+import type { Position, Position3D } from "@types";
 import { CANVAS_BASE_ELEMENT_HEIGHT, CANVAS_BASE_ELEMENT_WIDTH, CANVAS_BASE_HEIGHT, CANVAS_BASE_WIDTH } from "@const";
 
 /**
@@ -14,7 +14,7 @@ export class CanvasPlugin implements IPlugin {
     private readonly ctx: CanvasRenderingContext2D | null;
     private readonly assets = new Map<string, HTMLImageElement>();
 
-    private drawImage(key: string, position: Position) {
+    private drawImage(key: string, position: Position | Position3D) {
         const img = this.assets.get(key)
 
         if (img) this.ctx!.drawImage(img, position[0], position[1], img.width || CANVAS_BASE_WIDTH, img.height || CANVAS_BASE_HEIGHT)

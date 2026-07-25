@@ -15,18 +15,21 @@ import type {
     AnyPosition,
     CustomEventCallback, 
     EventCallback, 
+    GeometryToPosition, 
+    GeometryTypes, 
     MiddlewareFn, 
     Position, 
+    Position3D, 
     Quad, 
     SnapshotCallback
 } from "@types";
 import type { Entity, GameObject } from "@world";
 
-export interface IGame {
+export interface IGame<G extends GeometryTypes = '2D'> {
     /**
      * Init game options
      */
-    readonly options: IGameOptions;
+    readonly options: IGameOptions<G>;
 
     /**
      * Subscribe to game event
@@ -107,7 +110,7 @@ export interface IGame {
      * @param onLoad - Function will be executed after load snapshot
      * @returns { boolean } - True if correct load, else false
      */
-    readonly load: (snapshot: ISnapshot, onLoad?: (game: Game) => void) => void;
+    readonly load: (snapshot: ISnapshot<GeometryToPosition<G>>, onLoad?: (game: Game) => void) => void;
 
     /**
      * Register a middleware
@@ -137,35 +140,35 @@ export interface IGame {
     readonly stop: () => boolean;
 }
 
-export interface IEntityManager {
+export interface IEntityManager<G extends GeometryTypes, T extends Position | Position3D = GeometryToPosition<G>> {
     /**
      * Game reference
      */
-    readonly game: IGame;
+    readonly game: IGame<G>;
 
     /**
      * Game map reference
      */
-    readonly gameMap: IGameMap;
+    readonly gameMap: IGameMap<G, T>;
 
     /**
      * Map of all game entities
      */
-    readonly entities: Map<number, Entity>;
+    readonly entities: Map<number, Entity<G, T>>;
 
     /**
      * Create Entity in world
      * @param target - Entity data
      * @returns { Entity } - Created entity. Entity can be not created, then executed entityCreatedCollision event
      */
-    readonly create: (target: ITarget) => Entity;
+    readonly create: (target: ITarget<T>) => Entity<G, T>;
 
     /**
      * Get one Entity by id.
      * @param id - ID of Entity
      * @returns { Entity | undefined } - Entity if founded, else undefined
      */
-    readonly get: (id: number) => Entity | undefined;
+    readonly get: (id: number) => Entity<G, T> | undefined;
 
     /**
      * Update one Entity by id
@@ -173,7 +176,7 @@ export interface IEntityManager {
      * @param target - Updating plants
      * @returns { Entity | undefined } - Updated Entity, undefined if not founded
      */
-    readonly update: (id: number, target: Partial<ITarget>) => Entity | undefined;
+    readonly update: (id: number, target: Partial<ITarget<T>>) => Entity<G, T> | undefined;
 
     /**
      * Delete one Entity by id
@@ -201,34 +204,34 @@ export interface IEntityManager {
      * @param entities - Entities to load
      * @returns { void }
      */
-    readonly load: (rawEntity: ITarget[]) => void;
+    readonly load: (rawEntity: ITarget<T>[]) => void;
 }
 
-export interface IGameMap {
+export interface IGameMap<G extends GeometryTypes, T extends Position | Position3D = GeometryToPosition<G>> {
     /**
      * Entity Manager reference
      */
-    readonly manager: IEntityManager;
+    readonly manager: IEntityManager<G, T>;
 
     /**
      * Game reference
      */
-    readonly game: Game;
+    readonly game: Game<G>;
 
     /**
      * Map of all game objects
      */
-    readonly objects: Map<number, GameObject>;
+    readonly objects: Map<number, GameObject<T>>;
 
     /**
      * Get world objects in quad
      * @param quad - Quad to search
      * @param returnType - Type of return values
      */
-    getInQuad(quad: Quad, returnType?: 'ALL'): (Entity | GameObject)[];
-    getInQuad(quad: Quad, returnType: 'ENTITES'): Entity[];
-    getInQuad(quad: Quad, returnType: 'OBJECTS'): GameObject[];
-    getInQuad(quad: Quad, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
+    getInQuad(quad: Quad, returnType?: 'ALL'): (Entity<G, T> | GameObject<T>)[];
+    getInQuad(quad: Quad, returnType: 'ENTITES'): Entity<G, T>[];
+    getInQuad(quad: Quad, returnType: 'OBJECTS'): GameObject<T>[];
+    getInQuad(quad: Quad, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity<G, T>[] | GameObject<T>[] | (Entity<G, T> | GameObject<T>)[];
 
     /**
      * Teleport one Entity to new position
@@ -236,18 +239,18 @@ export interface IGameMap {
      * @param to - AnyPosition for TP
      * @returns { Entity | false } - Entity if teleported, else false
      */
-    readonly teleport: (id: number, to: AnyPosition) => Entity | false;
+    readonly teleport: (id: number, to: AnyPosition) => Entity<G, T> | false;
 
     /**
      * Get all world objects in provided position
      * @param position - Position to get objects
      * @returns { (Entity | GameObject)[] } - Array of world objects
      */
-    getAllInPosition(position: Position, returnType?: 'ALL'): (Entity | GameObject)[];
-    getAllInPosition(position: Position, returnType: 'ENTITES'): Entity[];
-    getAllInPosition(position: Position, returnType: 'OBJECTS'): GameObject[];
-    getAllInPosition(position: Position, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity[] | GameObject[] | (Entity | GameObject)[];
-    getAllInPosition(position: Position, returnType:'ALL' | 'ENTITES' | 'OBJECTS'): (Entity | GameObject)[];
+    getAllInPosition(position: Position | Position3D, returnType?: 'ALL'): (Entity<G, T> | GameObject<T>)[];
+    getAllInPosition(position: Position | Position3D, returnType: 'ENTITES'): Entity<G, T>[];
+    getAllInPosition(position: Position | Position3D, returnType: 'OBJECTS'): GameObject<T>[];
+    getAllInPosition(position: Position | Position3D, returnType: 'ALL' | 'ENTITES' | 'OBJECTS'): Entity<G, T>[] | GameObject<T>[] | (Entity<G, T> | GameObject<T>)[];
+    getAllInPosition(position: Position | Position3D, returnType:'ALL' | 'ENTITES' | 'OBJECTS'): (Entity<G, T> | GameObject<T>)[];
 
     /**
      * Create game object
@@ -255,7 +258,7 @@ export interface IGameMap {
      * @param metadata - Object metadata
      * @returns { GameObject } - GameObject, also generates object error events, if need
      */
-    readonly createObject: <T = any>(obj: IGameObject<T>, metadata?: T) => GameObject;
+    readonly createObject: <M = any>(obj: IGameObject<M, T>, metadata?: M) => GameObject<T>;
     
     /**
      * Delete one object by id
@@ -269,13 +272,13 @@ export interface IGameMap {
      * @param id - ID of object
      * @returns { GameObject | undefined } - GameObject if founded, else undefined
      */
-    readonly getObject: (id: number) => GameObject | undefined;
+    readonly getObject: (id: number) => GameObject<T> | undefined;
 
     /**
      * Get all Items on map
      * @returns { (GameObject & IGameObject & IWorldItem)[] } - Array of Items
      */
-    readonly getAllItems: () => (GameObject & IGameObject & IWorldItem)[];
+    readonly getAllItems: () => (GameObject<T, G> & IGameObject<any, T> & IWorldItem<T>)[];
 
     /**
      * Checks a given object by ID is ok: exists, no collisions in position, exists in position
@@ -289,7 +292,7 @@ export interface IGameMap {
      * @param objects - Objects to load
      * @returns { void }
      */
-    readonly load: (rawObjects: IGameObject[]) => void;
+    readonly load: (rawObjects: IGameObject<any, T>[]) => void;
 
     /**
      * Apply effect to provided Quad area
@@ -297,9 +300,9 @@ export interface IGameMap {
      * @param effect - Effect to apply
      * @param duration - Effect duration
      * @param excludeId - Optional ID of entity, effect will not be applied to her
-     * @returns { Entity[] } - Array of entities founded in quad on applying effect
+     * @returns { Entity<T>[] } - Array of entities founded in quad on applying effect
      */
-    readonly applyEffectToQuad: (quad: Quad, effect: IGameEffect, duration: number, excludeId?: number) => Entity[];
+    readonly applyEffectToQuad: (quad: Quad, effect: IGameEffect, duration: number, excludeId?: number) => Entity<G, T>[];
 }
 
 export interface IDeligator {

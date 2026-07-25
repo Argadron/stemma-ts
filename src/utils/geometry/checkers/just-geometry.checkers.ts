@@ -1,4 +1,5 @@
-import type { Position, Quad } from "@types"
+import type { Position, Position3D, Quad } from "@types"
+import { positionIsPosition } from "@utils"
 
 /**
  * Check Position A === Position B
@@ -6,11 +7,11 @@ import type { Position, Quad } from "@types"
  * @param positionB - Position B
  * @returns {boolean} - True if positions equals, else false
  */
-export function checkTwoPositions(positionA: Position, positionB: Position): boolean {
-    const [xA, yA] = positionA
-    const [xB, yB] = positionB
+export function checkTwoPositions(positionA: Position | Position3D, positionB: Position | Position3D): boolean {
+    const [xA, yA, zA] = positionA
+    const [xB, yB, zB] = positionB
 
-    return (xA === xB && yA === yB)
+    return positionIsPosition(positionA, '2D') ? (xA === xB && yA === yB) : (xA === xB && yA === yB && zA === zB)
 }
 
 /**

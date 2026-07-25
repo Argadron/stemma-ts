@@ -18,7 +18,6 @@ export function usePause(time: number, delay=1000, take=1000, core?: Game): Prom
     game.use((cmd, next, g) => {
         if (g.options.store.get(USE_PAUSE_STATE_KEY) <= 0) return next()
         else if (cmd.isSystem) return next()
-        else throw new Error('block by use pause')
     })
     game.options.store.set(USE_PAUSE_STATE_KEY, time)
 

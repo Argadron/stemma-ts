@@ -393,13 +393,6 @@ game.processCustomEvent('decorator', {
     eventTime: game.currentTick
 })
 
-console.log('BEFORE PAUSE')
-
-usePause(5000)
-await new Promise((resolve, reject) => setTimeout(resolve, 5000))
-
-console.log('AFTER PAUSE')
-
 game.registerCustomEvent<IUseVisibilityContext>(USE_VISIBILITY_EVENT, (o, e, d) => {
     d.eventData.factor = 0
 })
@@ -460,7 +453,20 @@ console.log(isNight.value, 'IS NIGHT FROM USE STATE')
 
 game.start(10)
 
-await new Promise((resolve, reject) => setTimeout(resolve, 5000))
+console.log('BEFORE PAUSE')
+
+await usePause(5)
+
+game.dispatch({
+    type: CommandType.SET_STATE,
+    tick: game.currentTick,
+    data: {
+        key: 'gsd',
+        value: false
+    }
+})
+
+console.log('AFTER PAUSE')
 
 game.stop()
 

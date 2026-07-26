@@ -25,7 +25,6 @@ export function usePause(time: number, delay=1000, take=1000, core?: Game): Prom
     const interval = setInterval(() => {
         game.options.store.set(USE_PAUSE_STATE_KEY, time -= take)
 
-        console.log(time)
         if (time === 0) clearInterval(interval)
     }, delay-0.0001)
 

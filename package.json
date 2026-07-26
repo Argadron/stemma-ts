@@ -1,6 +1,6 @@
 {
   "name": "stemma-ts",
-  "version": "1.3.7",
+  "version": "1.4.0",
   "description": "Typescript game engine for all games",
   "type": "module",
   "main": "./dist/index.js",

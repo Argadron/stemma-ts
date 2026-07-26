@@ -411,7 +411,7 @@ export class Game<G extends GeometryTypes='2D'|'3D'> implements IGame<G> {
         this.connectFactory(FactoryKeys.EFFECTS, new EffectFactory({ game: this }))
         this.connectFactory(FactoryKeys.BLUEPRINTS, new BluePrintsFactory({ game: this }))
         this.connectFactory(FactoryKeys.QUESTS, new QuestsFactory({ game: this }))
-        this.connectFactory(FactoryKeys.ITERACTIONS, new IteractionsFactory({ game: this }))
+        this.connectFactory(FactoryKeys.ITERACTIONS, new IteractionsFactory<G>({ game: this }))
         this.connectFactory(FactoryKeys.SOUNDS, new SoundsFactory({ game: this }))
 
         if (!(options?.disableBaseMiddleware)) this.use(baseChecksMiddleware)
@@ -521,7 +521,7 @@ export class Game<G extends GeometryTypes='2D'|'3D'> implements IGame<G> {
         return snapshot
     }
 
-    public load(snapshot: ISnapshot<GeometryToPosition<G>>, onLoad?: (game: Game) => void) {
+    public load(snapshot: ISnapshot<GeometryToPosition<G>>, onLoad?: (game: Game<G>) => void) {
         this.options.map.load(snapshot.objects)
         this.options.manager.load(snapshot.entities)
         
@@ -659,8 +659,8 @@ export class Game<G extends GeometryTypes='2D'|'3D'> implements IGame<G> {
      * @param snapshot - Snapshot to load
      * @returns { Game } - Game from snapshot with live entities 
      */
-    public static fromSnapshot(snapshot: ISnapshot, onLoad?: (game: Game) => void): Game {
-        const engine = new Game()
+    public static fromSnapshot<G extends GeometryTypes='2D'|'3D'>(snapshot: ISnapshot<GeometryToPosition<G>>, onLoad?: (game: Game<G>) => void): Game<G> {
+        const engine = new Game<G>()
 
         engine.load(snapshot, onLoad)
 

@@ -1,13 +1,14 @@
 import type { ICommand, IDeligator, IDeligatorOptions, ISnapshot } from "@interfaces";
 import { Game } from "@core"
+import type { GeometryToPosition, GeometryTypes } from "@types";
 
 /**
  * Deligator allows you to execute commands in source engine for perfomance boost
  */
-export class Deligator implements IDeligator {
-    private readonly options: IDeligatorOptions;
+export class Deligator<G extends GeometryTypes='2D'|'3D'> implements IDeligator {
+    private readonly options: IDeligatorOptions<G>;
     
-    private game!: Game;
+    private game!: Game<G>;
     private isSourceInited = false
 
     private async activateSource() {
@@ -17,9 +18,9 @@ export class Deligator implements IDeligator {
                     "Content-Type":"Application/Json"
                 }
             })
-            const snapshot = await source.json() as ISnapshot
+            const snapshot = await source.json() as ISnapshot<GeometryToPosition<G>>
 
-            this.game = Game.fromSnapshot(snapshot)
+            this.game = Game.fromSnapshot<G>(snapshot)
             this.onFullLoad()
             this.isSourceInited = true
         } catch {
@@ -36,7 +37,7 @@ export class Deligator implements IDeligator {
         })
     }
 
-    public constructor(options: IDeligatorOptions) {
+    public constructor(options: IDeligatorOptions<G>) {
         this.options = options
         
         if (!(this.options.source instanceof URL)) {

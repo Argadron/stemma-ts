@@ -76,11 +76,11 @@ export interface ICommandBusOptions {
 
 export interface IInitGameOptions<G extends GeometryTypes> extends Partial<IGameOptions<G>> {}
 
-export interface IDeligatorOptions {
+export interface IDeligatorOptions<G extends GeometryTypes='2D'|'3D'> {
     /**
      * Delegator, who will execute this command
      */
-    readonly source: URL | Game;
+    readonly source: URL | Game<G>;
 
     /**
      * Deligator will be executed auto, when this command in observe engine has been saved
@@ -90,5 +90,5 @@ export interface IDeligatorOptions {
     /**
      * Engine to observe commands
      */
-    readonly observe: Game; 
+    readonly observe: Game<G>; 
 }

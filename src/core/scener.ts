@@ -1,6 +1,7 @@
 import type { Game } from "@core";
 import type { ICommand } from "@interfaces";
 import { AsyncPlugin } from "@plugins";
+import type { GeometryTypes } from "@types";
 import { createId } from "@utils";
 
 /**
@@ -27,11 +28,11 @@ import { createId } from "@utils";
  * 
  * void launchScenes()
  */
-export class Scener {
+export class Scener<G extends GeometryTypes='2D'|'3D'> {
     private readonly scenes = new Map<number, ICommand[]>();
     private readonly asyncPlugin: AsyncPlugin;
 
-    public constructor(game: Game) {
+    public constructor(game: Game<G>) {
         const plugin = game.getPlugin(AsyncPlugin.name) as AsyncPlugin | undefined
 
         if (!plugin) throw new Error(`${Scener.name}: Async plugin is required`)

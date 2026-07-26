@@ -1,6 +1,9 @@
 import { ASYNC_STATE_DEFAULT_WAIT } from "@const";
 import type { Game } from "@core";
 import type { IAsyncState } from "@interfaces";
+import type { GlobalStore } from "@store";
+
+const isStoreStateEqual = <T>(store: GlobalStore, key: string, value: T) => store.get<T>(key) === value
 
 /**
  * Wait state in key will be equal value
@@ -16,9 +19,7 @@ export function useAsyncState<T = any>(key: string, value: T, waitTime?: number,
     const store = game.options.store
 
     return new Promise((resolve, reject) => {
-        const isStoreStateEqual = () => store.get<T>(key) === value
-
-        if (isStoreStateEqual()) return resolve({
+        if (isStoreStateEqual(store, key, value)) return resolve({
             key,
             value,
             status: true
@@ -36,7 +37,7 @@ export function useAsyncState<T = any>(key: string, value: T, waitTime?: number,
                 try {
                     currentRetry++
 
-                    if (isStoreStateEqual()) {
+                    if (isStoreStateEqual(store, key, value)) {
                         patchingState.status = true
                     
                         resolve(patchingState)

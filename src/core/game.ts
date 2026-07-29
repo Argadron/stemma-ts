@@ -537,9 +537,15 @@ export class Game<G extends GeometryTypes='2D'|'3D'> implements IGame<G> {
         else this.middlewares.push(middleware)
     }
 
-    public dispatch(command: ICommand) {
-        if (this.options.commandBusOptions?.usingCommangQueue) this.commandQueue.push(command) 
-        else this.proccessCmd(command)
+    public dispatch(command: Omit<ICommand, 'tick'> & { readonly tick?: number }) {
+        if (this.options.commandBusOptions?.usingCommangQueue) this.commandQueue.push({
+            ...command,
+            tick: command.tick ?? this.currentTick
+        }) 
+        else this.proccessCmd({
+            ...command,
+            tick: command.tick ?? this.currentTick
+        })
     }
 
     public start(fps=BASE_FPS) {

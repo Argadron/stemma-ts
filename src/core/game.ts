@@ -195,6 +195,15 @@ export class Game<G extends GeometryTypes='2D'|'3D'> implements IGame<G> {
     }
 
     /**
+     * Trigger plugins lifecycle hooks
+     * @param cmd - Current executing cmd
+     * @param context - Current context
+     */
+    private triggerPlugin(cmd: ICommand, context: CommandContext) {
+        this.plugins.forEach(plugin => plugin.afterCommandExecuted ? plugin.afterCommandExecuted(this, cmd, context) : null)
+    }
+
+    /**
      * Proccess a cmd
      * @param cmd - Cmd to process
      * @returns { void }
@@ -204,7 +213,6 @@ export class Game<G extends GeometryTypes='2D'|'3D'> implements IGame<G> {
         this.options.undoManager.push(this.save())
 
         const ctx = {}
-        const triggerPlugin = (context: CommandContext) => this.plugins.forEach(plugin => plugin.afterCommandExecuted ? plugin.afterCommandExecuted(this, cmd, context) : null)
 
         if (!cmd.isSystem) {
             let index = 0;
@@ -222,8 +230,7 @@ export class Game<G extends GeometryTypes='2D'|'3D'> implements IGame<G> {
                 }
                 else {
                     this.kernelExecute(cmd, ctx)
-
-                    triggerPlugin(ctx)
+                    this.triggerPlugin(cmd, ctx)
                 }
             }
 
@@ -236,8 +243,7 @@ export class Game<G extends GeometryTypes='2D'|'3D'> implements IGame<G> {
         }
         else {
             this.kernelExecute(cmd, ctx)
-
-            triggerPlugin(ctx)
+            this.triggerPlugin(cmd, ctx)
         }
     }
 

@@ -15,7 +15,9 @@ const [game, manager, map] = createGame({
     gameGeometry: "2D"
 })
 
-game.registerPlugin([new RegenerationPlugin(20)])
+const regenPlugin = new RegenerationPlugin(20)
+
+game.registerPlugin([regenPlugin])
 game.registerPlugin(new GraphicPlugin({
     appName: "Моя первая игра на stemma",
     assets: {
@@ -25,6 +27,7 @@ game.registerPlugin(new GraphicPlugin({
     }
 }))
 
+regenPlugin.firstMenu()
 const deligator = new Deligator({
     observe: game,
     source: game,

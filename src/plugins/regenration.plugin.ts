@@ -1,5 +1,5 @@
 import type { Game } from "@core";
-import { InjectCore, InjectLiveQuery, InjectLiveQueryObject, InjectStoreValue, OnCustomEvent, OnEvent, OnTick, When, OnTagAdded, OnTagDeleted, Chance, OnUIEvent } from "@decorators";
+import { InjectCore, InjectLiveQuery, InjectLiveQueryObject, InjectStoreValue, OnCustomEvent, OnEvent, OnTick, When, OnTagAdded, OnTagDeleted, Chance, OnUIEvent, Menu } from "@decorators";
 import type { IPlugin, IEventInfo } from "@interfaces";
 import { anyWorldObjectIsGameObject } from "@utils";
 import type { Entity, GameObject } from "@world"
@@ -71,6 +71,15 @@ export class RegenerationPlugin implements IPlugin {
     @OnTagDeleted({ tag: "stunned" })
     public listenDelete() {
         console.log('LISTEN TAG DELETED')
+    }
+
+    @Menu({
+        name: "менюшка"
+    })
+    public *firstMenu(): Generator<any, void, string | null> {
+        const choise = yield 'Ваш выбор?'
+
+        console.log('ВЫБОР -', choise)
     }
 
     public install(game: Game) {

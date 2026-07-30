@@ -25,7 +25,6 @@ export type MenuDecoratorBrowserProperties = { readonly button: HTMLElement, rea
 export type MenuDecoratorOptions = {
     readonly customUIPropeties?: MenuDecoratorCustomUIProperties;
     readonly browserProperties?: MenuDecoratorBrowserProperties;
-    readonly name: string;
 }
 
 /**

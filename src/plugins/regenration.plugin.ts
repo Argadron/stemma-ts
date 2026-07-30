@@ -73,9 +73,7 @@ export class RegenerationPlugin implements IPlugin {
         console.log('LISTEN TAG DELETED')
     }
 
-    @Menu({
-        name: "менюшка"
-    })
+    @Menu()
     public *firstMenu(): Generator<any, void, string | null> {
         const choise = yield 'Ваш выбор?'
 

@@ -12,9 +12,9 @@ import { exec } from "child_process"
  * @param customOutput - Custom UI output plugin options
  * @param { Game } core - Game, if your plugin doesnt has 'core' or 'game' property
  */
-export function Menu({ customUIPropeties, browserProperties, name }: MenuDecoratorOptions, core?: Game) {
+export function Menu({ customUIPropeties, browserProperties }: MenuDecoratorOptions={}, core?: Game) {
     return (target: any, methodName: string, descriptor: PropertyDescriptor) => {
-        registerAnyDecorator(target, methodName, 'menuList', { name }, 'METHOD')
+        registerAnyDecorator(target, methodName, 'menuList', null, 'METHOD')
 
         const original = descriptor.value
 

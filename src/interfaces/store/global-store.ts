@@ -22,6 +22,14 @@ export interface IGlobalStore {
      * @returns { CommandContext } - Key-value state
      */
     readonly getAll: () => CommandContext;
+
+    /**
+     * Delete value in global store
+     * @param key - Key to delete
+     * @param emit - If true, will be emitted globalStateChanged event
+     * @returns { boolean } - True if success delete, else false
+     */
+    readonly delete: (key: string, emit?: boolean) => boolean;
 }
 
 export interface IGlobalStoreOptions {

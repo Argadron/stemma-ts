@@ -1,5 +1,5 @@
-export * from "./regenration.plugin.js"
-export * from "./network.plgugin.js"
+export * from "./regeneration.plugin.js"
+export * from "./network.plugin.js"
 export * from "./canvas.plugin.js"
 export * from "./async.plugin.js"
 export * from "./console.plugin.js"

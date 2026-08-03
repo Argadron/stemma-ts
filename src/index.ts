@@ -24,7 +24,7 @@ export * from "./plugins/index.js"
  * @param options - Init game options
  * @returns { [game: Game, manager: IEntityManager, map: IGameMap] } - Array with main game iteract objects
  */
-export const createGame = <G extends GeometryTypes = '2D'>(options?: IInitGameOptions<G>): [game: Game, manager: IEntityManager<G>, map: IGameMap<G>] => {
+export const createGame = <G extends GeometryTypes = '2D'>(options?: IInitGameOptions<G>): [game: Game<G>, manager: IEntityManager<G>, map: IGameMap<G>] => {
     const game = new Game<G>(options)
 
     return [game, game.options.manager, game.options.map] as const

@@ -515,7 +515,7 @@ export class Game<G extends GeometryTypes='2D'|'3D'> implements IGame<G> {
         return Array.from(this.plugins.values())
     }
 
-    public save(cb?: SnapshotCallback): ISnapshot {
+    public save(cb?: SnapshotCallback): ISnapshot<GeometryToPosition<G>> {
         const snapshot = {
             entities: Array.from(this.options.manager.entities.values()).map((e) => e.toDTO()),
             objects: Array.from(this.options.map.objects.values()).map((o) => o.toDTO()),

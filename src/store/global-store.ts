@@ -40,4 +40,20 @@ export class GlobalStore implements IGlobalStore {
     public getAll<T extends CommandContext = CommandContext>(): T {
         return Object.fromEntries(this.state.entries()) as T
     }
+
+    public delete(key: string, emit=false) {
+        const oldValue = this.state.get(key)
+        const result = this.state.delete(key)
+
+        if (emit) this.options.game.processEvent<IGlobalStateChangedData>('globalStateChanged', {
+            eventTime: this.options.game.currentTick,
+            eventData: {
+                key,
+                oldValue,
+                newValue: null
+            }
+        })
+
+        return result
+    }
 }

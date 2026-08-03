@@ -1,0 +1,1 @@
+export type SignalHash = `signal_${number}_${number}`

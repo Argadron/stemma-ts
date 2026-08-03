@@ -62,7 +62,8 @@ import {
     useWO,
     useQuestion,
     useAlternative,
-    usePause
+    usePause,
+    useSignal
 } from "@utils";
 import type { Entity, GameObject } from "@world";
 import { ConflictResolverPlugin } from "@plugins";
@@ -436,6 +437,7 @@ export class Game<G extends GeometryTypes='2D'|'3D'> implements IGame<G> {
             useWO.prototype.game = this
             useQuestion.prototype.game = this
             usePause.prototype.game = this
+            useSignal.prototype.game = this
             
             if (!useAlternative.prototype) useAlternative.prototype = { game: this }
             else useAlternative.prototype.game = this

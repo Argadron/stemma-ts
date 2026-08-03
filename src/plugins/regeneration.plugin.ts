@@ -1,6 +1,6 @@
 import type { Game } from "@core";
 import { InjectCore, InjectLiveQuery, InjectLiveQueryObject, InjectStoreValue, OnCustomEvent, OnEvent, OnTick, When, OnTagAdded, OnTagDeleted, Chance, OnUIEvent, Menu } from "@decorators";
-import type { IPlugin, IEventInfo } from "@interfaces";
+import type { IPlugin, IEventInfo, Signal } from "@interfaces";
 import { anyWorldObjectIsGameObject } from "@utils";
 import type { Entity, GameObject } from "@world"
 
@@ -29,14 +29,23 @@ export class RegenerationPlugin implements IPlugin {
 
     private readonly REGENERATION_INTERVAL = 60;
     private readonly storePluginKey = `${this.name}:health_regen_value`
+    private readonly signal?: Signal | undefined
 
-    public constructor(health?: number) {
+    public constructor(health?: number, signal?: Signal) {
         this.HEALTH_REGEN_VALUE = health ?? 1
+        this.signal = signal
+        this.decorator()
+        this.when()
+        this.onStart({
+            eventTime: 0,
+            eventData: {}
+        })
+        this.listen()
     }
 
     @When({
         when: (game) => game.currentTick % 100 === 0
-    })
+    }, 'signal')
     public when() {
         console.log('WHEN')
     }
@@ -47,9 +56,9 @@ export class RegenerationPlugin implements IPlugin {
         if (g.currentTick % 10 === 0) g.options.store.set(this.storePluginKey, this.HEALTH_REGEN_VALUE++)
     }
 
-    @OnEvent('gameStarted')
+    @OnEvent('gameStarted', 'signal')
     public onStart(data: IEventInfo<any>) {
-
+        console.log('launched', data)
     }
 
     @OnUIEvent({ event: "click", id: "button" })
@@ -57,13 +66,13 @@ export class RegenerationPlugin implements IPlugin {
         console.log(e.target, 'TARGET')
     }
 
-    @Chance(50)
-    @OnCustomEvent('decorator')
+    @Chance(50, 'signal')
+    @OnCustomEvent('decorator', 'signal')
     public decorator() {
         console.log('DECORATOR EVENT')
     }
 
-    @OnTagAdded({ tag: "stunned" })
+    @OnTagAdded({ tag: "stunned" }, 'signal')
     public listen() {
         console.log('LISTEN TAG')
     }

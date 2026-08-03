@@ -1,7 +1,7 @@
 import type { Game } from "@core"
 import { CanvasPlugin, ConsolePlugin, GraphicPlugin } from "@plugins"
 import type { MenuDecoratorOptions, MenuOutputType } from "@types"
-import { registerAnyDecorator } from "@decorators"
+import { generateSignalProxy, isStage3Dec, registerAnyDecorator } from "@decorators"
 import { exec } from "child_process"
 
 /**
@@ -12,18 +12,23 @@ import { exec } from "child_process"
  * @param customOutput - Custom UI output plugin options
  * @param { Game } core - Game, if your plugin doesnt has 'core' or 'game' property
  */
-export function Menu({ customUIPropeties, browserProperties }: MenuDecoratorOptions={}, core?: Game) {
-    return (target: any, methodName: string, descriptor: PropertyDescriptor) => {
-        registerAnyDecorator(target, methodName, 'menuList', null, 'METHOD')
+export function Menu({ customUIPropeties, browserProperties }: MenuDecoratorOptions={}, core?: Game, signal?: string) {
+    return (target: any, methodName: any, descriptor: PropertyDescriptor) => {
+        let liveInstance: any = undefined
+        
+        if (isStage3Dec(target, methodName)) methodName.addInitializer(function (this: any) {
+            liveInstance = this
+        })
 
         const original = descriptor.value
 
-        descriptor.value = function (...args: any[]) {
+        descriptor.value = function (this: any, ...args: any[]) {
             const iterator: Generator = original.apply(this, args)
             const plugin = this as any
             const game = plugin.core as Game ?? plugin.game as Game ?? core
 
             if (!game) throw new Error('[Menu]: Decorator error. Game is undefined')
+            if (!liveInstance) liveInstance = this
 
             const plugins = game.getAllPlugins().map(plugin => plugin.name)
 
@@ -94,6 +99,8 @@ export function Menu({ customUIPropeties, browserProperties }: MenuDecoratorOpti
                 step()
             })
         }
+
+        registerAnyDecorator(target, methodName, 'menuList', null, 'METHOD', signal ? (generateSignalProxy(() => liveInstance, signal, descriptor)) : undefined)
 
         return descriptor
     }

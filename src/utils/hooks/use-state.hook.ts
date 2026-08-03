@@ -55,6 +55,10 @@ export function useState<T = any>(key: string, initialValue?: T, core?: Game): S
         if (d.eventData.key !== key) return;
         else value = d.eventData.newValue
     })
+    const deleteFunc = () => {
+        unSub()
+        store.delete(key)
+    }
 
     const realValue = {
         get value() {
@@ -62,5 +66,5 @@ export function useState<T = any>(key: string, initialValue?: T, core?: Game): S
         }
     }
 
-    return [realValue, setter, unSub] as const
+    return [realValue, setter, deleteFunc] as const
 }

@@ -6,7 +6,7 @@ import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT }
 import { BluePrintsFactory, EffectFactory, IteractionsFactory, QuestsFactory, SoundsFactory } from "@factories";
 import { loggerMiddleware } from "@middlewares";
 import { RegenerationPlugin, NetworkPlguin, AsyncPlugin, GraphicPlugin } from "@plugins";
-import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer, useState, useWO, useQuestion, useAlternative, createLinksFromAttack, usePause } from "@utils";
+import { useVisibility, checkTwoPositions, useValidation, useLink, useAsyncState, useServer, useState, useWO, useQuestion, useAlternative, createLinksFromAttack, usePause, useSignal } from "@utils";
 
 const [game, manager, map] = createGame({
     usingEntityMiddlewares: true,
@@ -15,7 +15,12 @@ const [game, manager, map] = createGame({
     gameGeometry: "2D"
 })
 
-const regenPlugin = new RegenerationPlugin(20)
+const signal = useSignal({
+    trigger: 'super_trigger',
+
+})
+
+const regenPlugin = new RegenerationPlugin(20, signal)
 
 game.registerPlugin([regenPlugin])
 game.registerPlugin(new GraphicPlugin({
@@ -26,6 +31,12 @@ game.registerPlugin(new GraphicPlugin({
         ZOMBIE: "😎"
     }
 }))
+
+signal.sub((data: any) => console.log('sub data', data))
+
+signal.signal(123)
+
+game.options.store.set(signal.hash, 'super_trigger')
 
 regenPlugin.firstMenu()
 const deligator = new Deligator({

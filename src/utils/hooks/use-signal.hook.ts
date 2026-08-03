@@ -14,7 +14,7 @@ export function useSignal(options?: SignalOptions, core?: Game): Signal {
     const signalHash = `signal_${createId()}_${game.currentTick}` satisfies SignalHash
     const store = game.options.store
 
-    const listeners = [...options?.links ?? []]
+    let listeners = [...options?.links ?? []]
     
     const unSub = options?.trigger ? game.on<IGlobalStateChangedData>('globalStateChanged', (opts, ev, data) => {
         if (data.eventData.key === signalHash && data.eventData.newValue === options?.trigger) signal(data)
@@ -26,6 +26,8 @@ export function useSignal(options?: SignalOptions, core?: Game): Signal {
             if (unSub) unSub()
 
             store.delete(signalHash)
+
+            listeners = []
         }
     }
 

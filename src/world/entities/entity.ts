@@ -14,7 +14,7 @@ import type {
     IGameEffect,
 } from "@interfaces";
 import type { EntityManager } from "@core";
-import type { CreateUsableItemMetadata, GeometryToPosition, GeometryTypes, Position, Position3D } from "@types";
+import type { CreateUsableItemMetadata, GeometryTypes, Position, Position3D } from "@types";
 import {
     convertGameObjectToInventoryItem, 
     createId, 

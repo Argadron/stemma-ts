@@ -53,12 +53,10 @@ export class Entity<G extends GeometryTypes='2D'|'3D', T extends Position | Posi
         const id = this.tagsIdsMap.get(tag)
 
         if (!id) {
-            this.nextTagId++
+            const nextId = this.nextTagId++
 
             if (this.nextTagId >= 128) throw new Error(`[Game]: 128 tags per entity limit occured`)
             else {
-                const nextId = this.nextTagId++
-
                 this.tagsIdsMap.set(tag, nextId)
 
                 return nextId

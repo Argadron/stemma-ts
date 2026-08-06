@@ -116,3 +116,9 @@ export interface IPlugin {
      */
     readonly afterCommandExecuted?: LifecycleCallback;
 }
+
+export interface Subscriber<T = any> {
+    readonly next: (v: T) => void;
+    readonly error?: (reason: any) => void;
+    readonly completed: (v?: T) => void;
+}

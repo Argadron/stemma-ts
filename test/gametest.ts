@@ -1,5 +1,5 @@
 import { CommandType, FactoryKeys, GameObjectEnum } from "@enums";
-import createGame, { Deligator, Scener } from "@";
+import createGame, { Deligator, Dynamic, Scener } from "@";
 import type { IAttackData, IClient, IItemPickedUpErrorData, IMovedData, IObjectCreatedCollisionData, IObjectCreatedErrorData, IServer, IServerCallbackReturn, IUseValidationResult, IUseVisibilityContext } from "@interfaces";
 import type { CreateChestMetadata, CreateItemMetadata, CreateTowerMetadata, NetworkCallback, Position, Quad } from "@types";
 import { BASE_SEARCH_RADIUS, USE_VALIDATION_EVENT_PREFIX, USE_VISIBILITY_EVENT } from '@const'
@@ -48,6 +48,21 @@ const deligator = new Deligator({
 const asyncPlugin = new AsyncPlugin(500)
 
 game.registerPlugin(asyncPlugin)
+
+const dynamic = new Dynamic({
+    next: (v) => console.log(v),
+    error: (v) => console.error(v),
+    completed: (v) => console.log(`Completed: ${v}`)
+}, 1)
+
+dynamic.mutate(2)
+dynamic.mutateAsync(new Promise((resolve) => setTimeout(() => resolve(2), 5000)))
+dynamic.mutate(3)
+dynamic.complete()
+
+console.log(await dynamic.read())
+
+await new Promise(resolve => setTimeout(resolve, 50000))
 
 const scener = new Scener(game)
 

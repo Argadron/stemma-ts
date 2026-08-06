@@ -1,5 +1,2 @@
-export * from "./game.js"
-export * from "./manager.js"
-export * from "./undo-manager.js"
-export * from "./deligator.js"
-export * from "./scener.js"
+export * from "./main/index.js"
+export * from "./support/index.js"

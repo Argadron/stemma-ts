@@ -21,7 +21,7 @@ import type { Subscriber } from "@interfaces";
  */
 export class Dynamic<T = any> {
     private activeMutation = false;
-    private subs = new Set<Function>()
+    private subs = new Set<(v: T) => T | Promise<T>>()
     private isCompleted = false;
     private currentValue: T | undefined;
     
@@ -52,6 +52,8 @@ export class Dynamic<T = any> {
                         this.currentValue = v
                         this.observers.forEach(subscriber => subscriber.next(v))
                     }
+
+                    return v
                 })
             }
             else {
@@ -80,10 +82,10 @@ export class Dynamic<T = any> {
                                 reject(signal.reason)
                             }
 
-                            abortHandler = (e) => {
+                            abortHandler = () => {
                                 this.activeMutation = false
 
-                                reject(e)
+                                reject(signal.reason)
                             }
 
                             signal.addEventListener('abort', abortHandler)
@@ -91,20 +93,55 @@ export class Dynamic<T = any> {
                     })
                 ])
 
-                this.activeMutation = false
                 this.currentValue = result
 
                 if (final) this.tryComplete(result)
                 else this.observers.forEach(subscriber => subscriber.next(result))
-                if (this.subs.size !== 0) {
+
+                while (this.subs.size !== 0) {
                     const queue = Array.from(this.subs)
 
                     this.subs.clear()
 
-                    for (const cb of queue) await cb(this.currentValue)
+                    let newValue: T = this.currentValue
+
+                    for (const cb of queue) newValue = await cb(newValue)
+
+                    this.currentValue = newValue
                 }
+
+                this.activeMutation = false
             }
-            else this.subs.add(() => this.mutateAsync(v, final, signal))
+            else this.subs.add(async (newValue) => {
+                let internalAbortHandler: VoidFunction | undefined;
+
+                try {
+                    const result = await Promise.race([
+                        v,
+                        new Promise<never>((_, reject) => {
+                            if (signal) {
+                                if (signal.aborted) return reject(signal.reason)
+                                else {
+                                    internalAbortHandler = () => reject(signal.reason)
+
+                                    signal.addEventListener('abort', internalAbortHandler)
+                                }
+                            }
+                        })
+                    ])
+
+                    if (final) this.tryComplete(result)
+                    else this.observers.forEach(subscriber => subscriber.next(result))
+                    
+                    return result
+                } catch(error) {
+                    this.observers.forEach(subscriber => subscriber.error?.(error))
+
+                    return this.currentValue ?? newValue
+                } finally {
+                    if (signal && internalAbortHandler) signal.removeEventListener('abort', internalAbortHandler)
+                }
+            })
         } catch (error) {
             this.activeMutation = false
             this.observers.forEach(subscriber => subscriber.error ? subscriber.error(error) : null)
@@ -115,12 +152,20 @@ export class Dynamic<T = any> {
 
     public async read(): Promise<T | undefined> {
         if (!this.activeMutation) return this.currentValue
-        else return new Promise((resolve) => this.subs.add((v: T) => resolve(v)))
+        else return new Promise((resolve) => this.subs.add((v: T) => {
+            resolve(v)
+
+            return v
+        }))
     }
 
     public complete(v?: T) {
         if (!this.activeMutation) return this.tryComplete(v)
-        else this.subs.add(() => this.tryComplete(v))
+        else this.subs.add((newValue) => {
+            this.tryComplete(v)
+
+            return v ?? newValue
+        })
     }
 
     public error(reason?: T) {
@@ -139,6 +184,7 @@ export class Dynamic<T = any> {
         this.subs.clear()
         this.observers.clear()
         this.currentValue = undefined
+        this.activeMutation = false
     }
 
     public subscribe(sub: Subscriber<T>) {

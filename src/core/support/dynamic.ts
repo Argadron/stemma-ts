@@ -24,52 +24,52 @@ export class Dynamic<T = any> {
     private subs = new Set<Function>()
     private isCompleted = false;
     private currentValue: T | undefined;
+    
+    private readonly observers = new Set<Subscriber<T>>();
 
     private tryComplete(v?: T) {
         if (!this.isCompleted) {
             this.isCompleted = true
-            this.subscriber.completed(v)
-
-            return true
+            this.currentValue = v
+            this.observers.forEach(subscriber => subscriber.completed(this.currentValue))
         }
-        else return false
     }
 
-    public constructor(private readonly subscriber: Subscriber<T>, initialValue?: T) {
+    public constructor(subscriber?: Subscriber<T>, initialValue?: T) {
         this.currentValue = initialValue
+        
+        if (subscriber) this.observers.add(subscriber)
     }
 
     public mutate(v: T, final=false) {
+        if (this.isCompleted) return;
+
         try {
             if (this.activeMutation) {
                 this.subs.add(() => {
-                    if (final) {
-                        if (!this.isCompleted) {
-                            this.isCompleted = true
-                            this.currentValue = v
-                            this.subscriber.completed(v)
-                        }
-                    }
+                    if (final) this.tryComplete(v)
                     else {
                         this.currentValue = v
-                        this.subscriber.next(v)
+                        this.observers.forEach(subscriber => subscriber.next(v))
                     }
                 })
             }
             else {
                 this.currentValue = v
-                this.subscriber.next(v)
+                this.observers.forEach(subscriber => subscriber.next(v))
             }
         } catch (error) {
-            if (this.subscriber.error) this.subscriber.error(error)
+            this.observers.forEach(subscriber => subscriber.error ? subscriber.error(error) : null)
         }
     }
 
     public async mutateAsync(v: Promise<T>, final=false, signal?: AbortSignal) {
+        let abortHandler: ((e: Event) => void) | undefined;
+
         try {
             if (!this.activeMutation) {
                 this.activeMutation = true
-
+                
                 const result = await Promise.race([
                     v,
                     new Promise<never>((_, reject) => {
@@ -80,11 +80,13 @@ export class Dynamic<T = any> {
                                 reject(signal.reason)
                             }
 
-                            signal.addEventListener('abort', (e) => {
+                            abortHandler = (e) => {
                                 this.activeMutation = false
 
                                 reject(e)
-                            })
+                            }
+
+                            signal.addEventListener('abort', abortHandler)
                         }
                     })
                 ])
@@ -93,16 +95,21 @@ export class Dynamic<T = any> {
                 this.currentValue = result
 
                 if (final) this.tryComplete(result)
-                else this.subscriber.next(result)
+                else this.observers.forEach(subscriber => subscriber.next(result))
                 if (this.subs.size !== 0) {
-                    this.subs.forEach(cb => cb(result))
+                    const queue = Array.from(this.subs)
+
                     this.subs.clear()
+
+                    for (const cb of queue) await cb(this.currentValue)
                 }
             }
+            else this.subs.add(() => this.mutateAsync(v, final, signal))
         } catch (error) {
             this.activeMutation = false
-
-            if (this.subscriber.error) this.subscriber.error(error)
+            this.observers.forEach(subscriber => subscriber.error ? subscriber.error(error) : null)
+        } finally {
+            if (signal && abortHandler) signal.removeEventListener('abort', abortHandler)
         }
     }
 
@@ -117,18 +124,31 @@ export class Dynamic<T = any> {
     }
 
     public error(reason?: T) {
-        if (this.subscriber.error) {
-            this.subscriber.error(reason)
+        this.observers.forEach(subscriber => {
+            if (subscriber.error) {
+                subscriber.error(reason)
 
-            return true
-        }
-        else return false
+                return true
+            }
+            else return false
+        })
     }
 
     public destroy() {
         this.isCompleted = true
         this.subs.clear()
+        this.observers.clear()
         this.currentValue = undefined
+    }
+
+    public subscribe(sub: Subscriber<T>) {
+        this.observers.add(sub)
+
+        return () => this.observers.delete(sub)
+    }
+
+    public unSubscribe(sub: Subscriber<T>) {
+        return this.observers.delete(sub)
     }
 
     public async transform<Mutation extends T>(fn: (value: T | undefined) => Mutation | Promise<Mutation>) {

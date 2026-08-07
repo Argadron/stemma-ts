@@ -66,7 +66,7 @@ dynamic.complete()
 
 console.log(await dynamic.read())
 
-await new Promise(resolve => setTimeout(resolve, 50000))
+dynamic.destroy()
 
 const scener = new Scener(game)
 

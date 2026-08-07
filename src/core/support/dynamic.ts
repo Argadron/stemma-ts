@@ -46,35 +46,62 @@ export class Dynamic<T = any> {
                     if (final) {
                         if (!this.isCompleted) {
                             this.isCompleted = true
+                            this.currentValue = v
                             this.subscriber.completed(v)
                         }
                     }
-                    else this.subscriber.next(v)
+                    else {
+                        this.currentValue = v
+                        this.subscriber.next(v)
+                    }
                 })
             }
-            else this.subscriber.next(v)
+            else {
+                this.currentValue = v
+                this.subscriber.next(v)
+            }
         } catch (error) {
             if (this.subscriber.error) this.subscriber.error(error)
         }
     }
 
-    public async mutateAsync(v: Promise<T>, final=false) {
+    public async mutateAsync(v: Promise<T>, final=false, signal?: AbortSignal) {
         try {
             if (!this.activeMutation) {
                 this.activeMutation = true
 
-                const result = await v
+                const result = await Promise.race([
+                    v,
+                    new Promise<never>((_, reject) => {
+                        if (signal) {
+                            if (signal.aborted) {
+                                this.activeMutation = false
+                                
+                                reject(signal.reason)
+                            }
+
+                            signal.addEventListener('abort', (e) => {
+                                this.activeMutation = false
+
+                                reject(e)
+                            })
+                        }
+                    })
+                ])
 
                 this.activeMutation = false
+                this.currentValue = result
 
+                if (final) this.tryComplete(result)
+                else this.subscriber.next(result)
                 if (this.subs.size !== 0) {
                     this.subs.forEach(cb => cb(result))
                     this.subs.clear()
                 }
-                if (final) this.tryComplete(result)
-                else this.subscriber.next(result)
             }
         } catch (error) {
+            this.activeMutation = false
+
             if (this.subscriber.error) this.subscriber.error(error)
         }
     }
@@ -96,5 +123,20 @@ export class Dynamic<T = any> {
             return true
         }
         else return false
+    }
+
+    public destroy() {
+        this.isCompleted = true
+        this.subs.clear()
+        this.currentValue = undefined
+    }
+
+    public async transform<Mutation extends T>(fn: (value: T | undefined) => Mutation | Promise<Mutation>) {
+        const value = await this.read()
+        const mutatedValue = await fn(value)
+
+        this.mutate(mutatedValue)
+
+        return mutatedValue
     }
 }

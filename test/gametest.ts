@@ -58,6 +58,10 @@ const dynamic = new Dynamic({
 dynamic.mutate(2)
 dynamic.mutateAsync(new Promise((resolve) => setTimeout(() => resolve(2), 5000)))
 dynamic.mutate(3)
+dynamic.transform(v => {
+    if (v) return v*2
+    else return 6
+})
 dynamic.complete()
 
 console.log(await dynamic.read())

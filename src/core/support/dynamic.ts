@@ -168,7 +168,7 @@ export class Dynamic<T = any> {
         })
     }
 
-    public error(reason?: T) {
+    public error(reason?: any) {
         this.observers.forEach(subscriber => {
             if (subscriber.error) {
                 subscriber.error(reason)

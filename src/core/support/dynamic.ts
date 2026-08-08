@@ -66,6 +66,8 @@ export class Dynamic<T = any> {
     }
 
     public async mutateAsync(v: Promise<T>, final=false, signal?: AbortSignal) {
+        if (this.isCompleted) return;
+
         let abortHandler: ((e: Event) => void) | undefined;
 
         try {
@@ -92,6 +94,8 @@ export class Dynamic<T = any> {
                         }
                     })
                 ])
+
+                if (signal && abortHandler) signal.removeEventListener('abort', abortHandler)
 
                 this.currentValue = result
 

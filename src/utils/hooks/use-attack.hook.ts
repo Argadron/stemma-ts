@@ -11,6 +11,8 @@ import type { IDeadData } from "@interfaces";
  * @returns { { isDead: boolean } } - GameObject with dead info
  */
 export function useAttack(dmg: number, attacker: Entity | GameObject, victim: Entity, core?: Game): { isDead: boolean; } {
+    if (victim.isDead) return { isDead: true }
+
     const game = useAttack.prototype.game as Game || core
 
     victim.health = victim.health - (dmg >= 0 ? dmg : 0)

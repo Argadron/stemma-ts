@@ -57,6 +57,8 @@ export class Dynamic<T = any> {
                 })
             }
             else {
+                if (final) return this.tryComplete(v)
+
                 this.currentValue = v
                 this.observers.forEach(subscriber => subscriber.next(v))
             }

@@ -1,6 +1,6 @@
 import type { Game } from "@core";
-import type { IServerCallbackReturn } from "@interfaces";
-import { NetworkPlguin } from "@plugins";
+import type { IPlugin, IServerCallbackReturn } from "@interfaces";
+import { NetworkPlugin, type INetworkPluginBase } from "@plugins";
 import type { ServerCallback } from "@types";
 
 /**
@@ -13,11 +13,11 @@ import type { ServerCallback } from "@types";
 export function useServer(cb: ServerCallback, core?: Game): void {
     const game = useServer.prototype.game as Game || core
 
-    const network = game.getPlugin(NetworkPlguin.name)
+    const network = game.getPlugin(NetworkPlugin.name)
 
     if (!network) throw new Error(`[useServer]: Network plugin doesnt enabled`)
     else {
-        const server = (network as NetworkPlguin).networkServer
+        const server = (network as IPlugin & INetworkPluginBase).networkServer
         const signature = `${Math.random() * 1000}_${Date.now()}_${game.currentTick}`
 
         server.emit('nextSignature', signature)

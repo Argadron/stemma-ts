@@ -3,10 +3,9 @@ import type { IPlugin, IServer } from "@interfaces";
 import type { Default, NetworkCallback } from "@types";
 import type { CommandType } from "@enums";
 
-interface INetworkPluginBase {
+export interface INetworkPluginBase {
     get networkServer(): IServer;
 }
-
 export type NetworkType = 'SERVER' | 'CLIENT';
 export interface INetworkClient {
     /**
